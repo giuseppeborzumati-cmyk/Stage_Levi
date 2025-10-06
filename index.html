@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prenotazione Stage Orientamento ITSCG Primo Levi</title>
+    <!-- Caricamento Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Importazione libreria jsPDF per la generazione di PDF (client-side) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        /* Stile personalizzato per un look moderno */
+        body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
+        .card { transition: all 0.3s ease-in-out; }
+        .card:hover { transform: translateY(-3px); box-shadow: 0 15px 25px -5px rgba(0, 0, 0, 0.1), 0 5px 10px -5px rgba(0, 0, 0, 0.04); }
+        .spinner { border: 4px solid rgba(0, 0, 0, 0.1); border-top-color: #3b82f6; border-radius: 50%; width: 1.5rem; height: 1.5rem; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        /* Stile per i modali */
+        .modal-content { max-height: 80vh; overflow-y: auto; }
+        /* Stile per la barra statica */
+        .stat-bar { height: 10px; border-radius: 5px; }
+    </style>
+    <!-- Configurazione per il font Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <!-- Intestazione con Logo e Stato Connessione -->
+    <header class="bg-white shadow-xl sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+            <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-900 flex items-center">
+                <img src="https://placehold.co/40x40/3b82f6/ffffff?text=PL" onerror="this.onerror=null; this.src='https://placehold.co/40x40/3b82f6/ffffff?text=PL';" alt="Logo Primo Levi" class="rounded-full mr-3 border-2 border-indigo-600">
+                Stage Orientamento <span class="ml-2 text-indigo-600">ITSCG Primo Levi</span>
+            </h1>
+            <div class="flex items-center space-x-4">
+                <!-- Stato Connessione Database (Bollino) -->
+                <div id="db-status" class="flex items-center space-x-2 text-sm font-medium">
+                    <span id="status-text" class="text-gray-600 hidden sm:inline">Caricamento DB...</span>
+                    <span id="status-dot" class="w-4 h-4 rounded-full bg-gray-400 shadow-md"></span>
+                </div>
+                <button id="chatbot-btn" class="flex items-center bg-indigo-600 text-white p-2 rounded-lg shadow-lg hover:bg-indigo-700 transition duration-150">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+                    <span class="ml-2 hidden lg:inline">Assistenza Chat</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
+        <!-- Message Box per feedback utente -->
+        <div id="message-box" class="hidden fixed top-20 right-5 p-4 rounded-lg shadow-xl text-white z-50 transition-opacity duration-300"></div>
+        
+        <!-- Loading Indicator -->
+        <div id="loading" class="flex justify-center items-center py-12 text-gray-600">
+            <div class="spinner mr-3"></div> <span class="text-lg font-medium">Caricamento disponibilità...</span>
+        </div>
+
+        <!-- Sezione Informativa sul Ministage (Dettagliata) -->
+        <section class="mb-12 p-8 bg-white rounded-2xl shadow-2xl border-l-8 border-indigo-600">
+            <h2 class="text-3xl font-extrabold text-gray-900 mb-4">Il Ministage di Orientamento ITSCG Primo Levi</h2>
+            <p class="text-gray-700 leading-relaxed text-base mb-6">Per supportare al meglio l'importante scelta della scuola superiore, il nostro Istituto organizza dei **Ministage di Orientamento**, che permetteranno agli studenti di terza media di vivere un'esperienza diretta all'interno delle nostre aule.</p>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Cos'è un Ministage -->
+                <div class="p-4 bg-indigo-50 rounded-lg">
+                    <h3 class="font-bold text-lg text-indigo-700 mb-2 flex items-center">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M3.636 5.636l.707.707M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                        Cos'è?
+                    </h3>
+                    <p class="text-sm text-gray-600">Un'opportunità per gli studenti di trascorrere alcune ore presso la nostra scuola, inseriti direttamente in una classe per sperimentare in modo **immersivo** l'ambiente scolastico e i metodi di insegnamento, facilitando così una scelta più consapevole.</p>
+                </div>
+                <!-- Come si svolge -->
+                <div class="p-4 bg-indigo-50 rounded-lg">
+                    <h3 class="font-bold text-lg text-indigo-700 mb-2 flex items-center">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        Svolgimento
+                    </h3>
+                    <p class="text-sm text-gray-600">Lo studente partecipante sarà assegnato a una classe e prenderà parte a **due ore di lezione curricolari** (es. Matematica e Italiano) come uditore attivo. L'esperienza complessiva dura circa due ore, con supporto costante di un docente o un tutor.</p>
+                </div>
+                <!-- Obiettivi -->
+                <div class="p-4 bg-indigo-50 rounded-lg">
+                    <h3 class="font-bold text-lg text-indigo-700 mb-2 flex items-center">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                        Obiettivi
+                    </h3>
+                    <ul class="list-disc list-inside text-sm text-gray-600 space-y-1">
+                        <li>Valutare l'ambiente scolastico.</li>
+                        <li>Comprendere le materie e il livello richiesto.</li>
+                        <li>Sciogliere i dubbi sulla scelta del percorso.</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <p class="mt-6 text-xs text-gray-500">Organizzazione a cura delle Funzioni Orientamento: Prof. ssa Laura Corvi e Prof. ssa Maria Grazia Calabrese.</p>
+            <p class="text-xs text-gray-500">ITSCG PRIMO LEVI DI SEREGNO VIA BRIANTINA 68</p>
+        </section>
+
+        <!-- Sezione Studenti -->
+        <section id="student-view" class="space-y-12">
+            <h2 class="text-4xl font-extrabold text-gray-800 text-center mb-10">Scegli il tuo Stage di Orientamento</h2>
+            <div id="courses-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Le schede dei corsi saranno generate qui -->
+            </div>
+            
+            <!-- Link Cancella Prenotazione (meno invasivo) -->
+            <div class="text-center pt-8 border-t border-gray-200">
+                <p class="text-gray-500 text-sm">Hai già prenotato e devi cambiare idea?</p>
+                <button id="open-cancellation-modal-btn" class="inline-flex items-center mt-2 px-4 py-2 text-md font-medium text-red-600 bg-white border border-transparent rounded-lg hover:text-red-700 hover:bg-red-50 transition duration-150 shadow-md hover:shadow-lg">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    Clicca qui per Annullare una Prenotazione
+                </button>
+            </div>
+        </section>
+
+        <!-- Modale di Prenotazione -->
+        <div id="booking-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-70 flex items-center justify-center z-50 p-4">
+            <div class="modal-content relative bg-white p-6 sm:p-8 w-full max-w-lg rounded-xl shadow-2xl">
+                <h3 class="text-2xl font-bold mb-4 text-indigo-600">Conferma Prenotazione Stage</h3>
+                <p class="text-gray-600 mb-2">Stage: <span id="modal-course-name" class="font-bold"></span></p>
+                <p class="text-gray-600 mb-4">Data: <span id="modal-date" class="font-bold"></span></p>
+                
+                <form id="booking-form" class="space-y-4">
+                    <input type="hidden" id="booking-course-id">
+                    <input type="hidden" id="booking-date">
+
+                    <div>
+                        <label for="student-name" class="block text-sm font-medium text-gray-700">Nome e Cognome</label>
+                        <input type="text" id="student-name" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                    </div>
+                    <div>
+                        <label for="student-email" class="block text-sm font-medium text-gray-700">Email</label>
+                        <input type="email" id="student-email" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                    </div>
+                    <div>
+                        <label for="student-phone" class="block text-sm font-medium text-gray-700">Cellulare</label>
+                        <input type="tel" id="student-phone" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                    </div>
+                    <div>
+                        <label for="student-motivation" class="block text-sm font-medium text-gray-700">Motivazione Iscrizione (Breve)</label>
+                        <textarea id="student-motivation" rows="2" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500" placeholder="Es. Desidero approfondire l'indirizzo prima di scegliere."></textarea>
+                    </div>
+                    <div>
+                        <label for="student-interest" class="block text-sm font-medium text-gray-700">Perché interessato a questo indirizzo?</label>
+                        <textarea id="student-interest" rows="2" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500" placeholder="Es. Sono bravo in matematica e mi piace l'economia."></textarea>
+                    </div>
+                    
+                    <div class="flex justify-end space-x-4 pt-4">
+                        <button type="button" id="close-modal-btn" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition duration-150">Annulla</button>
+                        <button type="submit" id="confirm-booking-btn" class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 transition duration-150 shadow-md">Conferma e Genera PDF</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Modale di Cancellazione -->
+        <div id="cancellation-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-70 flex items-center justify-center z-50 p-4">
+            <div class="modal-content relative bg-white p-6 sm:p-8 w-full max-w-lg rounded-xl shadow-2xl">
+                <h3 class="text-2xl font-bold mb-6 text-red-600">Cancellazione Prenotazione</h3>
+                <p class="text-gray-600 mb-4 text-sm">Per annullare, inserisci il codice di prenotazione che trovi nel PDF di conferma, insieme al tuo nome e cognome per verifica.</p>
+                
+                <form id="cancellation-form" class="space-y-4">
+                    <div>
+                        <label for="cancellation-code" class="block text-sm font-medium text-gray-700">Codice Prenotazione</label>
+                        <input type="text" id="cancellation-code" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500" placeholder="Esempio: X3H4K9J2">
+                    </div>
+                    <div>
+                        <label for="cancellation-name" class="block text-sm font-medium text-gray-700">Nome e Cognome</label>
+                        <input type="text" id="cancellation-name" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500">
+                    </div>
+                    <div>
+                        <label for="cancellation-reason" class="block text-sm font-medium text-gray-700">Motivazione della Cancellazione</label>
+                        <textarea id="cancellation-reason" rows="2" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500" placeholder="Es. Ho già partecipato ad un altro stage."></textarea>
+                    </div>
+                    
+                    <div class="flex justify-end space-x-4 pt-4">
+                        <button type="button" id="close-cancellation-modal-btn" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition duration-150">Annulla</button>
+                        <button type="submit" id="confirm-cancellation-btn" class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 transition duration-150 shadow-md">Conferma Cancellazione</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Sezione Docenti (Area Riservata Centrata) -->
+        <div class="mt-16 pt-8 border-t border-gray-300 flex justify-center">
+            <div class="w-full max-w-4xl">
+                <h3 class="text-3xl font-extrabold text-gray-800 mb-6 text-center">Area Riservata Docenti</h3>
+                <!-- ID Utente è necessario per la risoluzione dei problemi e l'identificazione -->
+                <p class="text-xs text-gray-500 mb-6 text-center">ID Utente Corrente: <span id="current-user-id" class="font-mono text-xs bg-gray-100 p-1 rounded">Caricamento...</span></p>
+
+                <!-- Form di Login Docenti -->
+                <form id="teacher-login-form" class="max-w-md mx-auto bg-white p-6 rounded-2xl shadow-2xl space-y-5 border-t-8 border-green-600">
+                    <h4 class="text-xl font-bold text-gray-700 text-center">Accesso Amministrativo (Tramite Firebase Auth)</h4>
+                    <p class="text-sm text-gray-500 text-center text-red-500 font-medium">RICHIEDE: Utente creato in Firebase Authentication (Email/Password)</p>
+                    <div>
+                        <label for="teacher-email" class="block text-sm font-medium text-gray-700">Email Docente</label>
+                        <input type="email" id="teacher-email" value="orientamento@leviseregno.edu.it" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500">
+                    </div>
+                    <div>
+                        <label for="teacher-password" class="block text-sm font-medium text-gray-700">Password</label>
+                        <input type="password" id="teacher-password" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500">
+                    </div>
+                    <button type="submit" class="w-full px-4 py-3 text-lg font-semibold text-white bg-green-600 rounded-md hover:bg-green-700 transition duration-150 shadow-lg">Accedi alla Dashboard</button>
+                    <p id="login-error" class="text-red-500 text-sm hidden text-center pt-2 font-medium">Credenziali non valide o errore di connessione.</p>
+                </form>
+
+                <!-- Dashboard Docenti -->
+                <div id="teacher-dashboard" class="hidden mt-10 space-y-10">
+                    <div class="flex justify-between items-center mb-6">
+                        <h4 class="text-3xl font-extrabold text-green-700">Riepilogo e Statistiche</h4>
+                        <button id="logout-btn" class="px-4 py-2 text-sm font-medium text-red-600 bg-white border border-red-300 rounded-lg hover:bg-red-50 transition duration-150 shadow-sm">
+                            Logout
+                        </button>
+                    </div>
+
+                    <!-- Statistiche Grafiche: Divisione per Indirizzo e Data -->
+                    <div id="stats-container" class="bg-white p-6 rounded-2xl shadow-2xl border-t-8 border-green-600">
+                        <h5 class="text-xl font-bold mb-6 text-gray-800">Statistiche Prenotazioni: Occupazione Posti (Max ${MAX_SLOTS})</h5>
+                        <div id="booking-stats" class="space-y-4">
+                            <!-- Le barre statistiche saranno generate qui -->
+                            <p class="text-gray-500 italic text-sm text-center">Caricamento statistiche...</p>
+                        </div>
+                    </div>
+
+                    <!-- Archivio PDF Generati -->
+                    <div id="pdf-list-section">
+                        <h5 class="text-xl font-bold mb-4 text-gray-800">Archivio Documenti PDF (Conferme/Cancellazioni)</h5>
+                        <div class="bg-white p-4 rounded-lg shadow-xl border">
+                            <ul id="pdf-list" class="divide-y divide-gray-100">
+                                <!-- I link ai PDF saranno inseriti qui -->
+                            </ul>
+                            <p id="no-pdfs-message" class="text-gray-500 text-sm italic mt-2 hidden">Nessun documento PDF generato.</p>
+                        </div>
+                    </div>
+
+                    <!-- Lista Prenotazioni Dettagliata -->
+                    <div id="booking-data-table">
+                        <h5 class="text-xl font-bold mb-4 text-gray-800">Dati di Prenotazione Totali</h5>
+                        <div class="overflow-x-auto bg-white rounded-lg shadow border">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Studente</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Corso e Data</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contatti</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Codice</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="bookings-list" class="bg-white divide-y divide-gray-200">
+                                    <!-- Le prenotazioni saranno inserite qui -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Importazioni Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, addDoc, onSnapshot, collection, query, serverTimestamp, getDocs, deleteDoc, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Variabili Globali fornite dall'ambiente Canvas
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        // Parsing della configurazione Firebase fornita dall'ambiente
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+        
+        let db, auth;
+        let currentUserId = null;
+        let isAuthReady = false;
+        let isTeacherLoggedIn = false; // Nuovo stato per l'accesso Docenti
+        
+        // Configurazione App
+        const MAX_SLOTS = 4;
+        const TEACHER_EMAIL = 'orientamento@leviseregno.edu.it'; // Credenziale che DEVE esistere in Firebase Auth
+        const TEACHER_PASSWORD_DEMO = 'AdminSecure2025!'; // Password usata per il sign-in
+        
+        const COURSES = [
+            { id: 'scienze-applicate', name: 'Liceo Scientifico Opzione Scienze Applicate', color: 'bg-blue-100 text-blue-800' },
+            { id: 'curvatura-economica', name: 'Liceo Scientifico con Curvatura Economica', color: 'bg-green-100 text-green-800' },
+            { id: 'sistema-moda', name: 'NEW Sistema Moda', color: 'bg-pink-100 text-pink-800' },
+            { id: 'relazioni-marketing', name: 'Relazioni Internazionali per il Marketing', color: 'bg-yellow-100 text-yellow-800' },
+            { id: 'logistica-quadriennale', name: 'Logistica Opzione Quadriennale', color: 'bg-indigo-100 text-indigo-800' },
+            { id: 'costruzione-territorio', name: 'Costruzione Ambiente e Territorio', color: 'bg-purple-100 text-purple-800' }
+        ];
+        const DATES = [
+            '2025-11-10', '2025-11-17', '2025-11-24', '2025-12-01', '2025-12-09'
+        ];
+        // Firma richiesta nei PDF
+        const PDF_SIGNATURE = 'ITSCG PRIMO LEVI DI SEREGNO VIA BRIANTINA 68 - Funzioni Orientamento: Prof. ssa Laura Corvi e Prof. ssa Maria Grazia Calabrese';
+        
+        // Elementi DOM
+        const loadingEl = document.getElementById('loading');
+        const coursesContainer = document.getElementById('courses-container');
+        const bookingsList = document.getElementById('bookings-list');
+        const messageBox = document.getElementById('message-box');
+        const teacherLoginForm = document.getElementById('teacher-login-form');
+        const teacherDashboard = document.getElementById('teacher-dashboard');
+        const loginError = document.getElementById('login-error');
+        const currentUserIdEl = document.getElementById('current-user-id');
+        const bookingModal = document.getElementById('booking-modal');
+        const cancellationModal = document.getElementById('cancellation-modal');
+        const bookingForm = document.getElementById('booking-form');
+        const cancellationForm = document.getElementById('cancellation-form');
+        const statusDot = document.getElementById('status-dot');
+        const statusText = document.getElementById('status-text');
+        const bookingStats = document.getElementById('booking-stats');
+        const pdfList = document.getElementById('pdf-list');
+        const noPdfsMessage = document.getElementById('no-pdfs-message');
+        const logoutBtn = document.getElementById('logout-btn');
+
+
+        // --- Funzioni di Utility ---
+
+        function generateUniqueCode(length = 8) {
+            return Math.random().toString(36).substring(2, 2 + length).toUpperCase();
+        }
+
+        function showMessage(message, type = 'success') {
+            messageBox.textContent = message;
+            messageBox.className = `fixed top-20 right-5 p-4 rounded-xl shadow-xl z-50 transition-opacity duration-300 opacity-100 ${type === 'success' ? 'bg-green-600' : 'bg-red-600'}`;
+            messageBox.classList.remove('hidden', 'opacity-0');
+            setTimeout(() => {
+                messageBox.classList.add('opacity-0');
+                messageBox.classList.remove('opacity-100');
+                setTimeout(() => messageBox.classList.add('hidden'), 300);
+            }, 5000); 
+        }
+
+        function updateDbStatus(connected) {
+            if (connected) {
+                statusDot.classList.remove('bg-gray-400', 'bg-red-500');
+                statusDot.classList.add('bg-green-500');
+                statusText.textContent = 'DB Connesso';
+            } else {
+                statusDot.classList.remove('bg-gray-400', 'bg-green-500');
+                statusDot.classList.add('bg-red-500');
+                statusText.textContent = 'DB Disconnesso';
+            }
+        }
+
+        // --- Gestione Modali ---
+        document.getElementById('close-modal-btn').addEventListener('click', () => bookingModal.classList.add('hidden'));
+        document.getElementById('open-cancellation-modal-btn').addEventListener('click', () => cancellationModal.classList.remove('hidden'));
+        document.getElementById('close-cancellation-modal-btn').addEventListener('click', () => cancellationModal.classList.add('hidden'));
+
+        // --- Inizializzazione Firebase e Autenticazione ---
+
+        async function initializeFirebaseWithBackoff(retryCount = 0) {
+            if (!firebaseConfig.projectId) {
+                loadingEl.innerHTML = '<p class="text-red-500">Errore: Configurazione Firebase mancante o non valida.</p>';
+                updateDbStatus(false);
+                return;
+            }
+
+            try {
+                const app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+                setLogLevel('debug');
+
+                // Autenticazione iniziale (anonima o con token)
+                if (initialAuthToken) {
+                    try {
+                        await signInWithCustomToken(auth, initialAuthToken);
+                    } catch (tokenError) {
+                        await signInAnonymously(auth);
+                    }
+                } else {
+                    await signInAnonymously(auth);
+                }
+                
+                // Listener per lo stato di autenticazione
+                onAuthStateChanged(auth, (user) => {
+                    if (user) {
+                        currentUserId = user.uid;
+                        currentUserIdEl.textContent = currentUserId;
+                        isAuthReady = true;
+                        updateDbStatus(true);
+                        setupBookingsListener();
+                        setupPdfArtifactsListener();
+                        // Controlla se l'utente loggato è l'admin (basandosi sull'UID, se l'admin ha fatto login)
+                        if (user.email === TEACHER_EMAIL && !user.isAnonymous) {
+                            isTeacherLoggedIn = true;
+                            teacherLoginForm.classList.add('hidden');
+                            teacherDashboard.classList.remove('hidden');
+                        } else {
+                             teacherLoginForm.classList.remove('hidden');
+                             teacherDashboard.classList.add('hidden');
+                        }
+
+                    } else {
+                        currentUserId = 'Non Autenticato';
+                        currentUserIdEl.textContent = currentUserId;
+                        isAuthReady = true; // Permetti al listener anonimo di continuare
+                        isTeacherLoggedIn = false;
+                        updateDbStatus(true); // Connesso ma anonimo
+                        teacherLoginForm.classList.remove('hidden');
+                        teacherDashboard.classList.add('hidden');
+                    }
+                });
+
+            } catch (error) {
+                console.error("Errore durante l'inizializzazione o l'autenticazione Firebase:", error);
+                updateDbStatus(false);
+                if (retryCount < 5) {
+                    const delay = Math.pow(2, retryCount) * 1000;
+                    setTimeout(() => initializeFirebaseWithBackoff(retryCount + 1), delay);
+                } else {
+                    loadingEl.innerHTML = '<p class="text-red-500 font-bold">Impossibile connettersi al database dopo diversi tentativi.</p>';
+                }
+            }
+        }
+
+        // --- Logica Docenti (Login/Logout Firebase Auth) ---
+
+        teacherLoginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('teacher-email').value;
+            const password = document.getElementById('teacher-password').value;
+
+            loginError.classList.add('hidden');
+            
+            try {
+                // Utilizza signInWithEmailAndPassword per accedere come Docente
+                await signInWithEmailAndPassword(auth, email, password);
+                // onAuthStateChanged gestirà l'aggiornamento della UI
+                showMessage('Accesso Docenti riuscito!', 'success');
+            } catch (error) {
+                console.error("Login Docenti fallito:", error);
+                loginError.classList.remove('hidden');
+                showMessage('Credenziali non valide o errore di connessione DB.', 'error');
+            }
+        });
+        
+        logoutBtn.addEventListener('click', async () => {
+             try {
+                await signOut(auth);
+                // Forziamo il rientro in anonimo per l'ascolto dei dati pubblici
+                await signInAnonymously(auth); 
+                showMessage('Logout effettuato. Torna alla visualizzazione Studenti.', 'success');
+             } catch(error) {
+                console.error("Errore durante il logout:", error);
+                showMessage('Errore durante il logout.', 'error');
+             }
+        });
+
+
+        // --- Gestione Collezioni Firestore ---
+        function getBookingDataCollectionRef() {
+            if (!db) return null;
+            return collection(db, `artifacts/${appId}/public/data/stage_bookings`);
+        }
+
+        function getPdfArtifactsCollectionRef() {
+            if (!db) return null;
+            // PDF salvati nella collezione pubblica per l'archivio docenti
+            return collection(db, `artifacts/${appId}/public/data/pdf_artifacts`);
+        }
+
+        // --- Rendering e Statistiche ---
+
+        function renderStats(bookings) {
+            bookingStats.innerHTML = '';
+            const stats = {};
+            const courseMap = COURSES.reduce((acc, c) => ({ ...acc, [c.id]: c.name }), {});
+            
+            // 1. Raggruppa per data e corso
+            bookings.forEach(b => {
+                const key = `${b.date}-${b.courseId}`;
+                if (!stats[key]) {
+                    stats[key] = { date: b.date, courseId: b.courseId, count: 0, courseName: courseMap[b.courseId] };
+                }
+                stats[key].count++;
+            });
+
+            const sortedStats = Object.values(stats).sort((a, b) => new Date(a.date) - new Date(b.date) || a.courseName.localeCompare(b.courseName));
+
+            if (sortedStats.length === 0) {
+                 bookingStats.innerHTML = '<p class="text-gray-500 text-center py-4">Nessun dato di prenotazione da visualizzare.</p>';
+                 return;
+            }
+
+            sortedStats.forEach(stat => {
+                const percentage = (stat.count / MAX_SLOTS) * 100;
+                const dateFmt = new Date(stat.date).toLocaleDateString('it-IT', { weekday: 'short', month: 'short', day: 'numeric' });
+                let barColor;
+
+                if (stat.count === MAX_SLOTS) {
+                    barColor = 'bg-red-600';
+                } else if (stat.count > MAX_SLOTS * 0.75) {
+                    barColor = 'bg-yellow-500';
+                } else {
+                    barColor = 'bg-green-500';
+                }
+                
+                const courseDetail = COURSES.find(c => c.id === stat.courseId);
+                const courseColor = courseDetail ? courseDetail.color.replace('bg-', 'text-') : 'text-gray-800';
+
+                bookingStats.innerHTML += `
+                    <div class="py-3 border-b border-gray-100 last:border-b-0">
+                        <div class="flex justify-between items-end mb-1">
+                            <p class="text-sm font-semibold ${courseColor}">${stat.courseName} <span class="text-gray-500 font-normal ml-2">(${dateFmt})</span></p>
+                            <span class="text-sm font-bold text-gray-800">${stat.count}/${MAX_SLOTS}</span>
+                        </div>
+                        <div class="w-full bg-gray-200 stat-bar">
+                            <div class="stat-bar transition-all duration-500 ${barColor}" style="width: ${percentage > 100 ? 100 : percentage}%;"></div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+
+        function renderCourses(bookings) {
+            loadingEl.classList.add('hidden');
+            coursesContainer.innerHTML = ''; 
+
+            const bookingsMap = bookings.reduce((acc, booking) => {
+                const key = `${booking.courseId}-${booking.date}`;
+                acc[key] = (acc[key] || 0) + 1;
+                return acc;
+            }, {});
+
+            COURSES.forEach(course => {
+                let courseHtml = `
+                    <div class="card bg-white p-6 rounded-2xl shadow-lg border-t-8 border-indigo-600 hover:shadow-2xl">
+                        <span class="inline-block px-3 py-1 text-xs font-bold rounded-full mb-4 ${course.color}">${course.name}</span>
+                        <div class="space-y-4">
+                `;
+
+                DATES.forEach(date => {
+                    const key = `${course.id}-${date}`;
+                    const bookedCount = bookingsMap[key] || 0;
+                    const availableSlots = MAX_SLOTS - bookedCount;
+                    const isFull = availableSlots <= 0;
+
+                    let badgeClass = 'bg-green-500';
+                    let badgeText = `${availableSlots} posti disponibili`;
+
+                    if (isFull) {
+                        badgeClass = 'bg-red-500';
+                        badgeText = 'Posti Esauriti';
+                    } else if (availableSlots <= 1) {
+                        badgeClass = 'bg-orange-500';
+                    }
+                    
+                    const slotsDisplay = `${bookedCount}/${MAX_SLOTS}`;
+
+                    courseHtml += `
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center p-3 border rounded-xl bg-gray-50">
+                            <span class="font-bold text-gray-700 mb-2 sm:mb-0">${new Date(date).toLocaleDateString('it-IT', { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' })}</span>
+                            <div class="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-3">
+                                <span class="text-xs font-bold text-white px-2 py-1 rounded-full ${badgeClass}">
+                                    ${badgeText} (${slotsDisplay})
+                                </span>
+                                <button
+                                    data-course-id="${course.id}"
+                                    data-course-name="${course.name}"
+                                    data-date="${date}"
+                                    ${isFull ? 'disabled' : ''}
+                                    class="book-btn px-4 py-2 text-sm font-medium rounded-lg transition duration-150 ${isFull ? 'bg-gray-400 cursor-not-allowed text-gray-700' : 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-md'}"
+                                >
+                                    Prenota
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                courseHtml += `</div></div>`;
+                coursesContainer.innerHTML += courseHtml;
+            });
+
+            document.querySelectorAll('.book-btn').forEach(button => {
+                button.removeEventListener('click', openBookingModal);
+                button.addEventListener('click', openBookingModal);
+            });
+
+            // Aggiorna la dashboard docenti solo se l'admin è loggato
+            if (isTeacherLoggedIn) {
+                renderTeacherDashboard(bookings);
+                renderStats(bookings);
+            }
+        }
+
+        function renderTeacherDashboard(bookings) {
+            bookingsList.innerHTML = '';
+            const courseMap = COURSES.reduce((acc, c) => ({ ...acc, [c.id]: c.name }), {});
+
+            if (bookings.length === 0) {
+                 bookingsList.innerHTML = '<tr><td colspan="4" class="px-6 py-4 text-center text-gray-500">Nessuna prenotazione registrata.</td></tr>';
+                 return;
+            }
+
+            bookings.sort((a, b) => {
+                if (a.date !== b.date) return new Date(a.date) - new Date(b.date);
+                return a.courseId.localeCompare(b.courseId);
+            });
+
+
+            bookings.forEach(booking => {
+                const dateFmt = new Date(booking.date).toLocaleDateString('it-IT');
+                const courseName = courseMap[booking.courseId] || booking.courseId;
+
+                bookingsList.innerHTML += `
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${booking.studentName}</td>
+                        <td class="px-6 py-4 text-sm text-gray-500">
+                            <span class="font-semibold text-indigo-700">${courseName}</span><br>
+                            <span class="text-xs text-gray-500">${dateFmt}</span>
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-500">
+                            Email: <a href="mailto:${booking.studentEmail}" class="text-blue-600 hover:text-blue-800">${booking.studentEmail}</a><br>
+                            Cell: ${booking.studentPhone}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-xs font-mono text-indigo-400 font-bold">${booking.bookingCode}</td>
+                    </tr>
+                `;
+            });
+        }
+        
+        function renderPdfList(pdfs) {
+            pdfList.innerHTML = '';
+            pdfs.sort((a, b) => (b.timestamp?.toDate ? b.timestamp.toDate() : 0) - (a.timestamp?.toDate ? a.timestamp.toDate() : 0));
+            
+            if (pdfs.length === 0) {
+                noPdfsMessage.classList.remove('hidden');
+                return;
+            }
+            noPdfsMessage.classList.add('hidden');
+
+            pdfs.forEach(pdf => {
+                const isCancellation = pdf.type === 'cancellation';
+                const typeText = isCancellation ? 'Cancellazione' : 'Conferma';
+                const date = pdf.timestamp?.toDate ? pdf.timestamp.toDate().toLocaleDateString('it-IT') : 'Data non disp.';
+                const icon = isCancellation ? '❌' : '✅';
+                
+                pdfList.innerHTML += `
+                    <li class="flex justify-between items-center py-2 hover:bg-gray-50 px-2 rounded">
+                        <div class="text-sm text-gray-700">
+                            ${icon} <span class="font-semibold">${typeText}</span> (${pdf.code}) per <span class="font-medium">${pdf.studentName}</span> - ${date}
+                        </div>
+                        <a href="${pdf.pdfBase64}" download="${pdf.code}_${typeText}.pdf" 
+                           class="text-xs px-3 py-1 bg-blue-100 text-blue-800 rounded-full hover:bg-blue-200 transition duration-150 font-semibold shadow-sm">
+                            Scarica PDF
+                        </a>
+                    </li>
+                `;
+            });
+        }
+
+        // --- Logica Booking e PDF ---
+
+        function openBookingModal(event) {
+            const { courseId, courseName, date } = event.target.dataset;
+            document.getElementById('modal-course-name').textContent = courseName;
+            document.getElementById('modal-date').textContent = new Date(date).toLocaleDateString('it-IT', { year: 'numeric', month: 'long', day: 'numeric' });
+            document.getElementById('booking-course-id').value = courseId;
+            document.getElementById('booking-date').value = date;
+            bookingModal.classList.remove('hidden');
+        }
+
+        function base64ToArrayBuffer(base64) {
+            const binary_string = window.atob(base64.split(',')[1]);
+            const len = binary_string.length;
+            const bytes = new Uint8Array(len);
+            for (let i = 0; i < len; i++) {
+                bytes[i] = binary_string.charCodeAt(i);
+            }
+            return bytes.buffer;
+        }
+
+        async function generateBookingPdf(data) {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            doc.setFont('helvetica');
+
+            doc.setFontSize(18);
+            doc.setTextColor(30, 58, 138); // Indigo-700
+            doc.text("Conferma Prenotazione Ministage Orientamento", 10, 20);
+
+            doc.setFontSize(11);
+            doc.setTextColor(55, 65, 81); // Gray-700
+            doc.text(`Stage: ${data.courseName}`, 10, 35);
+            doc.text(`Data: ${new Date(data.date).toLocaleDateString('it-IT')}`, 10, 42);
+            doc.text(`Codice Prenotazione: ${data.bookingCode}`, 10, 49);
+
+            doc.setFontSize(14);
+            doc.setTextColor(0, 0, 0); 
+            doc.text("Dati Studente Iscritto:", 10, 65);
+            doc.setFontSize(11);
+            doc.text(`Nome e Cognome: ${data.studentName}`, 10, 75);
+            doc.text(`Email: ${data.studentEmail}`, 10, 82);
+            doc.text(`Cellulare: ${data.studentPhone}`, 10, 89);
+            
+            doc.setDrawColor(200);
+            doc.line(10, 95, 200, 95);
+
+            doc.setFontSize(10);
+            doc.setTextColor(55, 65, 81);
+            // Testo Conferma richiesto
+            const confirmationText = `Lo studente ${data.studentName} iscritto per lo stage in data ${new Date(data.date).toLocaleDateString('it-IT')} per l'indirizzo ${data.courseName} con il seguente numero di prenotazione ${data.bookingCode} è stata confermata.`;
+            doc.text(confirmationText, 10, 105, { maxWidth: 190 });
+            
+            doc.setFontSize(9);
+            // Nota N.B. richiesta
+            const noteText = "N.B. Si rende noto che con il codice di prenotazione si può anche cancellare la prenotazione fatta andando nella sezione canella prenotazione e cancellandola. Conservare questo documento.";
+            doc.setTextColor(239, 68, 68); // Red-500
+            doc.text(noteText, 10, 120, { maxWidth: 190 });
+
+            // Firma (A fondo pagina)
+            doc.setFontSize(8);
+            doc.setTextColor(156, 163, 175); // Gray-400
+            doc.text(PDF_SIGNATURE, 10, 280);
+
+            return doc.output('datauristring'); // Ritorna l'URI Base64
+        }
+
+        bookingForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const confirmBtn = document.getElementById('confirm-booking-btn');
+            confirmBtn.disabled = true;
+            confirmBtn.innerHTML = '<div class="spinner mr-2"></div> Elaborazione...';
+
+            if (!isAuthReady || !db) {
+                showMessage("Errore di connessione. Riprova.", 'error');
+                confirmBtn.disabled = false;
+                confirmBtn.innerHTML = 'Conferma e Genera PDF';
+                return;
+            }
+            
+            const courseId = document.getElementById('booking-course-id').value;
+            const date = document.getElementById('booking-date').value;
+            const studentName = document.getElementById('student-name').value;
+            const studentEmail = document.getElementById('student-email').value;
+            const studentPhone = document.getElementById('student-phone').value;
+            const studentMotivation = document.getElementById('student-motivation').value;
+            const studentInterest = document.getElementById('student-interest').value;
+            const bookingCode = generateUniqueCode(10);
+            const courseName = document.getElementById('modal-course-name').textContent;
+
+
+            try {
+                // 1. Controllo finale della disponibilità
+                const ref = getBookingDataCollectionRef();
+                if (!ref) throw new Error("Riferimento alla collezione non disponibile.");
+                
+                const snapshot = await getDocs(query(ref));
+                const currentBookings = snapshot.docs
+                    .map(doc => doc.data())
+                    .filter(b => b.courseId === courseId && b.date === date)
+                    .length;
+                
+                if (currentBookings >= MAX_SLOTS) {
+                    showMessage("Spiacenti, i posti sono stati esauriti un attimo fa! Ricarica la pagina.", 'error');
+                    bookingModal.classList.add('hidden');
+                    return;
+                }
+
+                // 2. Generazione PDF
+                const bookingData = { courseId, date, studentName, studentEmail, studentPhone, bookingCode, courseName };
+                const pdfBase64 = await generateBookingPdf(bookingData);
+
+                // 3. Salvataggio su Firestore
+                await addDoc(ref, {
+                    ...bookingData,
+                    studentMotivation,
+                    studentInterest,
+                    userId: currentUserId,
+                    bookingTimestamp: serverTimestamp()
+                });
+
+                // 4. Salvataggio Artefatto PDF (per l'archivio docenti)
+                const pdfRef = getPdfArtifactsCollectionRef();
+                if (pdfRef) {
+                    await addDoc(pdfRef, {
+                        type: 'booking',
+                        code: bookingCode,
+                        studentName: studentName,
+                        pdfBase64: pdfBase64,
+                        timestamp: serverTimestamp()
+                    });
+                }
+
+
+                showMessage(`Prenotazione registrata! Codice: ${bookingCode}. Scarica il PDF.`, 'success');
+                bookingModal.classList.add('hidden');
+                bookingForm.reset();
+
+                // 5. Scarica il PDF per l'utente immediatamente
+                const downloadLink = document.createElement('a');
+                downloadLink.href = pdfBase64;
+                downloadLink.download = `Conferma_Stage_${bookingCode}.pdf`;
+                document.body.appendChild(downloadLink);
+                downloadLink.click();
+                document.body.removeChild(downloadLink);
+
+
+            } catch (error) {
+                console.error("Errore durante l'aggiunta della prenotazione:", error);
+                showMessage(`Errore critico: ${error.message}. Controlla la console.`, 'error');
+            } finally {
+                confirmBtn.disabled = false;
+                confirmBtn.innerHTML = 'Conferma e Genera PDF';
+            }
+        });
+
+        // --- Logica Cancellazione e PDF ---
+
+        async function generateCancellationPdf(data) {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            doc.setFont('helvetica');
+
+            doc.setFontSize(18);
+            doc.setTextColor(185, 28, 28); // Red-700
+            doc.text("Conferma Cancellazione Prenotazione", 10, 20);
+
+            doc.setFontSize(11);
+            doc.setTextColor(55, 65, 81);
+            doc.text(`Codice Prenotazione Annullato: ${data.bookingCode}`, 10, 35);
+            doc.text(`Studente: ${data.studentName}`, 10, 42);
+            
+            doc.setDrawColor(200);
+            doc.line(10, 50, 200, 50);
+
+            doc.setFontSize(10);
+            doc.setTextColor(55, 65, 81);
+            
+            const cancellationText = `L'annullamento della prenotazione per lo studente ${data.studentName}, identificata dal codice ${data.bookingCode}, è stata **confermata con successo** in data odierna. I posti per lo stage sono stati ripristinati e resi disponibili per altri studenti.`;
+            doc.text(cancellationText, 10, 60, { maxWidth: 190 });
+
+            doc.setFontSize(10);
+            const motivazioneText = `Motivazione della cancellazione fornita: ${data.cancellationReason || 'N/D'}`;
+            doc.setTextColor(0, 0, 0); 
+            doc.text(motivazioneText, 10, 80, { maxWidth: 190 });
+            
+            doc.setFontSize(9);
+            const noteText = "Si prega di notare che la cancellazione è definitiva. Per una nuova prenotazione sarà necessario utilizzare il modulo online, se i posti sono ancora disponibili.";
+            doc.setTextColor(30, 58, 138); // Indigo-700
+            doc.text(noteText, 10, 100, { maxWidth: 190 });
+
+
+            // Firma
+            doc.setFontSize(8);
+            doc.setTextColor(156, 163, 175);
+            doc.text(PDF_SIGNATURE, 10, 280);
+
+            return doc.output('datauristring');
+        }
+
+
+        cancellationForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const confirmBtn = document.getElementById('confirm-cancellation-btn');
+            confirmBtn.disabled = true;
+            confirmBtn.innerHTML = '<div class="spinner mr-2 border-red-500 border-t-red-700"></div> Cancellazione...';
+
+
+            if (!isAuthReady || !db) {
+                showMessage("Errore di connessione. Riprova.", 'error');
+                confirmBtn.disabled = false;
+                confirmBtn.innerHTML = 'Conferma Cancellazione';
+                return;
+            }
+
+            const bookingCode = document.getElementById('cancellation-code').value.trim().toUpperCase();
+            const studentName = document.getElementById('cancellation-name').value.trim();
+            const cancellationReason = document.getElementById('cancellation-reason').value.trim();
+
+
+            try {
+                // 1. Trova la prenotazione
+                const ref = getBookingDataCollectionRef();
+                if (!ref) throw new Error("Riferimento alla collezione non disponibile.");
+
+                const bookingsQuery = query(ref);
+                const snapshot = await getDocs(bookingsQuery);
+                
+                const bookingDoc = snapshot.docs.find(doc => {
+                    const data = doc.data();
+                    // Confronto robusto: codice esatto e nome/cognome con trim e case-insensitive
+                    return data.bookingCode === bookingCode && data.studentName.trim().toLowerCase() === studentName.toLowerCase();
+                });
+
+                if (!bookingDoc) {
+                    showMessage("Prenotazione non trovata o dati non corrispondenti.", 'error');
+                    cancellationModal.classList.add('hidden');
+                    return;
+                }
+
+                // 2. Generazione PDF di Cancellazione
+                const cancellationData = { bookingCode, studentName, cancellationReason };
+                const pdfBase64 = await generateCancellationPdf(cancellationData);
+                
+                // 3. Elimina la prenotazione da Firestore
+                await deleteDoc(doc(db, ref.path, bookingDoc.id));
+
+                // 4. Salva Artefatto PDF di Cancellazione
+                const pdfRef = getPdfArtifactsCollectionRef();
+                if (pdfRef) {
+                    await addDoc(pdfRef, {
+                        type: 'cancellation',
+                        code: bookingCode,
+                        studentName: studentName,
+                        pdfBase64: pdfBase64,
+                        timestamp: serverTimestamp()
+                    });
+                }
+
+                showMessage("Cancellazione completata! I posti sono stati ripristinati.", 'success');
+                cancellationModal.classList.add('hidden');
+                cancellationForm.reset();
+                
+                // 5. Scarica il PDF per l'utente immediatamente
+                const downloadLink = document.createElement('a');
+                downloadLink.href = pdfBase64;
+                downloadLink.download = `Cancellazione_Stage_${bookingCode}.pdf`;
+                document.body.appendChild(downloadLink);
+                downloadLink.click();
+                document.body.removeChild(downloadLink);
+
+
+            } catch (error) {
+                console.error("Errore durante la cancellazione:", error);
+                showMessage(`Errore durante la cancellazione: ${error.message}. Controlla la console.`, 'error');
+            } finally {
+                confirmBtn.disabled = false;
+                confirmBtn.innerHTML = 'Conferma Cancellazione';
+            }
+        });
+
+
+        // --- Listener Firestore in Tempo Reale (onSnapshot) ---
+
+        function setupBookingsListener() {
+            const ref = getBookingDataCollectionRef();
+            if (!ref) return;
+
+            onSnapshot(query(ref), (snapshot) => {
+                const bookings = [];
+                snapshot.forEach((doc) => {
+                    bookings.push({ id: doc.id, ...doc.data() });
+                });
+                renderCourses(bookings);
+            }, (error) => {
+                console.error("Errore ascolto prenotazioni:", error);
+                updateDbStatus(false);
+            });
+        }
+        
+        function setupPdfArtifactsListener() {
+            const ref = getPdfArtifactsCollectionRef();
+            if (!ref) return;
+            
+            onSnapshot(query(ref), (snapshot) => {
+                const pdfs = [];
+                snapshot.forEach((doc) => {
+                    pdfs.push({ id: doc.id, ...doc.data() });
+                });
+                renderPdfList(pdfs);
+            }, (error) => {
+                console.error("Errore ascolto PDF:", error);
+            });
+        }
+
+        // Avvia l'inizializzazione
+        window.onload = initializeFirebaseWithBackoff;
+
+    </script>
+</body>
+</html>
