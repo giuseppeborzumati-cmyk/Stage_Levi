@@ -1,4 +1,4 @@
-
+<!DOCTYPE html>
 <html lang="it">
 <head>
     <meta charset="UTF-8">
@@ -46,13 +46,23 @@
             box-shadow: 0 4px 10px rgba(239, 68, 68, 0.4);
             transform: scale(1.05);
         }
+
+        /* Stili per le tab della dashboard docente */
+        .tab-button {
+            transition: all 0.3s ease;
+        }
+        .tab-active {
+            border-bottom: 3px solid #4f46e5; /* Indigo-600 */
+            color: #1e3a8a; /* Blue-900 */
+            font-weight: 700;
+            background-color: #e0f2f1; /* Light background for active tab */
+        }
     </style>
     <!-- Configurazione per il font Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
 
-    <!-- Intestazione con Logo MODIFICATA-->
 <!-- Header compatto con logo -->
 <header class="bg-white shadow-md sticky top-0 z-40">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 flex items-center justify-between">
@@ -78,13 +88,15 @@
         <!-- Indicatore di caricamento del DB -->
         <div id="loading" class="flex justify-center items-center py-4 text-gray-600">
              <div id="loading-spinner" class="spinner mr-3"></div>
-            <span id="loading-status" class="text-lg font-medium">Connessione al database...</span>
+            <span id="loading-status" class="text-lg font-medium">Connessione al database in corso...</span>
         </div>
 
         <!-- Vista Docente (Inizialmente nascosta) -->
         <section id="docente-view" class="hidden">
-            <h2 class="text-4xl font-extrabold text-indigo-800 text-center mb-10 border-b-4 border-indigo-600 pb-2">Area Docenti - Prenotazioni Totali</h2>
-            <div class="mb-4 flex justify-between items-center">
+            <h2 class="text-4xl font-extrabold text-indigo-800 text-center mb-6 border-b-4 border-indigo-600 pb-2">Area Docenti - Monitoraggio Stage</h2>
+            
+            <!-- Controlli Docente -->
+            <div class="mb-6 flex justify-between items-center bg-gray-100 p-4 rounded-xl shadow-md">
                 <button id="logout-docente-btn" class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 transition duration-150 shadow-md">
                     Logout Docente
                 </button>
@@ -93,25 +105,62 @@
                     Esporta in CSV
                 </button>
             </div>
-            <div class="table-container bg-white rounded-xl shadow-lg p-6">
-                <table id="bookings-table" class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50 sticky top-0">
-                        <tr>
-                            <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Codice</th>
-                            <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nome Studente</th>
-                            <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Corso</th>
-                            <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data Stage</th>
-                            <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Scuola Media</th>
-                            <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-                            <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Telefono</th>
-                            <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Iscrizione</th>
-                        </tr>
-                    </thead>
-                    <tbody id="bookings-table-body" class="bg-white divide-y divide-gray-200">
-                        <!-- Righe prenotazioni caricate qui -->
-                    </tbody>
-                </table>
-                <p id="no-bookings-message" class="text-center py-10 text-gray-500 hidden">Nessuna prenotazione trovata.</p>
+
+            <!-- Tab Navigation -->
+            <div class="flex border-b border-gray-300 mb-6">
+                <button id="tab-bookings" data-tab="bookings" class="tab-button px-6 py-3 text-gray-600 hover:text-indigo-600 hover:border-indigo-300 border-b-2 border-transparent tab-active">
+                    Prenotazioni Attive
+                </button>
+                <button id="tab-cancellations" data-tab="cancellations" class="tab-button px-6 py-3 text-gray-600 hover:text-red-600 hover:border-red-300 border-b-2 border-transparent">
+                    Storico Annullamenti
+                </button>
+            </div>
+
+            <!-- Contenuto Tab: Prenotazioni Attive -->
+            <div id="content-bookings" class="tab-content">
+                <h3 class="text-2xl font-bold text-gray-700 mb-4">Elenco Prenotazioni Attive (${MAX_SLOTS} posti/data)</h3>
+                <div class="table-container bg-white rounded-xl shadow-lg p-6">
+                    <table id="bookings-table" class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50 sticky top-0">
+                            <tr>
+                                <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Codice</th>
+                                <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nome Studente</th>
+                                <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Corso</th>
+                                <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data Stage</th>
+                                <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Scuola Media</th>
+                                <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                                <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Telefono</th>
+                                <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Iscrizione</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bookings-table-body" class="bg-white divide-y divide-gray-200">
+                            <!-- Righe prenotazioni caricate qui -->
+                        </tbody>
+                    </table>
+                    <p id="no-bookings-message" class="text-center py-10 text-gray-500 hidden">Nessuna prenotazione attiva trovata.</p>
+                </div>
+            </div>
+
+            <!-- Contenuto Tab: Storico Annullamenti -->
+            <div id="content-cancellations" class="tab-content hidden">
+                <h3 class="text-2xl font-bold text-gray-700 mb-4">Storico Prenotazioni Annullate</h3>
+                <div class="table-container bg-white rounded-xl shadow-lg p-6 border-2 border-red-200">
+                    <table id="cancellations-table" class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-red-50 sticky top-0">
+                            <tr>
+                                <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Codice</th>
+                                <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Studente</th>
+                                <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Corso</th>
+                                <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Annullato il</th>
+                                <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Motivazione</th>
+                            </tr>
+                        </thead>
+                        <tbody id="cancellations-table-body" class="bg-white divide-y divide-gray-200">
+                            <!-- Righe annullamenti caricate qui -->
+                        </tbody>
+                    </table>
+                    <p id="no-cancellations-message" class="text-center py-10 text-gray-500 hidden">Nessuna cancellazione registrata.</p>
+                </div>
             </div>
         </section>
 
@@ -125,7 +174,7 @@
                     <p class="font-bold text-lg">ATTENZIONE: Documento di Conferma Obbligatorio!</p>
                 </div>
                 <p class="mt-2 text-sm">
-                    È **OBBLIGATORIO** stampare il **PDF di conferma** generato al momento della prenotazione e **portarlo con sé il giorno dello Stage** per la verifica all'ingresso.
+                    È **OBBLIGATORIO** stampare il **PDF di conferma** generato al momento della prenotazione e **portarlo con sé il giorno dello Stage** per la verifica all'ingresso. **Non è ammessa la visualizzazione da dispositivo (non stampata).**
                 </p>
             </div>
             
@@ -206,10 +255,10 @@
                     <input type="hidden" id="booking-date">
 
                     <div>
-                        <label for="student-name" class="block text-sm font-medium text-gray-700">Nome e Cognome</label>
+                        <label for="student-name" class="block text-sm font-medium text-gray-700">Nome e Cognome dello Studente</label>
                         <input type="text" id="student-name" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
                     </div>
-                    <!-- NUOVO CAMPO: Scuola Media di Provenienza -->
+                    <!-- CAMPO: Scuola Media di Provenienza -->
                     <div>
                         <label for="student-school" class="block text-sm font-medium text-gray-700">Scuola Media di Provenienza</label>
                         <input type="text" id="student-school" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500" placeholder="Nome completo della tua scuola media">
@@ -223,14 +272,7 @@
                         <label for="student-phone" class="block text-sm font-medium text-gray-700">Cellulare</label>
                         <input type="tel" id="student-phone" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
                     </div>
-                    <div>
-                        <label for="student-motivation" class="block text-sm font-medium text-gray-700">Motivazione Iscrizione (Breve)</label>
-                        <textarea id="student-motivation" rows="2" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500" placeholder="Es. Desidero approfondire l'indirizzo prima di scegliere."></textarea>
-                    </div>
-                    <div>
-                        <label for="student-interest" class="block text-sm font-medium text-gray-700">Perché interessato a questo indirizzo?</label>
-                        <textarea id="student-interest" rows="2" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500" placeholder="Es. Sono bravo in matematica e mi piace l'economia."></textarea>
-                    </div>
+                    <!-- CAMPi MOTIVAZIONE e INTERESSE RIMOSSI -->
                     
                     <div class="flex justify-end space-x-4 pt-4">
                         <button type="button" id="close-modal-btn" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition duration-150">Annulla</button>
@@ -240,21 +282,19 @@
             </div>
         </div>
 
-        <!-- Modale di Cancellazione -->
+        <!-- Modale di Cancellazione (Modificata: Rimosso campo Nome) -->
         <div id="cancellation-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-70 flex items-center justify-center z-50 p-4">
             <div class="modal-content relative bg-white p-6 sm:p-8 w-full max-w-lg rounded-xl shadow-2xl">
                 <h3 class="text-2xl font-bold mb-6 text-red-600">Cancellazione Prenotazione</h3>
-                <p class="text-gray-600 mb-4 text-sm">Per annullare, inserisci il codice di prenotazione che trovi nel PDF di conferma, insieme al tuo nome e cognome per verifica.</p>
+                <!-- Testo aggiornato per riflettere il solo codice -->
+                <p class="text-gray-600 mb-4 text-sm">Per annullare, inserisci il codice di prenotazione univoco che trovi nel PDF di conferma. L'annullamento è immediato.</p>
                 
                 <form id="cancellation-form" class="space-y-4">
                     <div>
                         <label for="cancellation-code" class="block text-sm font-medium text-gray-700">Codice Prenotazione</label>
                         <input type="text" id="cancellation-code" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500" placeholder="Esempio: X3H4K9J2">
                     </div>
-                    <div>
-                        <label for="cancellation-name" class="block text-sm font-medium text-gray-700">Nome e Cognome</label>
-                        <input type="text" id="cancellation-name" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500">
-                    </div>
+                    <!-- CAMPO NOME E COGNOME RIMOSSO COME RICHIESTO -->
                     <div>
                         <label for="cancellation-reason" class="block text-sm font-medium text-gray-700">Motivazione della Cancellazione</label>
                         <textarea id="cancellation-reason" rows="2" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500" placeholder="Es. Ho già partecipato ad un altro stage."></textarea>
@@ -357,6 +397,7 @@
         // --- Stato Globale (Ora derivato da Firestore) ---
         const MAX_SLOTS = 4; // Posti fissi per ogni slot data/corso
         let currentBookings = []; // Array delle prenotazioni lette in tempo reale da Firestore
+        let currentCancellations = []; // NUOVO: Array delle cancellazioni lette in tempo reale
         let currentAvailability = {}; // Mappa la disponibilità calcolata (key: courseId-date)
         
         // Credenziali Docente Fisse
@@ -365,9 +406,8 @@
 
         // Struttura fissa dei corsi
         const COURSES = [
-            { id: 'scienze-applicate', name: 'Liceo Scientifico Opzione Scienze Applicate', color: 'bg-blue-100 text-blue-800' },
-            { id: 'curvatura-economica', name: 'Liceo Scientifico con Curvatura Economica', color: 'bg-green-100 text-green-800' },
-            { id: 'sistema-moda', name: 'NEW Sistema Moda', color: 'bg-pink-100 text-pink-800' },
+            { id: 'liceo-scientifico', name: 'Liceo Scientifico', color: 'bg-blue-100 text-blue-800' }, 
+            { id: 'sistema-moda', name: 'Sistema Moda', color: 'bg-pink-100 text-pink-800' },
             { id: 'relazioni-marketing', name: 'Relazioni Internazionali per il Marketing', color: 'bg-yellow-100 text-yellow-800' },
             { id: 'logistica-quadriennale', name: 'Logistica Opzione Quadriennale', color: 'bg-indigo-100 text-indigo-800' },
             { id: 'costruzione-territorio', name: 'Costruzione Ambiente e Territorio', color: 'bg-purple-100 text-purple-800' }
@@ -397,6 +437,8 @@
         
         // Collezione pubblica per le prenotazioni (accessibile a tutti)
         const BOOKINGS_COLLECTION_PATH = `/artifacts/${appId}/public/data/bookings`;
+        // NUOVO: Collezione per il log delle cancellazioni
+        const CANCELLATIONS_COLLECTION_PATH = `/artifacts/${appId}/public/data/cancellations`;
 
 
         // --- Funzioni di Utility ---
@@ -426,11 +468,23 @@
             docenteLoginForm.reset();
         }
 
-        // --- Gestione Modali ---
+        // --- Gestione Modali e Tab Docente ---
         document.getElementById('close-modal-btn').addEventListener('click', resetFormsAndModals);
         document.getElementById('open-cancellation-modal-btn').addEventListener('click', () => cancellationModal.classList.remove('hidden'));
         document.getElementById('close-cancellation-modal-btn').addEventListener('click', resetFormsAndModals);
         document.getElementById('open-docente-login-btn').addEventListener('click', () => docenteLoginModal.classList.remove('hidden'));
+
+        // Gestione Tab Docente
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('tab-active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.add('hidden'));
+
+            document.getElementById(`tab-${tabId}`).classList.add('tab-active');
+            document.getElementById(`content-${tabId}`).classList.remove('hidden');
+        }
+
+        document.getElementById('tab-bookings').addEventListener('click', () => switchTab('bookings'));
+        document.getElementById('tab-cancellations').addEventListener('click', () => switchTab('cancellations'));
 
 
         // --- Inizializzazione Firebase e Autenticazione ---
@@ -484,11 +538,13 @@
             loadingStatus.textContent = "Caricamento disponibilità in tempo reale...";
             
             const bookingsRef = collection(db, BOOKINGS_COLLECTION_PATH);
-            
+            const cancellationsRef = collection(db, CANCELLATIONS_COLLECTION_PATH); // NUOVO
+
             // Query per tutti i documenti della collection delle prenotazioni
             const q = query(bookingsRef); 
+            const qCancellations = query(cancellationsRef);
 
-            // Listener onSnapshot per l'aggiornamento in tempo reale
+            // Listener per le Prenotazioni Attive (Aggiorna Disponibilità)
             onSnapshot(q, (snapshot) => {
                 currentBookings = [];
                 currentAvailability = {};
@@ -506,16 +562,14 @@
                     const booking = doc.data();
                     const key = `${booking.courseId}-${booking.date}`;
                     
-                    // Solo i documenti che hanno una chiave valida contano
                     if (currentAvailability[key] > 0) {
                         currentAvailability[key]--;
                     }
                     currentBookings.push({ ...booking, docId: doc.id });
                 });
                 
-                // Ordina le prenotazioni per data di stage (solo per la visualizzazione docente)
+                // Ordina le prenotazioni per data di stage
                 currentBookings.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-
 
                 // 3. Aggiorna l'interfaccia utente
                 renderCourses(); // Aggiorna la vista studente
@@ -527,9 +581,32 @@
                 loadingStatus.textContent = "Disponibilità Aggiornata in Tempo Reale";
 
             }, (error) => {
-                console.error("Errore onSnapshot:", error);
+                console.error("Errore onSnapshot Bookings:", error);
                 loadingSpinner.classList.add('hidden');
                 loadingStatus.textContent = `Errore di connessione al database: ${error.message}`;
+            });
+            
+            // NUOVO: Listener per le Cancellazioni (Aggiorna Tab Docente)
+             onSnapshot(qCancellations, (snapshot) => {
+                currentCancellations = [];
+                snapshot.forEach((doc) => {
+                    const cancellation = doc.data();
+                    currentCancellations.push({ ...cancellation, docId: doc.id });
+                });
+                
+                // Ordina per data di annullamento (dalla più recente)
+                currentCancellations.sort((a, b) => {
+                    const dateA = a.cancelledAt?.toDate ? a.cancelledAt.toDate().getTime() : 0;
+                    const dateB = b.cancelledAt?.toDate ? b.cancelledAt.toDate().getTime() : 0;
+                    return dateB - dateA; // Ordine Decrescente
+                });
+
+                if (isDocente) {
+                    // Chiamiamo solo il rendering delle cancellazioni in questo listener per efficienza
+                    renderCancellationsDashboard();
+                }
+            }, (error) => {
+                 console.error("Errore onSnapshot Cancellations:", error);
             });
         }
 
@@ -601,6 +678,8 @@
             if (enabled) {
                 studentMainView.classList.add('hidden');
                 docenteView.classList.remove('hidden');
+                // Al login mostriamo sempre la tab Prenotazioni Attive di default
+                switchTab('bookings'); 
                 renderDocenteDashboard();
             } else {
                 studentMainView.classList.remove('hidden');
@@ -608,6 +687,7 @@
             }
         }
         
+        // Rendering Prenotazioni Attive
         function renderDocenteDashboard() {
             const tableBody = document.getElementById('bookings-table-body');
             const noBookingsMessage = document.getElementById('no-bookings-message');
@@ -629,10 +709,38 @@
                         <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-800">${booking.studentName}</td>
                         <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-600">${booking.courseName}</td>
                         <td class="px-3 py-3 whitespace-nowrap text-sm font-semibold text-indigo-600">${date}</td>
-                        <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-500">${booking.studentSchool || 'N/D'}</td> <!-- Nuovo Campo Scuola Media -->
+                        <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-500">${booking.studentSchool || 'N/D'}</td> 
                         <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-500">${booking.studentEmail}</td>
                         <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-500">${booking.studentPhone}</td>
                         <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-500">${createdAt}</td>
+                    </tr>
+                `;
+                tableBody.innerHTML += row;
+            });
+        }
+        
+        // NUOVO: Rendering Cancellazioni
+        function renderCancellationsDashboard() {
+             const tableBody = document.getElementById('cancellations-table-body');
+            const noCancellationsMessage = document.getElementById('no-cancellations-message');
+            tableBody.innerHTML = '';
+
+            if (currentCancellations.length === 0) {
+                noCancellationsMessage.classList.remove('hidden');
+                return;
+            }
+            noCancellationsMessage.classList.add('hidden');
+
+            currentCancellations.forEach(cancellation => {
+                const cancelledAt = cancellation.cancelledAt?.toDate ? cancellation.cancelledAt.toDate().toLocaleDateString('it-IT', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) : 'N/D';
+                
+                const row = `
+                    <tr class="hover:bg-red-50 transition duration-100">
+                        <td class="px-3 py-3 whitespace-nowrap text-sm font-medium text-red-700">${cancellation.bookingCode}</td>
+                        <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-800">${cancellation.studentName || 'N/D'}</td>
+                        <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-600">${cancellation.courseName || 'N/D'}</td>
+                        <td class="px-3 py-3 whitespace-nowrap text-sm font-semibold text-red-500">${cancelledAt}</td>
+                        <td class="px-3 py-3 whitespace-normal text-sm text-gray-500 max-w-xs">${cancellation.cancellationReason || 'Motivazione non fornita'}</td>
                     </tr>
                 `;
                 tableBody.innerHTML += row;
@@ -664,28 +772,41 @@
                 return;
             }
             
+            // Colleziona sia le prenotazioni attive che le cancellazioni
+            const allData = [
+                ...currentBookings.map(b => ({ ...b, Status: 'Attiva', CancellationReason: 'N/A', CancellationDate: 'N/A' })),
+                ...currentCancellations.map(c => ({ 
+                    ...c, 
+                    Status: 'Annullata', 
+                    CancellationReason: c.cancellationReason || 'Non fornita', 
+                    CancellationDate: c.cancelledAt?.toDate ? c.cancelledAt.toDate().toISOString() : 'N/D' 
+                }))
+            ];
+
             const headers = [
-                'Codice Prenotazione', 'Nome Studente', 'Email', 'Telefono', 'Corso', 'Data Stage', 
-                'Scuola Media', // NUOVO HEADER
-                'Motivazione', 'Interesse', 'ID Documento', 'Data Iscrizione'
+                'Codice Prenotazione', 'Status', 'Nome Studente', 'Email', 'Telefono', 'Corso', 'Data Stage', 
+                'Scuola Media', 'Motivazione Annullamento', 'Data Annullamento', 'Data Iscrizione'
             ];
             
             const csvRows = [];
-            csvRows.push(headers.join(';')); // Aggiunge gli header
+            csvRows.push(headers.join(';')); 
 
-            currentBookings.forEach(booking => {
-                const createdAtFormatted = booking.createdAt?.toDate ? booking.createdAt.toDate().toISOString() : '';
+            allData.forEach(item => {
+                const createdAtFormatted = item.createdAt?.toDate ? item.createdAt.toDate().toISOString() : '';
+                // Sostituisci i separatori interni con una virgola per evitare problemi col formato CSV (punto e virgola)
+                const sanitize = (str) => (str || '').toString().replace(/;/g, ',').replace(/\n/g, ' '); 
+
                 const row = [
-                    booking.bookingCode, 
-                    booking.studentName.replace(/;/g, ','), // Pulisce da eventuali punti e virgola
-                    booking.studentEmail, 
-                    booking.studentPhone, 
-                    booking.courseName.replace(/;/g, ','),
-                    booking.date,
-                    booking.studentSchool.replace(/;/g, ','), // NUOVO DATO
-                    `"${booking.studentMotivation.replace(/"/g, '""').replace(/;/g, ',')}"`, // Mette tra virgolette per testi lunghi
-                    `"${booking.studentInterest.replace(/"/g, '""').replace(/;/g, ',')}"`,
-                    booking.docId,
+                    sanitize(item.bookingCode), 
+                    sanitize(item.Status), 
+                    sanitize(item.studentName), 
+                    sanitize(item.studentEmail), 
+                    sanitize(item.studentPhone), 
+                    sanitize(item.courseName),
+                    sanitize(item.date),
+                    sanitize(item.studentSchool), 
+                    sanitize(item.CancellationReason),
+                    sanitize(item.CancellationDate),
                     createdAtFormatted
                 ];
                 csvRows.push(row.join(';'));
@@ -697,13 +818,13 @@
             
             const link = document.createElement('a');
             link.setAttribute('href', url);
-            link.setAttribute('download', 'prenotazioni_stage_its_cg.csv');
+            link.setAttribute('download', 'monitoraggio_stage_its_cg.csv');
             link.style.visibility = 'hidden';
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
 
-            showMessage("Esportazione CSV completata!", 'success');
+            showMessage("Esportazione CSV completata (Include Prenotazioni e Annullamenti)!", 'success');
         });
         
         // --- Logica Booking e Cancellazione (Firestore) ---
@@ -737,8 +858,8 @@
             doc.setTextColor(0, 0, 0); 
             doc.text("Dati Studente Iscritto:", 10, 65);
             doc.setFontSize(11);
-            doc.text(`Nome e Cognome: ${data.studentName}`, 10, 75);
-            doc.text(`Scuola Media: ${data.studentSchool}`, 10, 82); // NUOVO CAMPO NEL PDF
+            doc.text(`Nome e Cognome dello Studente: ${data.studentName}`, 10, 75); 
+            doc.text(`Scuola Media: ${data.studentSchool}`, 10, 82); 
             doc.text(`Email: ${data.studentEmail}`, 10, 89);
             doc.text(`Cellulare: ${data.studentPhone}`, 10, 96);
             
@@ -747,7 +868,7 @@
 
             doc.setFontSize(10);
             doc.setTextColor(55, 65, 81);
-            const confirmationText = `Lo studente ${data.studentName} iscritto per lo stage in data ${new Date(data.date).toLocaleDateString('it-IT')} per l'indirizzo ${data.courseName} con il seguente numero di prenotazione ${data.bookingCode} è stata confermata.`;
+            const confirmationText = `La prenotazione per lo studente ${data.studentName}, relativa allo stage in data ${new Date(data.date).toLocaleDateString('it-IT')} per l'indirizzo ${data.courseName} e identificata dal codice ${data.bookingCode}, è stata confermata.`;
             doc.text(confirmationText, 10, 112, { maxWidth: 190 });
             
             // AVVISO OBBLIGATORIO NEL PDF
@@ -757,7 +878,8 @@
             doc.text(warningText, 10, 125, { maxWidth: 190 });
 
             doc.setFontSize(9);
-            const noteText = "N.B. Si rende noto che con il codice di prenotazione si può anche cancellare la prenotazione fatta andando nella sezione canella prenotazione e cancellandola. Conservare questo documento.";
+            // TESTO AGGIORNATO COME RICHIESTO DALL'UTENTE
+            const noteText = "N.B. Conservare questo documento. Per annullare la prenotazione, devi tornare al link di iscrizione, scorrere in fondo alla pagina e cliccare sul pulsante 'Annulla la mia Prenotazione', inserendo il codice riportato qui sopra.";
             doc.setTextColor(239, 68, 68); // Red-500
             doc.text(noteText, 10, 135, { maxWidth: 190 });
 
@@ -779,11 +901,10 @@
             const courseId = document.getElementById('booking-course-id').value;
             const date = document.getElementById('booking-date').value;
             const studentName = document.getElementById('student-name').value.trim();
-            const studentSchool = document.getElementById('student-school').value.trim(); // NUOVO CAMPO
+            const studentSchool = document.getElementById('student-school').value.trim();
             const studentEmail = document.getElementById('student-email').value.trim();
             const studentPhone = document.getElementById('student-phone').value.trim();
-            const studentMotivation = document.getElementById('student-motivation').value.trim();
-            const studentInterest = document.getElementById('student-interest').value.trim();
+            
             const bookingCode = generateUniqueCode(10);
             const courseName = document.getElementById('modal-course-name').textContent;
             const availabilityKey = `${courseId}-${date}`;
@@ -798,11 +919,12 @@
             try {
                 // 1. Dati da salvare nel database
                 const bookingData = { 
-                    courseId, date, studentName, studentSchool, studentEmail, studentPhone, bookingCode, courseName, // studentSchool aggiunto qui
-                    studentMotivation, studentInterest, 
+                    courseId, date, studentName, studentSchool, studentEmail, studentPhone, bookingCode, courseName, 
+                    studentMotivation: 'N/A', 
+                    studentInterest: 'N/A', 
                     createdAt: serverTimestamp(),
-                    userId: userId, // ID dell'utente che ha effettuato la prenotazione
-                    docId: null // Placeholder che verrà aggiornato dall'onSnapshot
+                    userId: userId, 
+                    docId: null 
                 };
 
                 // 2. Aggiungi il documento a Firestore (QUESTO ESEGUE LA PRENOTAZIONE REALE)
@@ -838,7 +960,6 @@
              const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
             
-            // ... (Logica PDF invariata)
             doc.setFont('helvetica');
 
             doc.setFontSize(18);
@@ -848,7 +969,7 @@
             doc.setFontSize(11);
             doc.setTextColor(55, 65, 81);
             doc.text(`Codice Prenotazione Annullato: ${data.bookingCode}`, 10, 35);
-            doc.text(`Studente: ${data.studentName}`, 10, 42);
+            doc.text(`Studente Cancellato: ${data.studentName || 'Non specificato'}`, 10, 42); // Usiamo il nome recuperato dal DB
             
             doc.setDrawColor(200);
             doc.line(10, 50, 200, 50);
@@ -856,11 +977,11 @@
             doc.setFontSize(10);
             doc.setTextColor(55, 65, 81);
             
-            const cancellationText = `L'annullamento della prenotazione per lo studente ${data.studentName}, identificata dal codice ${data.bookingCode}, è stata **confermata con successo** in data odierna. I posti per lo stage sono stati ripristinati.`;
+            const cancellationText = `L'annullamento della prenotazione per lo studente ${data.studentName || 'indicato dal codice'}, identificata dal codice ${data.bookingCode}, è stata **confermata con successo** in data odierna. Il posto per lo stage è stato ripristinato e reso disponibile.`;
             doc.text(cancellationText, 10, 60, { maxWidth: 190 });
 
             doc.setFontSize(10);
-            const motivazioneText = `Motivazione della cancellazione fornita: ${data.cancellationReason || 'N/D'}`;
+            const motivazioneText = `Motivazione fornita: ${data.cancellationReason || 'Nessuna motivazione fornita.'}`;
             doc.setTextColor(0, 0, 0); 
             doc.text(motivazioneText, 10, 80, { maxWidth: 190 });
             
@@ -887,7 +1008,7 @@
             confirmBtn.innerHTML = '<div class="spinner mr-2 border-red-500 border-t-red-700"></div> Cancellazione...';
 
             const bookingCode = document.getElementById('cancellation-code').value.trim().toUpperCase();
-            const studentName = document.getElementById('cancellation-name').value.trim();
+            // CAMPO NOME Rimosso
             const cancellationReason = document.getElementById('cancellation-reason').value.trim();
 
             if (!db) {
@@ -898,36 +1019,44 @@
             try {
                 const bookingsRef = collection(db, BOOKINGS_COLLECTION_PATH);
                 
-                // 1. Cerca il documento nel database
-                // Nota: la query è case sensitive, ma lo studentName è reso insensibile alla maiuscola/minuscola in JS.
+                // 1. Cerca il documento nel database SOLO per codice
                 const q = query(bookingsRef, 
-                    where('bookingCode', '==', bookingCode),
-                    where('studentName', '==', studentName) 
+                    where('bookingCode', '==', bookingCode)
                 );
 
                 const snapshot = await getDocs(q);
 
                 if (snapshot.empty) {
-                    showMessage("Prenotazione non trovata. Controlla il codice e il nome.", 'error');
+                    showMessage("Prenotazione non trovata. Controlla il codice.", 'error');
                     resetFormsAndModals();
                     return;
                 }
 
-                // 2. Elimina il primo documento trovato (dovrebbe essercene uno solo)
+                // 2. Prepara i dati per l'eliminazione e il log
                 const docToDelete = snapshot.docs[0];
-                const bookingData = docToDelete.data(); // Dati originali per il PDF
-                
+                const bookingData = docToDelete.data(); 
+
+                // --- 3. LOGGA LA CANCELLAZIONE (per la zona Docenti) ---
+                const cancellationLog = {
+                    ...bookingData, // Includi tutti i dettagli della prenotazione originale
+                    cancellationReason: cancellationReason,
+                    cancelledAt: serverTimestamp(),
+                    cancellationUserId: userId,
+                };
+                // Aggiunge il record alla collezione CANCELLATIONS
+                await addDoc(collection(db, CANCELLATIONS_COLLECTION_PATH), cancellationLog);
+
+                // --- 4. ELIMINA LA PRENOTAZIONE ATTIVA ---
                 await deleteDoc(doc(db, BOOKINGS_COLLECTION_PATH, docToDelete.id));
                 
-                // 3. Genera PDF di cancellazione
-                const cancellationData = { bookingCode, studentName, cancellationReason };
-                const pdfBase64 = await generateCancellationPdf(cancellationData);
+                // 5. Genera PDF di cancellazione usando i dati originali
+                const pdfBase64 = await generateCancellationPdf(cancellationLog);
                 
-                // 4. Aggiorna la UI e mostra il successo (onSnapshot gestisce l'aggiornamento dei posti)
+                // 6. Aggiorna la UI e mostra il successo
                 showMessage("Cancellazione completata! Il posto è stato ripristinato.", 'success');
                 resetFormsAndModals();
                 
-                // 5. Avvia download PDF
+                // 7. Avvia download PDF
                 const downloadLink = document.createElement('a');
                 downloadLink.href = pdfBase64;
                 downloadLink.download = `Cancellazione_Stage_${bookingCode}.pdf`;
