@@ -263,19 +263,22 @@
         import { getFirestore, doc, addDoc, onSnapshot, collection, query, serverTimestamp, getDocs, deleteDoc, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // Variabili Globali fornite dall'ambiente Canvas
+        // Usiamo l'ID dell'app fornito da Canvas per i path di Firestore
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
         
-        // --- INIZIALIZZAZIONE CONFIGURAZIONE FIREBASE CORRETTA ---
-        let firebaseConfig = {};
-        try {
-            const configString = typeof __firebase_config !== 'undefined' ? __firebase_config : '{}';
-            // Tenta il parsing, gestendo il caso in cui sia una stringa vuota o non valida
-            firebaseConfig = JSON.parse(configString.trim() || '{}');
-        } catch (e) {
-            console.error("Errore nel parsing della configurazione Firebase:", e);
-            // firebaseConfig rimane {} in caso di errore
-        }
+        // --- CONFIGURAZIONE FIREBASE (SOSTITUITA DALL'UTENTE) ---
+        // Questa configurazione bypassa l'uso di __firebase_config e usa i dati specifici forniti.
+        const firebaseConfig = {
+            apiKey: "AIzaSyAP-Bmf02SZp4o6K2z2B1GgIlUJ3Wuc8Zk",
+            authDomain: "progetto-63fb3.firebaseapp.com",
+            projectId: "progetto-63fb3",
+            storageBucket: "progetto-63fb3.firebasestorage.app",
+            messagingSenderId: "883088850197",
+            appId: "1:883088850197:web:29b8573ea43555041b3d1c",
+            measurementId: "G-2PNR8PQHDR"
+        };
         
+        // Utilizziamo il token di autenticazione fornito dall'ambiente Canvas (se disponibile)
         const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
         
         let db, auth;
@@ -360,7 +363,7 @@
         // --- Inizializzazione Firebase e Autenticazione ---
 
         async function initializeFirebaseWithBackoff(retryCount = 0) {
-            // VERIFICA ROBUSTA DELLA CONFIGURAZIONE
+            // VERIFICA ROBUSTA DELLA CONFIGURAZIONE FORNITA DALL'UTENTE
             if (!firebaseConfig.apiKey || !firebaseConfig.projectId) {
                 loadingEl.innerHTML = '<p class="text-red-500 font-bold">Errore: Configurazione Firebase mancante o non valida.</p>';
                 updateDbStatus(false);
