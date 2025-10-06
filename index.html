@@ -203,6 +203,19 @@
                 </button>
             </div>
 
+                <!-- NUOVO BOT CHAT/INFO -->
+                <div id="chatbot-icon" title="Chatbot Informativo ITSCG" class="w-16 h-16 rounded-full bg-white border-4 border-indigo-600 shadow-xl flex items-center justify-center cursor-pointer hover:shadow-2xl hover:border-indigo-400 transition duration-300 flex-shrink-0">
+                    <img src="foto_chatbot.png" alt="Chatbot Icon" class="w-12 h-12 rounded-full animate-spin-slow" />
+                </div>
+                <!-- FINE NUOVO BOT CHAT/INFO -->
+                
+                <!-- Pulsante Accesso Docenti -->
+                <button id="open-docente-login-btn" class="docente-access-btn px-6 py-2 text-sm font-bold text-white rounded-xl transition duration-300 w-full sm:w-auto justify-center flex items-center">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3v-1m18-7V9a3 3 0 00-3-3h-2M11 5V4a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2h2"></path></svg>
+                    Area Riservata Docenti
+                </button>
+            </div>
+
 
             <!-- WARNING Message (TESTO MODIFICATO) -->
             <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-8 rounded-xl shadow-md" role="alert">
@@ -495,7 +508,17 @@
             docenteLoginForm.reset();
             docenteDeleteForm.reset();
         }
-
+        
+        // Listener per il chatbot
+        chatbotIcon.addEventListener('click', () => {
+            const message = `
+                Salve! Sono il **chatbot informativo** della scuola ITSCG PRIMO LEVI DI SEREGNO.
+                <br><br>
+                <a href="chatbot.html" target="_blank" class="text-white underline font-bold hover:text-indigo-200 transition duration-150">CLICCA QUI SE VUOI SCOPRIRE QUALCOSA DI PIÙ SULLA SCUOLA</a>.
+            `;
+            // Uso il message box esistente come "finestra" informativa. 
+            showMessage(message, 'info', 8000); 
+        });
         // --- Gestione Modali e Navigazione ---
         document.getElementById('close-modal-btn').addEventListener('click', resetFormsAndModals);
         document.getElementById('open-cancellation-modal-btn').addEventListener('click', () => cancellationModal.classList.remove('hidden'));
