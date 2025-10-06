@@ -275,16 +275,17 @@
             // Per il funzionamento su GitHub o in locale, devi ottenere questi dati dalla
             // console Firebase (Project settings -> General -> Your apps -> Firebase SDK snippet -> Config)
             // ====================================================================================
-            firebaseConfig = {
-                apiKey: "YOUR_API_KEY_HERE", 
-                authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-                projectId: "YOUR_PROJECT_ID", // CRITICO: DEVE ESSERE PRESENTE
-                storageBucket: "YOUR_PROJECT_ID.appspot.com",
-                messagingSenderId: "YOUR_SENDER_ID",
-                appId: "YOUR_APP_ID"
-            };
+const firebaseConfig = {
+  apiKey: "AIzaSyAP-Bmf02SZp4o6K2z2B1GgIlUJ3Wuc8Zk",
+  authDomain: "progetto-63fb3.firebaseapp.com",
+  projectId: "progetto-63fb3",
+  storageBucket: "progetto-63fb3.firebasestorage.app",
+  messagingSenderId: "883088850197",
+  appId: "1:883088850197:web:29b8573ea43555041b3d1c",
+  measurementId: "G-2PNR8PQHDR"
+};
 
-            if (firebaseConfig.projectId === "YOUR_PROJECT_ID") {
+            if (firebaseConfig.projectId === "progetto-63fb3-31e23") {
                 console.error("ERRORE CRITICO: Non hai inserito la tua configurazione Firebase reale. L'app NON PUÒ connettersi a Firestore al di fuori del Canvas.");
             }
         }
