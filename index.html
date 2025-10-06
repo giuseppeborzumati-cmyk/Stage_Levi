@@ -23,19 +23,25 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
-
-    <!-- Intestazione con Logo -->
-    <header class="bg-white shadow-xl sticky top-0 z-40">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-            <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-900 flex items-center">
-                <img src="Levi.png" onerror="this.onerror=null; this.src='Levi.png';" alt="Logo Primo Levi" class="rounded-full mr-3 border-2 border-indigo-600">
-                Stage Orientamento <span class="ml-2 text-indigo-600">ITSCG Primo Levi</span>
+<!--mODIFICA-->>
+<!-- Header compatto con logo -->
+<header class="bg-white shadow-md sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 flex items-center justify-between">
+        <div class="flex items-center">
+            <img src="Levi.png" 
+                 onerror="this.onerror=null; this.src='Levi.png';" 
+                 alt="Logo Primo Levi" 
+                 class="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-indigo-500 mr-2">
+            <h1 class="text-lg sm:text-xl font-semibold text-gray-900">
+                Stage Orientamento <span class="text-indigo-600 font-bold">ITSCG Primo Levi</span>
             </h1>
-            <div id="auth-status" class="text-xs text-gray-500 truncate">
-                <div id="current-user-id">ID: In attesa...</div>
-            </div>
         </div>
-    </header>
+        <div id="auth-status" class="text-xs text-gray-400 truncate">
+            <div id="current-user-id">ID: In attesa...</div>
+        </div>
+    </div>
+</header>
+
 
     <main class="max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
         <!-- Message Box per feedback utente -->
@@ -302,8 +308,8 @@
         // Struttura fissa dei corsi
         const COURSES = [
             { id: 'scienze-applicate', name: 'Liceo Scientifico Opzione Scienze Applicate', color: 'bg-blue-100 text-blue-800' },
-            { id: 'curvatura-economica', name: 'Liceo Scientifico con Curvatura Economica', color: 'bg-green-100 text-green-800' },
-            { id: 'sistema-moda', name: 'NEW Sistema Moda', color: 'bg-pink-100 text-pink-800' },
+            { id: 'curvatura-economica', name: 'NEW Liceo Scientifico con Curvatura Economica', color: 'bg-green-100 text-green-800' },
+            { id: 'sistema-moda', name: 'Sistema Moda', color: 'bg-pink-100 text-pink-800' },
             { id: 'relazioni-marketing', name: 'Relazioni Internazionali per il Marketing', color: 'bg-yellow-100 text-yellow-800' },
             { id: 'logistica-quadriennale', name: 'Logistica Opzione Quadriennale', color: 'bg-indigo-100 text-indigo-800' },
             { id: 'costruzione-territorio', name: 'Costruzione Ambiente e Territorio', color: 'bg-purple-100 text-purple-800' }
