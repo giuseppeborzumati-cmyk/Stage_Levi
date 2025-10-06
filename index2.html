@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prenotazione Stage Orientamento ITSCG Primo Levi</title>
+    <!-- Caricamento Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Importazione libreria jsPDF per la generazione di PDF (client-side) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        /* Stile personalizzato per un look moderno */
+        body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
+        .card { transition: all 0.3s ease-in-out; }
+        .card:hover { transform: translateY(-3px); box-shadow: 0 15px 25px -5px rgba(0, 0, 0, 0.1), 0 5px 10px -5px rgba(0, 0, 0, 0.04); }
+        .spinner { border: 4px solid rgba(0, 0, 0, 0.1); border-top-color: #3b82f6; border-radius: 50%; width: 1.5rem; height: 1.5rem; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        /* Stile per i modali */
+        .modal-content { max-height: 80vh; overflow-y: auto; }
+        /* Stile per la barra statica */
+        .stat-bar { height: 10px; border-radius: 5px; }
+    </style>
+    <!-- Configurazione per il font Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <!-- Intestazione con Logo e Stato Connessione -->
+    <header class="bg-white shadow-xl sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+            <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-900 flex items-center">
+                <img src="https://placehold.co/40x40/3b82f6/ffffff?text=PL" onerror="this.onerror=null; this.src='https://placehold.co/40x40/3b82f6/ffffff?text=PL';" alt="Logo Primo Levi" class="rounded-full mr-3 border-2 border-indigo-600">
+                Stage Orientamento <span class="ml-2 text-indigo-600">ITSCG Primo Levi</span>
+            </h1>
+            <div class="flex items-center space-x-4">
+                <!-- Stato Connessione Database (Bollino) -->
+                <div id="db-status" class="flex items-center space-x-2 text-sm font-medium">
+                    <span id="status-text" class="text-gray-600 hidden sm:inline">Caricamento DB...</span>
+                    <span id="status-dot" class="w-4 h-4 rounded-full bg-gray-400 shadow-md"></span>
+                </div>
+                <button id="chatbot-btn" class="flex items-center bg-indigo-600 text-white p-2 rounded-lg shadow-lg hover:bg-indigo-700 transition duration-150">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+                    <span class="ml-2 hidden lg:inline">Assistenza Chat</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
+        <div id="message-box" class="hidden fixed top-20 right-5 p-4 rounded-lg shadow-xl text-white z-50 transition-opacity duration-300"></div>
+        <div id="loading" class="flex justify-center items-center py-12 text-gray-600">
+            <div class="spinner mr-3"></div> <span class="text-lg font-medium">Caricamento disponibilità e connessione al database...</span>
+        </div>
+            <main class="max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
+        <!-- Message Box per feedback utente -->
+        <div id="message-box" class="hidden fixed top-20 right-5 p-4 rounded-lg shadow-xl text-white z-50 transition-opacity duration-300"></div>
+        
+        <!-- Loading Indicator -->
+        <div id="loading" class="flex justify-center items-center py-12 text-gray-600">
+            <div class="spinner mr-3"></div> <span class="text-lg font-medium">Caricamento disponibilità e connessione al database...</span>
+        </div>
+
+        <!-- Sezione Informativa sul Ministage (Dettagliata) -->
+        <section class="mb-12 p-8 bg-white rounded-2xl shadow-2xl border-l-8 border-indigo-600">
+            <h2 class="text-3xl font-extrabold text-gray-900 mb-4">Il Ministage di Orientamento ITSCG Primo Levi</h2>
+            <p class="text-gray-700 leading-relaxed text-base mb-6">Per supportare al meglio l'importante scelta della scuola superiore, il nostro Istituto organizza dei **Ministage di Orientamento**, che permetteranno agli studenti di terza media di vivere un'esperienza diretta all'interno delle nostre aule.</p>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Cos'è un Ministage -->
+                <div class="p-4 bg-indigo-50 rounded-lg">
+                    <h3 class="font-bold text-lg text-indigo-700 mb-2 flex items-center">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M3.636 5.636l.707.707M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                        Cos'è?
+                    </h3>
+                    <p class="text-sm text-gray-600">Un'opportunità per gli studenti di trascorrere alcune ore presso la nostra scuola, inseriti direttamente in una classe per sperimentare in modo **immersivo** l'ambiente scolastico e i metodi di insegnamento, facilitando così una scelta più consapevole.</p>
+                </div>
+                <!-- Come si svolge -->
+                <div class="p-4 bg-indigo-50 rounded-lg">
+                    <h3 class="font-bold text-lg text-indigo-700 mb-2 flex items-center">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        Svolgimento
+                    </h3>
+                    <p class="text-sm text-gray-600">Lo studente partecipante sarà assegnato a una classe e prenderà parte a **due ore di lezione curricolari** (es. Matematica e Italiano) come uditore attivo. L'esperienza complessiva dura circa due ore, con supporto costante di un docente o un tutor.</p>
+                </div>
+                <!-- Obiettivi -->
+                <div class="p-4 bg-indigo-50 rounded-lg">
+                    <h3 class="font-bold text-lg text-indigo-700 mb-2 flex items-center">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                        Obiettivi
+                    </h3>
+                    <ul class="list-disc list-inside text-sm text-gray-600 space-y-1">
+                        <li>Valutare l'ambiente scolastico.</li>
+                        <li>Comprendere le materie e il livello richiesto.</li>
+                        <li>Sciogliere i dubbi sulla scelta del percorso.</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <p class="mt-6 text-xs text-gray-500">Organizzazione a cura delle Funzioni Orientamento: Prof. ssa Laura Corvi e Prof. ssa Maria Grazia Calabrese.</p>
+            <p class="text-xs text-gray-500">ITSCG PRIMO LEVI DI SEREGNO VIA BRIANTINA 68</p>
+        </section>
+
+        <!-- Sezione Studenti -->
+        <section id="student-view" class="space-y-12">
+            <h2 class="text-4xl font-extrabold text-gray-800 text-center mb-10">Scegli il tuo Stage di Orientamento</h2>
+            <div id="courses-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Le schede dei corsi saranno generate qui -->
+            </div>
+            
+            <!-- Link Cancella Prenotazione (meno invasivo) -->
+            <div class="text-center pt-8 border-t border-gray-200">
+                <p class="text-gray-500 text-sm">Hai già prenotato e devi cambiare idea?</p>
+                <button id="open-cancellation-modal-btn" class="inline-flex items-center mt-2 px-4 py-2 text-md font-medium text-red-600 bg-white border border-transparent rounded-lg hover:text-red-700 hover:bg-red-50 transition duration-150 shadow-md hover:shadow-lg">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    Clicca qui per Annullare una Prenotazione
+                </button>
+            </div>
+        </section>
+
+        <!-- Modale di Prenotazione -->
+        <div id="booking-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-70 flex items-center justify-center z-50 p-4">
+            <div class="modal-content relative bg-white p-6 sm:p-8 w-full max-w-lg rounded-xl shadow-2xl">
+                <h3 class="text-2xl font-bold mb-4 text-indigo-600">Conferma Prenotazione Stage</h3>
+                <p class="text-gray-600 mb-2">Stage: <span id="modal-course-name" class="font-bold"></span></p>
+                <p class="text-gray-600 mb-4">Data: <span id="modal-date" class="font-bold"></span></p>
+                
+                <form id="booking-form" class="space-y-4">
+                    <input type="hidden" id="booking-course-id">
+                    <input type="hidden" id="booking-date">
+
+                    <div>
+                        <label for="student-name" class="block text-sm font-medium text-gray-700">Nome e Cognome</label>
+                        <input type="text" id="student-name" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                    </div>
+                    <div>
+                        <label for="student-email" class="block text-sm font-medium text-gray-700">Email</label>
+                        <input type="email" id="student-email" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                    </div>
+                    <div>
+                        <label for="student-phone" class="block text-sm font-medium text-gray-700">Cellulare</label>
+                        <input type="tel" id="student-phone" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                    </div>
+                    <div>
+                        <label for="student-motivation" class="block text-sm font-medium text-gray-700">Motivazione Iscrizione (Breve)</label>
+                        <textarea id="student-motivation" rows="2" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500" placeholder="Es. Desidero approfondire l'indirizzo prima di scegliere."></textarea>
+                    </div>
+                    <div>
+                        <label for="student-interest" class="block text-sm font-medium text-gray-700">Perché interessato a questo indirizzo?</label>
+                        <textarea id="student-interest" rows="2" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500" placeholder="Es. Sono bravo in matematica e mi piace l'economia."></textarea>
+                    </div>
+                    
+                    <div class="flex justify-end space-x-4 pt-4">
+                        <button type="button" id="close-modal-btn" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition duration-150">Annulla</button>
+                        <button type="submit" id="confirm-booking-btn" class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 transition duration-150 shadow-md">Conferma e Genera PDF</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Modale di Cancellazione -->
+        <div id="cancellation-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-70 flex items-center justify-center z-50 p-4">
+            <div class="modal-content relative bg-white p-6 sm:p-8 w-full max-w-lg rounded-xl shadow-2xl">
+                <h3 class="text-2xl font-bold mb-6 text-red-600">Cancellazione Prenotazione</h3>
+                <p class="text-gray-600 mb-4 text-sm">Per annullare, inserisci il codice di prenotazione che trovi nel PDF di conferma, insieme al tuo nome e cognome per verifica.</p>
+                
+                <form id="cancellation-form" class="space-y-4">
+                    <div>
+                        <label for="cancellation-code" class="block text-sm font-medium text-gray-700">Codice Prenotazione</label>
+                        <input type="text" id="cancellation-code" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500" placeholder="Esempio: X3H4K9J2">
+                    </div>
+                    <div>
+                        <label for="cancellation-name" class="block text-sm font-medium text-gray-700">Nome e Cognome</label>
+                        <input type="text" id="cancellation-name" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500">
+                    </div>
+                    <div>
+                        <label for="cancellation-reason" class="block text-sm font-medium text-gray-700">Motivazione della Cancellazione</label>
+                        <textarea id="cancellation-reason" rows="2" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500" placeholder="Es. Ho già partecipato ad un altro stage."></textarea>
+                    </div>
+                    
+                    <div class="flex justify-end space-x-4 pt-4">
+                        <button type="button" id="close-cancellation-modal-btn" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition duration-150">Annulla</button>
+                        <button type="submit" id="confirm-cancellation-btn" class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 transition duration-150 shadow-md">Conferma Cancellazione</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Sezione Docenti (Area Riservata Centrata) -->
+        <div class="mt-16 pt-8 border-t border-gray-300 flex justify-center">
+            <div class="w-full max-w-4xl">
+                <h3 class="text-3xl font-extrabold text-gray-800 mb-6 text-center">Area Riservata Docenti</h3>
+                <!-- ID Utente è necessario per la risoluzione dei problemi e l'identificazione -->
+                <p class="text-xs text-gray-500 mb-6 text-center">ID Utente Corrente: <span id="current-user-id" class="font-mono text-xs bg-gray-100 p-1 rounded">Caricamento...</span></p>
+
+                <!-- ** ISTRUZIONI CRITICHE PER LE REGOLE DI SICUREZZA FIRESTORE ** -->
+                <div class="mt-10 p-6 bg-red-100 border-l-4 border-red-500 rounded-lg shadow-xl">
+                    <p class="text-lg font-bold text-red-700 mb-2 flex items-center">
+                        <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                        ⚠ ERRORE DI PERMESSI (RISOLUZIONE CRITICA)
+                    </p>
+                    <p class="text-sm text-red-800">L'errore **Missing or insufficient permissions** che stai vedendo nella console indica che le **Regole di Sicurezza di Firestore** stanno bloccando le richieste di lettura. L'utente (anche se anonimo) è autenticato. **Per risolvere**, devi **copiare e incollare** le seguenti regole nel pannello di controllo di Firebase Firestore e fare clic su **Pubblica**:</p>
+                    <pre class="mt-3 p-3 bg-red-800 text-white rounded-md text-xs overflow-x-auto font-mono whitespace-pre-wrap">
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Permette a TUTTI gli utenti autenticati (inclusi gli anonimi) di leggere e scrivere i dati pubblici dell'app.
+    // NECESSARIO per l'accesso studenti e l'ascolto delle prenotazioni.
+    match /artifacts/{appId}/public/data/{collectionName}/{document=**} {
+      allow read, write: if request.auth != null;
+    }
+
+    // Regole per dati privati (non usati in questa app, ma standard)
+    match /artifacts/{appId}/users/{userId}/{collectionName}/{document=**} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+  }
+}
+                    </pre>
+                    <p class="text-sm text-red-800 font-bold mt-3">Una volta pubblicate queste regole, l'applicazione dovrebbe iniziare a caricare i dati immediatamente.</p>
+                </div>
+
+
+                <!-- Form di Login Docenti -->
+                <form id="teacher-login-form" class="max-w-md mx-auto bg-white p-6 rounded-2xl shadow-2xl space-y-5 border-t-8 border-green-600 mt-10">
+                    <h4 class="text-xl font-bold text-gray-700 text-center">Accesso Amministrativo (Tramite Firebase Auth)</h4>
+                    <p class="text-sm text-gray-500 text-center text-red-500 font-medium">RICHIEDE: Utente creato in Firebase Authentication (Email/Password)</p>
+                    <div>
+                        <label for="teacher-email" class="block text-sm font-medium text-gray-700">Email Docente</label>
+                        <input type="email" id="teacher-email" value="orientamento@leviseregno.edu.it" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500">
+                    </div>
+                    <div>
+                        <label for="teacher-password" class="block text-sm font-medium text-gray-700">Password</label>
+                        <input type="password" id="teacher-password" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500">
+                    </div>
+                    <button type="submit" class="w-full px-4 py-3 text-lg font-semibold text-white bg-green-600 rounded-md hover:bg-green-700 transition duration-150 shadow-lg">Accedi alla Dashboard</button>
+                    <p id="login-error" class="text-red-500 text-sm hidden text-center pt-2 font-medium">Credenziali non valide o errore di connessione.</p>
+                </form>
+
+                <!-- Dashboard Docenti -->
+                <div id="teacher-dashboard" class="hidden mt-10 space-y-10">
+                    <div class="flex justify-between items-center mb-6">
+                        <h4 class="text-3xl font-extrabold text-green-700">Riepilogo e Statistiche</h4>
+                        <button id="logout-btn" class="px-4 py-2 text-sm font-medium text-red-600 bg-white border border-red-300 rounded-lg hover:bg-red-50 transition duration-150 shadow-sm">
+                            Logout
+                        </button>
+                    </div>
+
+                    <!-- Statistiche Grafiche: Divisione per Indirizzo e Data -->
+                    <div id="stats-container" class="bg-white p-6 rounded-2xl shadow-2xl border-t-8 border-green-600">
+                        <h5 class="text-xl font-bold mb-6 text-gray-800">Statistiche Prenotazioni: Occupazione Posti (Max <span id="max-slots-display">...</span>)</h5>
+                        <div id="booking-stats" class="space-y-4">
+                            <!-- Le barre statistiche saranno generate qui -->
+                            <p class="text-gray-500 italic text-sm text-center">Caricamento statistiche...</p>
+                        </div>
+                    </div>
+
+                    <!-- Archivio PDF Generati -->
+                    <div id="pdf-list-section">
+                        <h5 class="text-xl font-bold mb-4 text-gray-800">Archivio Documenti PDF (Conferme/Cancellazioni)</h5>
+                        <div class="bg-white p-4 rounded-lg shadow-xl border">
+                            <ul id="pdf-list" class="divide-y divide-gray-100">
+                                <!-- I link ai PDF saranno inseriti qui -->
+                            </ul>
+                            <p id="no-pdfs-message" class="text-gray-500 text-sm italic mt-2 hidden">Nessun documento PDF generato.</p>
+                        </div>
+                    </div>
+
+                    <!-- Lista Prenotazioni Dettagliata -->
+                    <div id="booking-data-table">
+                        <h5 class="text-xl font-bold mb-4 text-gray-800">Dati di Prenotazione Totali</h5>
+                        <div class="overflow-x-auto bg-white rounded-lg shadow border">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Studente</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Corso e Data</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contatti</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Codice</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="bookings-list" class="bg-white divide-y divide-gray-200">
+                                    <!-- Le prenotazioni saranno inserite qui -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <!-- ✅ Script Firebase corretto -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, addDoc, onSnapshot, collection, query, serverTimestamp, getDocs, deleteDoc, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAnalytics, isSupported } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-analytics.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAP-Bmf02SZp4o6K2z2B1GgIlUJ3Wuc8Zk",
+            authDomain: "progetto-63fb3.firebaseapp.com",
+            projectId: "progetto-63fb3",
+            storageBucket: "progetto-63fb3.appspot.com",  // ✅ corretto
+            messagingSenderId: "883088850197",
+            appId: "1:883088850197:web:29b8573ea43555041b3d1c",
+            measurementId: "G-2PNR8PQHDR"
+        };
+
+        let app, db, auth, analytics;
+
+        async function initializeFirebaseWithBackoff(retryCount = 0) {
+            try {
+                app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+                setLogLevel('debug');
+                if (await isSupported()) {
+                    analytics = getAnalytics(app);
+                }
+                console.log("✅ Firebase connesso correttamente!");
+                const statusDot = document.getElementById('status-dot');
+                const statusText = document.getElementById('status-text');
+                statusDot.classList.remove('bg-gray-400');
+                statusDot.classList.add('bg-green-500');
+                statusText.textContent = "DB Connesso";
+            } catch (error) {
+                console.error("❌ Errore di connessione Firebase:", error);
+                const statusDot = document.getElementById('status-dot');
+                const statusText = document.getElementById('status-text');
+                statusDot.classList.remove('bg-gray-400');
+                statusDot.classList.add('bg-red-500');
+                statusText.textContent = "Errore connessione DB";
+                if (retryCount < 5) {
+                    const delay = Math.pow(2, retryCount) * 1000;
+                    console.warn(`Tentativo di riconnessione tra ${delay / 1000}s...`);
+                    setTimeout(() => initializeFirebaseWithBackoff(retryCount + 1), delay);
+                } else {
+                    alert("Errore persistente di connessione al database. Controlla la configurazione Firebase.");
+                }
+            }
+        }
+
+        window.onload = initializeFirebaseWithBackoff;
+    </script>
+</body>
+</html>
