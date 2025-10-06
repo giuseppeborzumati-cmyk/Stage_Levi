@@ -264,8 +264,18 @@
 
         // Variabili Globali fornite dall'ambiente Canvas
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        // Parsing della configurazione Firebase fornita dall'ambiente
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+        
+        // --- INIZIALIZZAZIONE CONFIGURAZIONE FIREBASE CORRETTA ---
+        let firebaseConfig = {};
+        try {
+            const configString = typeof __firebase_config !== 'undefined' ? __firebase_config : '{}';
+            // Tenta il parsing, gestendo il caso in cui sia una stringa vuota o non valida
+            firebaseConfig = JSON.parse(configString.trim() || '{}');
+        } catch (e) {
+            console.error("Errore nel parsing della configurazione Firebase:", e);
+            // firebaseConfig rimane {} in caso di errore
+        }
+        
         const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
         
         let db, auth;
@@ -350,8 +360,9 @@
         // --- Inizializzazione Firebase e Autenticazione ---
 
         async function initializeFirebaseWithBackoff(retryCount = 0) {
-            if (!firebaseConfig.projectId) {
-                loadingEl.innerHTML = '<p class="text-red-500">Errore: Configurazione Firebase mancante o non valida.</p>';
+            // VERIFICA ROBUSTA DELLA CONFIGURAZIONE
+            if (!firebaseConfig.apiKey || !firebaseConfig.projectId) {
+                loadingEl.innerHTML = '<p class="text-red-500 font-bold">Errore: Configurazione Firebase mancante o non valida.</p>';
                 updateDbStatus(false);
                 return;
             }
