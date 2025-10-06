@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot - ITSCG Primo Levi Seregno</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Animazione per lo sfondo sfumato */
+        @keyframes gradient-animation {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        body {
+            background: linear-gradient(-45deg, #1d4ed8, #ef4444, #3182ce, #eab308);
+            background-size: 400% 400%;
+            animation: gradient-animation 15s ease infinite;
+            font-family: 'Inter', sans-serif;
+            color: #1a202c;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 1rem;
+            margin: 0;
+        }
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            gap: 2.5rem;
+            align-items: center;
+            width: 100%;
+            max-width: 1400px;
+            padding: 0;
+        }
+        @media (min-width: 1024px) {
+            .main-content {
+                flex-direction: row-reverse; /* Inverti ordine per chatbot a sinistra su desktop */
+                justify-content: space-between;
+                padding: 2rem;
+            }
+        }
+
+        .text-box, .chatbot-box {
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 2.5rem;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(8px);
+            border: 4px solid;
+            transition: transform 0.3s ease;
+            width: 100%;
+        }
+        .text-box {
+            border-image: linear-gradient(45deg, #1d4ed8, #3b82f6, #93c5fd) 1;
+            max-width: 600px; /* Più stretto per le info */
+        }
+        .chatbot-box {
+            height: 90vh;
+            min-height: 650px;
+            max-height: 900px;
+            border-image: linear-gradient(45deg, #eab308, #f59e0b, #ef4444) 1;
+            max-width: 800px; /* Più largo per la chat */
+        }
+        
+        .text-box h1 {
+            color: #1d4ed8;
+        }
+        
+        .chatbot-window {
+            height: 100%;
+            width: 100%;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .chatbot-header {
+            background: linear-gradient(90deg, #1d4ed8, #3b82f6);
+            color: white;
+            padding: 1.25rem;
+            border-bottom: 2px solid #2563eb;
+        }
+        .chat-messages {
+            flex-grow: 1;
+            padding: 1rem;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+        .message-container {
+            display: flex;
+            margin-bottom: 1rem;
+        }
+        .bot-message {
+            background-color: #e0f2fe; /* Light Blue */
+            color: #1e40af; /* Darker Blue text */
+            border-radius: 16px 16px 16px 4px;
+            padding: 1rem 1.25rem;
+            max-width: 85%;
+            align-self: flex-start;
+            font-size: 1rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            white-space: pre-wrap; /* Preserve newlines */
+        }
+        .user-message {
+            background-color: #3b82f6; /* Primary Blue */
+            color: white;
+            border-radius: 16px 16px 4px 16px;
+            padding: 1rem 1.25rem;
+            max-width: 85%;
+            align-self: flex-end;
+            font-size: 1rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        .suggested-questions-container {
+            padding: 1rem;
+            border-top: 2px solid #e2e8f0;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); /* Rende i pulsanti responsivi */
+            gap: 0.75rem;
+            justify-items: center;
+        }
+        .suggested-question-button {
+            background-color: #f3f4f6;
+            color: #1f2937;
+            border-radius: 20px;
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+            text-align: center;
+            border: 1px solid #d1d5db;
+            width: 100%;
+        }
+        .suggested-question-button:hover {
+            background-color: #d1d5db;
+            transform: translateY(-2px);
+        }
+        .animated-
+ {
+            animation: rotate 10s infinite linear;
+        }
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-content">
+        <!-- Chatbot Area -->
+        <div class="chatbot-box">
+            <div class="chatbot-window">
+                <div class="chatbot-header flex justify-between items-center">
+                    <div class="flex items-center gap-3">
+                        <!-- Inline SVG Logo -->
+                        <svg class="animated-logo w-8 h-8 text-yellow-300" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17.93c-3.95-.49-7-3.85-7-7.93s3.05-7.44 7-7.93v15.86zM13 4.07c3.95.49 7 3.85 7 7.93s-3.05 7.44-7 7.93V4.07z"/>
+                        </svg>
+                        <h2 class="text-xl font-semibold">Chatbot FAQ ITSCG "Primo Levi"</h2>
+                    </div>
+                </div>
+                <div id="chat-messages" class="chat-messages">
+                    <div class="message-container">
+                        <div class="bot-message">Benvenuto/a! Scegli una domanda per scoprire di più sull'offerta formativa, i nuovi indirizzi e le attività innovative del Primo Levi.</div>
+                    </div>
+                </div>
+                
+                <!-- La sezione input è stata rimossa, rimangono solo i pulsanti di scelta -->
+                
+                <div id="suggested-questions" class="suggested-questions-container">
+                    <!-- I pulsanti di scelta multipla saranno iniettati qui da JS -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Information/Description Area -->
+        <div class="text-box w-full lg:max-w-xl">
+            <h1 class="text-3xl md:text-4xl font-extrabold mb-6 text-center">Informazioni Essenziali per l'Orientamento</h1>
+            
+            <div class="flex flex-col items-center justify-center gap-6 mb-8">
+                <!-- Using the uploaded image file name -->
+                <img src="foto_chatbot.png" alt="Immagine dell'Istituto Primo Levi Seregno" class="w-full max-w-sm h-auto rounded-lg shadow-xl border-4 border-gray-300 object-cover">
+                <p class="text-lg text-gray-700 leading-relaxed text-justify mt-4">
+                    Questo strumento è stato ideato per fornire un accesso rapido e guidato alle informazioni chiave dell'ITSCG Primo Levi di Seregno. Le risposte sono tratte direttamente dai documenti ufficiali e dalle **opportunità di indirizzo** presentate agli Open Day.
+                </p>
+            </div>
+            
+            <h2 class="text-2xl font-bold mb-4 text-blue-600">Indirizzi e Dati di Contatto Ufficiali</h2>
+            <ul class="text-lg text-gray-800 space-y-2 text-left bg-gray-50 p-4 rounded-lg border border-gray-200">
+                <li><strong class="text-blue-700">Indirizzi Tecnici:</strong> Costruzioni Ambiente e Territorio (CAT), Logistica, Sistema Moda, Relazioni Internazionali per il Marketing.</li>
+                <li><strong class="text-blue-700">Indirizzi Liceali:</strong> Liceo Scientifico Scienze Applicate, Liceo Scientifico con Curvatura Economica (NEW).</li>
+                <li><strong class="text-blue-700">Sede:</strong> Via Briantina, 68 - 20831 Seregno (MB)</li>
+                <li><strong class="text-blue-700">Telefono:</strong> 0362 224164</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // Variabile globale per tracciare se l'utente è in una sequenza di domande
+        let isWaitingForReset = false; 
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const chatMessages = document.getElementById('chat-messages');
+            const suggestedQuestionsContainer = document.getElementById('suggested-questions');
+            
+            // Dati del chatbot aggiornati (più focus su innovazione e indirizzi)
+            const qaData = {
+                "indirizzi offerti": {
+                    "label": "Quali indirizzi sono offerti (Tecnici e Liceali)?",
+                    "answer": "L'ITSCG Primo Levi offre un'ampia scelta in **Tecnico** e **Liceale**:\n\n**Tecnici**:\n- Costruzioni, Ambiente e Territorio (CAT)\n- Logistica (anche corso Quadriennale)\n- Sistema Moda\n- Relazioni Internazionali per il Marketing\n\n**Liceali**:\n- Liceo Scientifico Scienze Applicate\n- Liceo Scientifico con Curvatura Economica (NOVITÀ)"
+                },
+                "innovazione e laboratori": {
+                    "label": "Cosa si intende per 'Apprendimento Attivo' e laboratori innovativi?",
+                    "answer": "La scuola si impegna a progettare l'**Apprendimento Attivo** in ambienti didattici innovativi, realizzati anche con i fondi di **Scuola 4.0** (PNRR).\nQuesto include:\n- Potenziamento delle dotazioni laboratoriali in ogni indirizzo.\n- Utilizzo efficace delle nuove dotazioni tecnologiche e digitali."
+                },
+                "internazionalizzazione e stage": {
+                    "label": "La scuola offre percorsi di internazionalizzazione o stage all'estero?",
+                    "answer": "Il Primo Levi promuove l'**internazionalizzazione del curricolo** e lo scambio fra le diverse culture. Questo si concretizza in progetti che favoriscono lo **spirito transnazionale** e la preparazione alle dinamiche dei mercati esteri, specialmente negli indirizzi economici e tecnici."
+                },
+                "calendario open day": {
+                    "label": "Quali sono le prossime date di Open Day 2025?",
+                    "answer": "Le date ufficiali per l'Open Day 2025 (prenotazione obbligatoria per studenti di terza media) sono:\n- **15 NOVEMBRE**\n- **29 NOVEMBRE**\n- **13 DICEMBRE**\nVerifica il sito ufficiale per i dettagli di prenotazione."
+                },
+                "mezzi pubblici e raggiungibilità": {
+                    "label": "Mezzi Pubblici per Raggiungere la Sede",
+                    "answer": "La scuola è comodamente raggiungibile tramite diverse linee di autotrasporto:\n- **SILA**: Linee H208 (Seregno - Saronno) e H313 (Copreno-Lentate-Seveso FNM).\n- **Brianza Trasporti**: Linee Z231, Z232, Z233, Z228."
+                },
+                "colloqui e registro elettronico": {
+                    "label": "Rapporti con le Famiglie (Colloqui e Voti)",
+                    "answer": "Il rapporto con le famiglie è gestito principalmente tramite:\n1. **Registro Elettronico**: per voti, assenze, pagelle e richieste di permessi.\n2. **Colloqui con i singoli docenti**: in orario scolastico, previa prenotazione tramite Registro Elettronico."
+                },
+            };
+            
+            // Funzione per convertire il testo del bot (con newlines e bold) in HTML
+            function formatBotMessage(text) {
+                // Conversione di base: bold (**testo**) e newlines (\n)
+                let htmlText = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+                htmlText = htmlText.replace(/\n/g, '<br>');
+                return htmlText;
+            }
+
+            function createSuggestedButtons(data, isReset = false) {
+                suggestedQuestionsContainer.innerHTML = '';
+                
+                if (isReset) {
+                    const resetButton = document.createElement('button');
+                    resetButton.classList.add('suggested-question-button', 'bg-red-500', 'hover:bg-red-600', 'text-white', 'col-span-full', 'w-full');
+                    resetButton.textContent = "Nuova Domanda";
+                    resetButton.id = "reset-button";
+                    suggestedQuestionsContainer.appendChild(resetButton);
+                } else {
+                    const questions = Object.keys(data);
+                    questions.forEach(q => {
+                        const button = document.createElement('button');
+                        button.classList.add('suggested-question-button');
+                        button.textContent = data[q].label || q;
+                        button.dataset.questionKey = q; // Usa la chiave per l'accesso ai dati
+                        suggestedQuestionsContainer.appendChild(button);
+                    });
+                }
+            }
+
+            function addMessage(text, sender) {
+                const messageContainer = document.createElement('div');
+                messageContainer.classList.add('message-container');
+                const messageBubble = document.createElement('div');
+                messageBubble.classList.add(sender === 'user' ? 'user-message' : 'bot-message');
+                
+                messageBubble.innerHTML = sender === 'user' ? text : formatBotMessage(text);
+                
+                messageContainer.appendChild(messageBubble);
+                chatMessages.appendChild(messageContainer);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+
+            function handleQuestionSelection(questionKey) {
+                if (isWaitingForReset) return;
+
+                const userQuestion = qaData[questionKey].label;
+                const botResponse = qaData[questionKey].answer;
+                
+                // 1. Mostra la domanda dell'utente
+                addMessage(userQuestion, 'user');
+                
+                // 2. Disabilita i pulsanti e mostra la risposta del bot dopo un breve ritardo
+                isWaitingForReset = true;
+                suggestedQuestionsContainer.innerHTML = ''; // Rimuovi i pulsanti
+                
+                setTimeout(() => {
+                    addMessage(botResponse, 'bot');
+                    // 3. Mostra il pulsante "Nuova Domanda"
+                    createSuggestedButtons(qaData, true); 
+                }, 800);
+            }
+            
+            // Gestore di eventi per i pulsanti di scelta multipla
+            suggestedQuestionsContainer.addEventListener('click', (e) => {
+                const target = e.target;
+                
+                // Gestione del pulsante RESET
+                if (target.id === 'reset-button') {
+                    chatMessages.innerHTML = ''; // Pulisce la chat
+                    addMessage("Benvenuto/a! Scegli una domanda per scoprire di più sull'offerta formativa, i nuovi indirizzi e le attività innovative del Primo Levi.", 'bot');
+                    isWaitingForReset = false;
+                    createSuggestedButtons(qaData, false);
+                    return;
+                }
+
+                // Gestione della selezione di una domanda FAQ
+                const questionKey = target.dataset.questionKey;
+                if (questionKey && !isWaitingForReset) {
+                    handleQuestionSelection(questionKey);
+                }
+            });
+            
+            // Inizializza i pulsanti suggeriti all'avvio
+            createSuggestedButtons(qaData, false);
+        });
+    </script>
+</body>
+</html>
