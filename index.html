@@ -1,0 +1,1053 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>StagePro - Prenota il tuo futuro | ITSCG Primo Levi Seregno</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+    :root{
+      --primary:#1a73e8;
+      --green:#34a853;
+      --yellow:#fbbc04;
+      --red:#ea4335;
+      --bg:#f4f8fb;
+      --card:#ffffff;
+    }
+    body{
+      font-family:Inter,system-ui,Arial,sans-serif;
+      background: radial-gradient(circle at 10% 10%, rgba(26,115,232,0.06), transparent 10%),
+                  radial-gradient(circle at 90% 80%, rgba(52,168,83,0.04), transparent 12%),
+                  var(--bg);
+      color:#0f172a;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+    }
+
+    /* Animated gradient background */
+    .animated-background{
+      position:fixed; inset:0; z-index:-1;
+      background: linear-gradient(45deg, rgba(26,115,232,0.12), rgba(52,168,83,0.08), rgba(251,188,4,0.06), rgba(234,67,53,0.05));
+      background-size: 300% 300%;
+      animation: bgShift 18s ease-in-out infinite;
+      pointer-events:none;
+    }
+    @keyframes bgShift{
+      0%{background-position:0% 50%}
+      50%{background-position:100% 50%}
+      100%{background-position:0% 50%}
+    }
+
+    /* Header */
+    header{backdrop-filter: blur(6px);}
+    .logo-anim{ animation:spinScale 8s linear infinite;}
+    @keyframes spinScale{
+      0%{transform:rotate(0deg) scale(1)}
+      50%{transform:rotate(180deg) scale(1.08)}
+      100%{transform:rotate(360deg) scale(1)}
+    }
+
+    /* Cards */
+    .card{
+      background:var(--card);
+      border-radius:14px;
+      box-shadow: 0 8px 30px rgba(12,18,34,0.06);
+    }
+
+    /* Calendar cells */
+    .calendar-grid{ display:grid; grid-template-columns:repeat(7,1fr); gap:6px; }
+    .day-cell{padding:10px; border-radius:8px; text-align:center; font-weight:600; min-height:56px;}
+    .stage-available{ background:var(--yellow); color:#1a1a1a; }
+    .stage-full{ background:var(--red); color:white; text-decoration:line-through; }
+    .closure{ background:#9b1b1b; color:white; text-decoration:line-through; }
+    .weekday{ background:rgba(26,115,232,0.1); color:var(--primary); font-weight:700; }
+
+    /* Floating chatbot button */
+    .chatbot-btn{
+      position:fixed; right:18px; bottom:18px; width:64px; height:64px; background:var(--yellow); border-radius:999px;
+      display:flex; align-items:center; justify-content:center; box-shadow:0 8px 30px rgba(0,0,0,0.12); z-index:60;
+      transition:transform .2s;
+    }
+    .chatbot-btn:hover{ transform:scale(1.06); background:var(--red); color:white; }
+
+    /* small animations - rotating windmill */
+    .windmill{
+      width:64px; height:64px; display:inline-block; transform-origin:center center; animation:rotatePale 8s linear infinite;
+    }
+    @keyframes rotatePale{ 0%{ transform:rotate(0deg)} 100%{transform:rotate(360deg)} }
+
+    /* Booking button hover */
+    .book-btn{transition:transform .18s, box-shadow .18s;}
+    .book-btn:hover{ transform:translateY(-4px); box-shadow:0 8px 20px rgba(26,115,232,0.14);}
+
+    /* small responsive */
+    @media (max-width:720px){
+      .calendar-grid{ gap:4px; }
+    }
+
+    /* small badge */
+    .badge-new{background:var(--red); color:white; padding:4px 8px; border-radius:999px; font-weight:700; font-size:12px;}
+
+    /* modal admin login */
+    .modal-center{ position:fixed; inset:0; display:flex; align-items:center; justify-content:center; z-index:80;}
+  </style>
+</head>
+<body>
+
+  <div class="animated-background" aria-hidden="true"></div>
+
+  <!-- HEADER / NAV -->
+  <header class="sticky top-0 z-40 bg-white/70 backdrop-blur-md border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-20">
+        <div class="flex items-center gap-4">
+          <div class="flex items-center space-x-3">
+            <img src="Levi.png" alt="Logo Levi" class="h-20 w-20 rounded-full object-cover logo-anim shadow-lg">
+            <div>
+              <h1 class="text-xl font-extrabold text-[var(--primary)]">StagePro • ITSCG Primo Levi</h1>
+              <p class="text-xs text-gray-600">Prenota il tuo stage | Seregno</p>
+            </div>
+          </div>
+        </div>
+
+        <nav class="hidden md:flex items-center gap-2">
+          <button onclick="showPage('home')" class="nav-btn px-3 py-2 rounded-md font-semibold text-sm hover:bg-gray-100">Home</button>
+          <button onclick="showPage('prenotazioni')" class="nav-btn px-3 py-2 rounded-md font-semibold text-sm hover:bg-gray-100">Prenotazioni</button>
+          <button onclick="showPage('cancellazione')" class="nav-btn px-3 py-2 rounded-md font-semibold text-sm hover:bg-gray-100">Cancellazione Prenotazioni</button>
+          <button onclick="showPage('calendario')" class="nav-btn px-3 py-2 rounded-md font-semibold text-sm hover:bg-gray-100">Calendario Scolastico & Stage</button>
+          <button onclick="showPage('feedback')" class="nav-btn px-3 py-2 rounded-md font-semibold text-sm hover:bg-gray-100">Feedback</button>
+          <button onclick="showAdminLogin()" class="nav-btn px-3 py-2 rounded-md font-semibold text-sm bg-[var(--red)] text-white hover:bg-[#c42f28]">Admin</button>
+        </nav>
+
+        <div class="flex items-center gap-3">
+          <a href="chatbot.html" target="_blank" class="text-sm px-3 py-2 rounded-md bg-gray-50 hover:bg-gray-100">Apri Chatbot</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+    <!-- HOME: RIPRISTINATA ALLA VERSIONE ORIGINALE -->
+    <section id="home" class="page-section">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Colonna Informazioni Dettagliate -->
+        <div class="lg:col-span-2 card p-8">
+          <h1 class="text-4xl font-black mb-4 text-[var(--primary)]">Benvenuti nell'Hub Stage Pro del Primo Levi</h1>
+          <p class="text-lg mb-6 text-gray-600 border-l-4 border-[var(--green)] pl-4 italic">
+            L'ITSCG Primo Levi di Seregno non è solo istruzione, è un trampolino di lancio per il tuo futuro professionale. Il nostro programma Stage Pro ti offre l'opportunità unica di applicare le tue conoscenze in contesti aziendali reali. Scegli il tuo indirizzo, prenota la tua esperienza e trasforma la teoria in pratica!
+          </p>
+
+          <h2 class="text-2xl font-bold mt-8 mb-4 text-[var(--red)]">Le Nostre Eccellenze</h2>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="p-4 bg-[#f0f4f8] rounded-lg shadow-inner flex items-start space-x-3">
+                <span class="text-[var(--primary)] text-2xl font-bold">🎓</span>
+                <div>
+                    <p class="font-semibold text-lg">Didattica Innovativa</p>
+                    <p class="text-sm text-gray-600">Laboratori all'avanguardia e approcci multidisciplinari, in linea con le richieste del mercato del lavoro.</p>
+                </div>
+            </div>
+            <div class="p-4 bg-[#f0f4f8] rounded-lg shadow-inner flex items-start space-x-3">
+                <span class="text-[var(--green)] text-2xl font-bold">🌐</span>
+                <div>
+                    <p class="font-semibold text-lg">Networking Aziendale</p>
+                    <p class="text-sm text-gray-600">Collaborazioni consolidate con aziende leader per garantire stage significativi in tutti i settori.</p>
+                </div>
+            </div>
+            <div class="p-4 bg-[#f0f4f8] rounded-lg shadow-inner flex items-start space-x-3">
+                <span class="text-[var(--yellow)] text-2xl font-bold">📈</span>
+                <div>
+                    <p class="font-semibold text-lg">Curvatura Economica NEW</p>
+                    <p class="text-sm text-gray-600">Un nuovo percorso per il Liceo Scientifico, focalizzato sull'economia e la gestione aziendale del futuro.</p>
+                </div>
+            </div>
+            <div class="p-4 bg-[#f0f4f8] rounded-lg shadow-inner flex items-start space-x-3">
+                <span class="text-[var(--red)] text-2xl font-bold">🛠️</span>
+                <div>
+                    <p class="font-semibold text-lg">Competenze Tecniche</p>
+                    <p class="text-sm text-gray-600">Formazione pratica in settori chiave come Logistica, Costruzioni e Sistemi Informatici.</p>
+                </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Colonna Immagine Animata/Grafica -->
+        <div class="lg:col-span-1 flex justify-center items-center">
+            <img src="Levi.png" alt="Immagine ITSCG" class="w-full max-w-sm rounded-2xl shadow-2xl transition duration-500 hover:rotate-2 hover:shadow-3xl transform">
+        </div>
+      </div>
+    </section>
+
+    <!-- PRENOTAZIONI -->
+    <section id="prenotazioni" class="page-section hidden mt-8">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-2xl font-extrabold text-[var(--primary)]">Prenota il tuo Stage</h2>
+        <p class="text-sm text-gray-500">Per ogni indirizzo ci sono <strong>5 posti</strong> per data. Clicca su "Prenota" per aprire il modulo.</p>
+      </div>
+
+      <div id="bookingTablesContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+
+      <!-- Firebase initialization inserted for prenotazioni (no visual changes) -->
+      <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "firebase/app";
+        import { getAnalytics } from "firebase/analytics";
+        // TODO: Add SDKs for Firebase products that you want to use
+        // https://firebase.google.com/docs/web/setup#available-libraries
+
+        // Your web app's Firebase configuration
+        // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+        const firebaseConfig = {
+          apiKey: "AIzaSyAP-Bmf02SZp4o6K2z2B1GgIlUJ3Wuc8Zk",
+          authDomain: "progetto-63fb3.firebaseapp.com",
+          projectId: "progetto-63fb3",
+          storageBucket: "progetto-63fb3.firebasestorage.app",
+          messagingSenderId: "883088850197",
+          appId: "1:883088850197:web:29b8573ea43555041b3d1c",
+          measurementId: "G-2PNR8PQHDR"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+      </script>
+
+    </section>
+
+    <!-- CANCELLAZIONE PRENOTAZIONI -->
+    <section id="cancellazione" class="page-section hidden mt-8">
+      <div class="card p-6">
+        <h2 class="text-xl font-bold">Annulla una Prenotazione (Genitori)</h2>
+        <p class="text-sm text-gray-600">Inserisci il codice della prenotazione che hai ricevuto al momento della conferma e indica il motivo.</p>
+
+        <form id="cancelForm" class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="text-sm font-medium">Codice Prenotazione</label>
+            <input id="cancelCode" required class="w-full p-2 border rounded-lg">
+          </div>
+          <div>
+            <label class="text-sm font-medium">Motivo</label>
+            <input id="cancelReason" required class="w-full p-2 border rounded-lg">
+          </div>
+          <div class="md:col-span-2 text-right">
+            <button type="submit" class="px-4 py-2 bg-[var(--red)] text-white rounded-lg">Richiedi Cancellazione</button>
+          </div>
+        </form>
+
+        <div id="cancelResult" class="mt-4 hidden p-3 rounded-lg"></div>
+      </div>
+    </section>
+
+    <!-- CALENDARIO SCOLASTICO & STAGE -->
+    <section id="calendario" class="page-section hidden mt-8">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="lg:col-span-2 card p-6">
+          <h2 class="text-2xl font-bold">Calendario Scolastico & Stage (2025/2026)</h2>
+          <p class="text-sm text-gray-600 mt-1">Le date di chiusura sono evidenziate in rosso. Le date stage disponibili sono in giallo; se tutte le scuole sono piene diventeranno rosse.</p>
+
+          <div class="mt-4">
+            <div class="flex gap-3 text-sm">
+              <div class="flex items-center gap-2"><span class="w-4 h-4 rounded-full bg-[var(--green)] block"></span> Date Stage Disponibili</div>
+              <div class="flex items-center gap-2"><span class="w-4 h-4 rounded-full bg-[var(--yellow)] block"></span> Date Stage (con posti)</div>
+              <div class="flex items-center gap-2"><span class="w-4 h-4 rounded-full bg-[var(--red)] block"></span> Giorni di Chiusura / Stage Pienamente Prenotati</div>
+            </div>
+          </div>
+
+          <div class="mt-6">
+            <div id="visualCalendar" class="calendar-grid"></div>
+          </div>
+
+          <div class="mt-6 p-4 bg-yellow-50 rounded-lg border-l-4 border-[var(--yellow)]">
+            <strong>Nota:</strong> Si precisa che nel corso dell’anno scolastico il calendario come sopra definito potrà subire variazioni, in seguito ad eventi non prevedibili che possano comportare la sospensione del servizio scolastico.
+          </div>
+        </div>
+
+        <aside class="card p-6">
+          <h3 class="text-lg font-bold">Legenda e Chiusure</h3>
+          <ul class="mt-3 text-sm text-gray-600 space-y-1">
+            <li><strong>11 settembre 2025</strong> - Avvio dell’anno scolastico 2025/26</li>
+            <li><strong>31 ottobre 2025</strong> - Sospensione attività didattica</li>
+            <li><strong>01 novembre 2025</strong> - Festa di tutti i Santi</li>
+            <li><strong>08 dicembre 2025</strong> - Immacolata Concezione</li>
+            <li><strong>22/12/2025 - 06/01/2026</strong> - Vacanze Natalizie (ultimo giorno prima festività: 19/12/2025)</li>
+            <li><strong>06 gennaio 2026</strong> - Epifania</li>
+            <li><strong>20 febbraio 2026</strong> - Carnevale ambrosiano</li>
+            <li><strong>02/04/2026 - 07/04/2026</strong> - Vacanze Pasquali</li>
+            <li><strong>25 aprile 2026</strong> - Liberazione</li>
+            <li><strong>27 aprile 2026</strong> - Santo patrono</li>
+            <li><strong>28/04/2026 - 30/04/2026</strong> - Sospensione attività didattica</li>
+            <li><strong>01 maggio 2026</strong> - Festa del Lavoro</li>
+            <li><strong>01 giugno 2026</strong> - Sospensione attività didattica</li>
+            <li><strong>02 giugno 2026</strong> - Festa della Repubblica</li>
+            <li><strong>08 giugno 2026</strong> - Termine delle lezioni</li>
+          </ul>
+        </aside>
+      </div>
+    </section>
+
+    <!-- FEEDBACK -->
+    <section id="feedback" class="page-section hidden mt-8">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="lg:col-span-2 card p-6">
+          <h2 class="text-2xl font-bold">Feedback Costruttivo</h2>
+          <p class="text-sm text-gray-600 mt-1">La tua opinione è preziosa per noi. Compila il modulo e si aprirà la tua app di posta per inviare il messaggio alla scuola (viene comunque salvato nel sistema).</p>
+
+          <form id="feedbackFormPage" class="mt-4 space-y-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <input id="fbName" placeholder="Nome" required class="p-2 border rounded-lg">
+              <input id="fbSurname" placeholder="Cognome" required class="p-2 border rounded-lg">
+            </div>
+            <div>
+              <select id="fbAddress" required class="w-full p-2 border rounded-lg"></select>
+            </div>
+            <div>
+              <textarea id="fbMessage" rows="5" placeholder="Il tuo messaggio..." required class="w-full p-2 border rounded-lg"></textarea>
+            </div>
+            <div class="text-right">
+              <button class="px-4 py-2 bg-[var(--green)] text-white rounded-lg">Invia Feedback</button>
+            </div>
+            <div id="fbMsg" class="mt-3 hidden p-3 rounded-lg"></div>
+          </form>
+
+        </div>
+
+        <aside class="card p-6">
+          <h3 class="font-bold">Contatti di riferimento</h3>
+          <p class="text-sm text-gray-600 mt-2">Feedback inviati a: <br><strong>mariagrazia.calabrese@levisergno.edu.it</strong><br><strong>laura.corvi@leviseregno.edu.it</strong></p>
+          <p class="text-xs text-gray-500 mt-4">Privacy &nbsp;•&nbsp; <a href="#" class="text-[var(--primary)] underline">Informativa Privacy</a></p>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ADMIN (sezione, visibile solo dopo login) -->
+    <section id="admin" class="page-section hidden mt-8">
+      <div class="card p-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-2xl font-bold">Area Amministrazione</h2>
+            <p class="text-sm text-gray-600 mt-1">Accesso protetto. Usa la modale per uscire dall'area admin.</p>
+          </div>
+
+          <div class="flex gap-2">
+            <button onclick="renderAdminTables()" class="px-3 py-2 bg-[var(--primary)] text-white rounded">Aggiorna Dati</button>
+            <button onclick="exportBookingsCSV()" class="px-3 py-2 bg-gray-100 rounded">Esporta CSV</button>
+            <button onclick="logoutAdmin()" class="px-3 py-2 bg-red-100 text-red-700 rounded">Logout Admin</button>
+          </div>
+        </div>
+
+        <!-- STATISTICHE -->
+        <div class="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div class="card p-4">
+            <p class="text-3xl font-extrabold text-[var(--primary)]" id="totalCount">0</p>
+            <p class="text-sm text-gray-600">Prenotazioni Totali</p>
+          </div>
+
+          <div class="card p-4">
+            <canvas id="chartAddress" style="height:180px"></canvas>
+          </div>
+
+          <div class="card p-4">
+            <canvas id="chartSchool" style="height:180px"></canvas>
+          </div>
+        </div>
+
+        <!-- TABELLE -->
+        <div class="mt-6 card p-4">
+          <h3 class="font-bold">Dettaglio Prenotazioni</h3>
+          <div class="overflow-x-auto mt-3">
+            <table class="min-w-full text-sm" id="bookingsTable">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th class="p-2 text-left">Codice</th>
+                  <th class="p-2 text-left">Nome</th>
+                  <th class="p-2 text-left">Indirizzo</th>
+                  <th class="p-2 text-left">Data</th>
+                  <th class="p-2 text-left">Scuola Media</th>
+                  <th class="p-2 text-left">Telefono / Email</th>
+                  <th class="p-2 text-left">Motivazione</th>
+                  <th class="p-2 text-left">Azioni</th>
+                </tr>
+              </thead>
+              <tbody id="bookingsTbody"></tbody>
+            </table>
+            <p id="noBookings" class="text-center p-4 text-gray-500 hidden">Nessuna prenotazione.</p>
+          </div>
+        </div>
+
+        <div class="mt-6 card p-4">
+          <h3 class="font-bold">Feedback Ricevuti</h3>
+          <div class="overflow-x-auto mt-3">
+            <table class="min-w-full text-sm" id="feedbackTable">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th class="p-2 text-left">Nome</th>
+                  <th class="p-2 text-left">Indirizzo</th>
+                  <th class="p-2 text-left">Messaggio</th>
+                  <th class="p-2 text-left">Data</th>
+                </tr>
+              </thead>
+              <tbody id="feedbackTbody"></tbody>
+            </table>
+            <p id="noFeedback" class="text-center p-4 text-gray-500 hidden">Nessun feedback.</p>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Firebase initialization inserted for admin (no visual changes) -->
+      <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "firebase/app";
+        import { getAnalytics } from "firebase/analytics";
+        // TODO: Add SDKs for Firebase products that you want to use
+        // https://firebase.google.com/docs/web/setup#available-libraries
+
+        // Your web app's Firebase configuration
+        // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+        const firebaseConfig = {
+          apiKey: "AIzaSyAP-Bmf02SZp4o6K2z2B1GgIlUJ3Wuc8Zk",
+          authDomain: "progetto-63fb3.firebaseapp.com",
+          projectId: "progetto-63fb3",
+          storageBucket: "progetto-63fb3.firebasestorage.app",
+          messagingSenderId: "883088850197",
+          appId: "1:883088850197:web:29b8573ea43555041b3d1c",
+          measurementId: "G-2PNR8PQHDR"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+      </script>
+
+    </section>
+
+  </main>
+
+  <!-- BOOKING MODAL -->
+  <div id="bookingModal" class="fixed inset-0 bg-black/60 hidden items-center justify-center z-50 p-4" onclick="if(event.target.id==='bookingModal'){closeModal()}">
+    <div class="card max-w-2xl w-full p-6" onclick="event.stopPropagation()">
+      <h3 class="text-xl font-bold text-[var(--primary)]">Conferma Prenotazione</h3>
+      <p class="text-sm text-gray-600 mt-1">Indirizzo: <strong id="modalAddressName"></strong> • Data: <strong id="modalDateName"></strong></p>
+
+      <form id="bookingForm" class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-3">
+        <input type="hidden" id="selectedAddress">
+        <input type="hidden" id="selectedDate">
+
+        <div>
+          <label class="text-sm font-medium">Nome</label>
+          <input id="studentName" required class="w-full p-2 border rounded-lg">
+        </div>
+        <div>
+          <label class="text-sm font-medium">Cognome</label>
+          <input id="studentSurname" required class="w-full p-2 border rounded-lg">
+        </div>
+
+        <div class="md:col-span-2">
+          <label class="text-sm font-medium">Scuola media di provenienza</label>
+          <input id="studentScuolaMedia" required class="w-full p-2 border rounded-lg" placeholder="Es. Scuola Media XX">
+        </div>
+
+        <div>
+          <label class="text-sm font-medium">Telefono</label>
+          <input id="studentNumero" required class="w-full p-2 border rounded-lg">
+        </div>
+
+        <div class="md:col-span-2">
+          <label class="text-sm font-medium">Email</label>
+          <input id="studentEmail" type="email" required class="w-full p-2 border rounded-lg">
+        </div>
+
+        <div class="md:col-span-2">
+          <label class="text-sm font-medium">Breve motivazione (max 200 caratteri)</label>
+          <textarea id="studentMotivation" maxlength="200" rows="3" class="w-full p-2 border rounded-lg"></textarea>
+        </div>
+
+        <div id="bookingMessageArea" class="md:col-span-2 hidden p-3 rounded-lg"></div>
+
+        <div class="md:col-span-2 text-right">
+          <button type="button" onclick="closeModal()" class="px-4 py-2 bg-gray-100 rounded mr-2">Annulla</button>
+          <button class="px-4 py-2 bg-[var(--primary)] text-white rounded">Conferma Prenotazione</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ADMIN LOGIN MODAL -->
+  <div id="adminLoginModal" class="modal-center hidden" aria-hidden="true">
+    <div class="card p-6 max-w-md w-full">
+      <h3 class="text-xl font-bold mb-2">Accesso Area Admin</h3>
+      <p class="text-sm text-gray-600 mb-4">Inserisci la password per accedere all'area amministrativa.</p>
+      <input id="adminPasswordInput" type="password" placeholder="Password" class="w-full p-2 border rounded-lg mb-3">
+      <div class="flex justify-end gap-2">
+        <button onclick="closeAdminLogin()" class="px-3 py-2 bg-gray-100 rounded">Annulla</button>
+        <button onclick="loginAdmin()" class="px-3 py-2 bg-[var(--primary)] text-white rounded">Accedi</button>
+      </div>
+      <p id="adminLoginError" class="mt-3 text-sm text-red-600 hidden"></p>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="mt-12 p-6 text-center text-sm text-gray-600 border-t bg-white/60">
+    <p class="mb-2"><a href="#" class="text-[var(--primary)] underline">Informativa Privacy della Scuola</a></p>
+    <p>&copy; 2025 ITSCG Primo Levi di Seregno. Tutti i diritti riservati. @itscg_primo_levi</p>
+  </footer>
+
+  <!-- CHATBOT BUTTON -->
+  <a href="chatbot.html" target="_blank" class="chatbot-btn" title="Apri Chatbot">
+    💬
+  </a>
+
+<script>
+/* ===========================
+   DATI INIZIALI E CONFIG
+   =========================== */
+
+const MAX_SPOTS = 5;
+
+// STAGE_DATES: 5 date per indirizzo (come richiesto)
+const STAGE_DATES = {
+  'Liceo Scientifico Opzione Scienze Applicate': ['2026-03-10','2026-03-17','2026-03-24','2026-03-31','2026-04-07'],
+  'Liceo Scientifico con Curvatura Economica (NEW)': ['2026-03-11','2026-03-18','2026-03-25','2026-04-01','2026-04-08'],
+  'Sistema Moda': ['2026-03-12','2026-03-19','2026-03-26','2026-04-02','2026-04-09'],
+  'Relazioni Internazionali per il Marketing': ['2026-03-13','2026-03-20','2026-03-27','2026-04-03','2026-04-10'],
+  'Logistica Opzione Quadriennale': ['2026-03-16','2026-03-23','2026-03-30','2026-04-06','2026-04-13'],
+  'Costruzione Ambiente e Territorio': ['2026-03-17','2026-03-24','2026-03-31','2026-04-07','2026-04-14']
+};
+
+// Chiusure (date fornite)
+const CLOSURE_DATES = [
+  '2025-09-11',
+  '2025-10-31',
+  '2025-11-01',
+  '2025-12-08',
+  // Vacanze natalizie 22/12/2025 - 06/01/2026 (e ultimo giorno scuola 19/12/2025)
+  '2025-12-22','2025-12-23','2025-12-24','2025-12-25','2025-12-26','2025-12-27','2025-12-28','2025-12-29','2025-12-30','2025-12-31',
+  '2026-01-01','2026-01-02','2026-01-03','2026-01-04','2026-01-05','2026-01-06',
+  '2026-01-06',
+  '2026-02-20',
+  // Pasqua 2026 02/04 - 07/04
+  '2026-04-02','2026-04-03','2026-04-04','2026-04-05','2026-04-06','2026-04-07',
+  '2026-04-25','2026-04-27','2026-04-28','2026-04-29','2026-04-30',
+  '2026-05-01',
+  '2026-06-01',
+  '2026-06-02',
+  '2026-06-08'
+];
+
+// localStorage keys
+const LS_STAGES = 'stagesData_v1';
+const LS_BOOKINGS = 'stageBookings_v1';
+const LS_FEEDBACK = 'stageFeedback_v1';
+
+// stato in memoria
+let stagesData = {};
+let allBookings = [];
+let allFeedback = [];
+let isAdminLoggedIn = false;
+const ADMIN_PASSWORD = 'levi2026';
+
+/* ===========================
+   UTILITIES
+   =========================== */
+
+function saveData(){
+  localStorage.setItem(LS_STAGES, JSON.stringify(stagesData));
+  localStorage.setItem(LS_BOOKINGS, JSON.stringify(allBookings));
+  localStorage.setItem(LS_FEEDBACK, JSON.stringify(allFeedback));
+}
+
+function loadData(){
+  const s = localStorage.getItem(LS_STAGES);
+  const b = localStorage.getItem(LS_BOOKINGS);
+  const f = localStorage.getItem(LS_FEEDBACK);
+
+  if(s){
+    try{ stagesData = JSON.parse(s); }
+    catch(e){ console.error(e); initializeStages() }
+  } else { initializeStages(); }
+
+  allBookings = b ? JSON.parse(b) : [];
+  allFeedback = f ? JSON.parse(f) : [];
+}
+
+function initializeStages(){
+  stagesData = {};
+  for(const addr in STAGE_DATES){
+    stagesData[addr] = {};
+    STAGE_DATES[addr].forEach(d => stagesData[addr][d] = MAX_SPOTS);
+  }
+  saveData();
+}
+
+/* format date */
+function formatDisplayDate(dateString){
+  const [y,m,d] = dateString.split('-');
+  return `${d}/${m}/${y}`;
+}
+
+/* generate booking code */
+function generateBookingCode(){
+  const t = Date.now().toString();
+  const rnd = Math.floor(Math.random()*900+100);
+  return 'STG' + t.slice(-6) + rnd;
+}
+
+/* availability */
+function getAvailabilityInfo(address, date){
+  const remaining = (stagesData[address] && typeof stagesData[address][date] !== 'undefined') ? stagesData[address][date] : 0;
+  return { remaining };
+}
+
+/* ===========================
+   RENDER PRESENZE / TABELLE
+   =========================== */
+
+function renderBookingTables(){
+  const container = document.getElementById('bookingTablesContainer');
+  container.innerHTML = '';
+  for(const address in STAGE_DATES){
+    const isNew = address.includes('(NEW)') ? '<span class="badge-new ml-2">NEW</span>' : '';
+    const card = document.createElement('div');
+    card.className = 'card p-4 border-t-8 border-[var(--primary)]';
+    let inner = `<h3 class="text-lg font-bold text-[var(--primary)]">${address.replace('(NEW)','').trim()} ${isNew}</h3>`;
+    inner += `<div class="mt-3 overflow-x-auto"><table class="w-full text-sm"><thead><tr>
+      <th class="text-left p-2">Data Stage</th><th class="text-center p-2">Posti Rim.</th><th class="text-center p-2">Azione</th>
+    </tr></thead><tbody>`;
+    STAGE_DATES[address].forEach(date => {
+      const { remaining } = getAvailabilityInfo(address, date);
+      const isFull = remaining === 0;
+      inner += `<tr class="border-b hover:bg-gray-50">
+        <td class="p-2 font-medium">${formatDisplayDate(date)}</td>
+        <td class="p-2 text-center"><span class="inline-block px-3 py-1 rounded-full font-semibold ${isFull ? 'bg-gray-400 text-white' : (remaining<=2 ? 'bg-[var(--yellow)] text-black' : 'bg-[var(--green)] text-white')}">${isFull ? 'COMPLETO' : remaining + ' / ' + MAX_SPOTS}</span></td>
+        <td class="p-2 text-center">
+          <button class="book-btn px-3 py-1 rounded-md ${isFull ? 'bg-gray-400 text-white cursor-not-allowed' : 'bg-[var(--green)] text-white'}" ${isFull ? 'disabled' : ''} onclick="openBookingModal('${address.replace(/'/g,"\\'")}','${date}')">${isFull ? 'Non disponibile' : 'Prenota'}</button>
+        </td>
+      </tr>`;
+    });
+    inner += `</tbody></table></div>`;
+    card.innerHTML = inner;
+    container.appendChild(card);
+  }
+}
+
+/* ===========================
+   MODALE PRENOTAZIONE
+   =========================== */
+
+function openBookingModal(address, date){
+  document.getElementById('selectedAddress').value = address;
+  document.getElementById('selectedDate').value = date;
+  document.getElementById('modalAddressName').textContent = address;
+  document.getElementById('modalDateName').textContent = formatDisplayDate(date);
+  document.getElementById('bookingMessageArea').classList.add('hidden');
+  document.getElementById('bookingModal').classList.remove('hidden');
+}
+
+function closeModal(){
+  document.getElementById('bookingModal').classList.add('hidden');
+  document.getElementById('bookingForm').reset();
+}
+
+/* handle booking submit */
+document.getElementById('bookingForm').addEventListener('submit', function(e){
+  e.preventDefault();
+  const address = document.getElementById('selectedAddress').value;
+  const date = document.getElementById('selectedDate').value;
+  const name = document.getElementById('studentName').value.trim();
+  const surname = document.getElementById('studentSurname').value.trim();
+  const scuola = document.getElementById('studentScuolaMedia').value.trim(); // now required
+  const numero = document.getElementById('studentNumero').value.trim();
+  const email = document.getElementById('studentEmail').value.trim();
+  const motivation = document.getElementById('studentMotivation').value.trim();
+  const msgArea = document.getElementById('bookingMessageArea');
+
+  if(!name||!surname||!scuola||!email){
+    msgArea.className = 'mt-4 p-3 rounded-lg text-center font-medium bg-red-100 text-red-700';
+    msgArea.textContent = 'ERRORE: Compila tutti i campi obbligatori (Nome, Cognome, Scuola media, Email).';
+    msgArea.classList.remove('hidden');
+    return;
+  }
+
+  if(!stagesData[address] || typeof stagesData[address][date] === 'undefined' || stagesData[address][date] <= 0){
+    msgArea.className = 'mt-4 p-3 rounded-lg text-center font-medium bg-red-100 text-red-700';
+    msgArea.textContent = 'ERRORE: I posti per questa data sono terminati o la data non è valida.';
+    msgArea.classList.remove('hidden');
+    renderBookingTables(); renderVisualCalendar(); return;
+  }
+
+  const code = generateBookingCode();
+  const booking = {
+    id: Date.now(),
+    code,
+    address,
+    date,
+    name,
+    surname,
+    scuola,          // saved as "scuola media di provenienza"
+    numero,
+    email,
+    motivation,
+    timestamp: new Date().toISOString()
+  };
+
+  // decrement spot
+  stagesData[address][date] -= 1;
+  allBookings.push(booking);
+  saveData();
+  renderBookingTables();
+  renderVisualCalendar();
+  renderAdminTables();
+
+  msgArea.className = 'mt-4 p-3 rounded-lg text-center font-medium bg-green-100 text-green-700';
+  msgArea.textContent = `Prenotazione confermata! Codice: ${code}. Riceverai una mail di riepilogo (simulata).`;
+  msgArea.classList.remove('hidden');
+
+  setTimeout(() => { closeModal(); }, 1600);
+});
+
+/* ===========================
+   CANCELLATION (GENITORI)
+   =========================== */
+
+document.getElementById('cancelForm').addEventListener('submit', function(e){
+  e.preventDefault();
+  const code = document.getElementById('cancelCode').value.trim();
+  const reason = document.getElementById('cancelReason').value.trim();
+  const resultEl = document.getElementById('cancelResult');
+
+  const idx = allBookings.findIndex(b => b.code === code);
+  if(idx === -1){
+    resultEl.className = 'mt-4 p-3 rounded-lg bg-red-100 text-red-700';
+    resultEl.textContent = 'Codice non trovato. Controlla il codice e riprova.';
+    resultEl.classList.remove('hidden');
+    return;
+  }
+
+  const booking = allBookings[idx];
+  // restore spot
+  if(stagesData[booking.address] && typeof stagesData[booking.address][booking.date] !== 'undefined'){
+    stagesData[booking.address][booking.date] = Math.min(MAX_SPOTS, stagesData[booking.address][booking.date] + 1);
+  }
+
+  // remove booking
+  allBookings.splice(idx,1);
+  // optionally save cancellation reason in feedback with tag
+  allFeedback.push({
+    id: Date.now(),
+    name: booking.name + ' ' + booking.surname,
+    address: booking.address,
+    message: `Cancellazione prenotazione (${booking.code}) - Motivo: ${reason}`,
+    timestamp: new Date().toISOString()
+  });
+
+  saveData();
+  renderBookingTables(); renderVisualCalendar(); renderAdminTables();
+
+  resultEl.className = 'mt-4 p-3 rounded-lg bg-green-100 text-green-700';
+  resultEl.textContent = `Prenotazione ${code} cancellata con successo.`;
+  resultEl.classList.remove('hidden');
+  document.getElementById('cancelForm').reset();
+});
+
+/* ===========================
+   FEEDBACK - PAGINA
+   =========================== */
+
+function populateFeedbackAddresses(){
+  const sel = document.getElementById('fbAddress');
+  if(!sel) return;
+  sel.innerHTML = '<option value="">Seleziona il tuo Indirizzo</option>';
+  for(const a in STAGE_DATES){
+    const opt = document.createElement('option');
+    opt.value = a; opt.textContent = a;
+    sel.appendChild(opt);
+  }
+}
+
+document.getElementById('feedbackFormPage').addEventListener('submit', function(e){
+  e.preventDefault();
+  const name = document.getElementById('fbName').value.trim();
+  const surname = document.getElementById('fbSurname').value.trim();
+  const address = document.getElementById('fbAddress').value;
+  const message = document.getElementById('fbMessage').value.trim();
+  const fbMsg = document.getElementById('fbMsg');
+
+  const recipients = 'mariagrazia.calabrese@levisergno.edu.it;laura.corvi@leviseregno.edu.it';
+  const subject = encodeURIComponent(`Feedback da ${name} ${surname} (${address})`);
+  const body = encodeURIComponent(`Nome: ${name} ${surname}\nIndirizzo: ${address}\n\nMessaggio:\n${message}`);
+
+  // open mailto (user email client)
+  window.open(`mailto:${recipients}?subject=${subject}&body=${body}`, '_blank');
+
+  // save locally
+  allFeedback.push({
+    id: Date.now(),
+    name: `${name} ${surname}`,
+    address,
+    message,
+    timestamp: new Date().toISOString()
+  });
+  saveData();
+  renderAdminTables();
+
+  fbMsg.className = 'mt-3 p-3 rounded-lg bg-blue-50 text-blue-700';
+  fbMsg.textContent = 'Feedback inviato! Si è aperta la tua applicazione email.';
+  fbMsg.classList.remove('hidden');
+  setTimeout(()=>{ fbMsg.classList.add('hidden'); }, 3000);
+  document.getElementById('feedbackFormPage').reset();
+});
+
+/* ===========================
+   RENDER CALENDAR
+   =========================== */
+
+function renderVisualCalendar(){
+  const el = document.getElementById('visualCalendar');
+  if(!el) return;
+  el.innerHTML = '';
+  const days = ['DOM','LUN','MAR','MER','GIO','VEN','SAB'];
+  days.forEach(d => el.innerHTML += `<div class="day-cell weekday">${d}</div>`);
+
+  // We'll show months from Sep 2025 to Jun 2026
+  const start = new Date('2025-09-01');
+  const end = new Date('2026-06-30');
+
+  // Create set for stage dates
+  const stageSet = new Set(Object.values(STAGE_DATES).flat());
+
+  // iterate day by day
+  let date = new Date(start);
+  while(date <= end){
+    const iso = date.toISOString().split('T')[0];
+    const dayNum = date.getDate();
+    let cls = 'day-cell';
+    let content = `${dayNum}`;
+
+    if(CLOSURE_DATES.includes(iso)){
+      cls += ' closure';
+    } else if(stageSet.has(iso)){
+      const anyAvailable = Object.keys(stagesData).some(addr => stagesData[addr] && stagesData[addr][iso] > 0);
+      const allFull = Object.keys(stagesData).every(addr => !(stagesData[addr] && stagesData[addr][iso]) || stagesData[addr][iso] === 0);
+      if(anyAvailable) cls += ' stage-available';
+      else if(allFull) cls += ' stage-full';
+    } else {
+      cls += ' bg-white';
+    }
+
+    el.innerHTML += `<div class="${cls} text-sm">${content}</div>`;
+    date.setDate(date.getDate()+1);
+  }
+}
+
+/* ===========================
+   ADMIN RENDER + CHARTS
+   =========================== */
+
+let chartAddressInstance = null;
+let chartSchoolInstance = null;
+
+function renderAdminTables(){
+  document.getElementById('totalCount').textContent = allBookings.length;
+
+  const tbody = document.getElementById('bookingsTbody');
+  tbody.innerHTML = '';
+  if(allBookings.length === 0){
+    document.getElementById('noBookings').classList.remove('hidden');
+  } else {
+    document.getElementById('noBookings').classList.add('hidden');
+    allBookings.forEach(b => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td class="p-2">${b.code}</td>
+        <td class="p-2">${b.name} ${b.surname}</td>
+        <td class="p-2">${b.address}</td>
+        <td class="p-2">${formatDisplayDate(b.date)}</td>
+        <td class="p-2">${b.scuola || ''}</td>
+        <td class="p-2">${b.numero || ''} / ${b.email || ''}</td>
+        <td class="p-2">${b.motivation || ''}</td>
+        <td class="p-2"><button class="px-2 py-1 bg-red-500 text-white rounded" onclick="deleteBooking('${b.code}')">Elimina</button></td>`;
+      tbody.appendChild(tr);
+    });
+  }
+
+  const fbTbody = document.getElementById('feedbackTbody');
+  fbTbody.innerHTML = '';
+  if(allFeedback.length === 0) {
+    document.getElementById('noFeedback').classList.remove('hidden');
+  } else {
+    document.getElementById('noFeedback').classList.add('hidden');
+    allFeedback.forEach(f => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td class="p-2">${f.name}</td><td class="p-2">${f.address}</td><td class="p-2">${(f.message||'').slice(0,60)}...</td><td class="p-2">${new Date(f.timestamp).toLocaleString('it-IT')}</td>`;
+      fbTbody.appendChild(tr);
+    });
+  }
+
+  renderCharts();
+}
+
+function deleteBooking(code){
+  if(!confirm('Sei sicuro di voler eliminare questa prenotazione?')) return;
+  const idx = allBookings.findIndex(b => b.code === code);
+  if(idx === -1) return alert('Codice non trovato.');
+
+  const b = allBookings[idx];
+  // restore spot
+  if(stagesData[b.address] && typeof stagesData[b.address][b.date] !== 'undefined'){
+    stagesData[b.address][b.date] = Math.min(MAX_SPOTS, stagesData[b.address][b.date] + 1);
+  }
+
+  allBookings.splice(idx,1);
+  saveData();
+  renderBookingTables(); renderVisualCalendar(); renderAdminTables();
+}
+
+/* charts */
+function renderCharts(){
+  const addrCounts = allBookings.reduce((acc, b) => { acc[b.address] = (acc[b.address]||0)+1; return acc; }, {});
+  const labelsA = Object.keys(addrCounts);
+  const dataA = Object.values(addrCounts);
+
+  const schoolCounts = allBookings.reduce((acc,b) => { acc[b.scuola] = (acc[b.scuola]||0)+1; return acc; }, {});
+  const labelsS = Object.keys(schoolCounts);
+  const dataS = Object.values(schoolCounts);
+
+  const colors = ['#1a73e8','#34a853','#fbbc04','#ea4335','#4285f4','#3c4043'];
+
+  if(chartAddressInstance) chartAddressInstance.destroy();
+  if(chartSchoolInstance) chartSchoolInstance.destroy();
+
+  const ctxA = document.getElementById('chartAddress')?.getContext('2d');
+  if(ctxA) chartAddressInstance = new Chart(ctxA, {
+    type:'doughnut',
+    data:{ labels: labelsA, datasets:[{ data:dataA, backgroundColor: labelsA.map((_,i)=>colors[i%colors.length]) }]},
+    options:{ responsive:true, plugins:{ legend:{ position:'bottom' } } }
+  });
+
+  const ctxS = document.getElementById('chartSchool')?.getContext('2d');
+  if(ctxS) chartSchoolInstance = new Chart(ctxS, {
+    type:'doughnut',
+    data:{ labels: labelsS, datasets:[{ data:dataS, backgroundColor: labelsS.map((_,i)=>colors[i%colors.length]) }]},
+    options:{ responsive:true, plugins:{ legend:{ position:'bottom' } } }
+  });
+}
+
+/* ===========================
+   EXPORT CSV
+   =========================== */
+
+function exportBookingsCSV(){
+  if(allBookings.length===0) return alert('Nessuna prenotazione da esportare.');
+  const headers = ['Codice','Nome','Cognome','Indirizzo','Data','ScuolaMedia','Telefono','Email','Motivazione','Timestamp'];
+  const rows = allBookings.map(b => [
+    b.code, b.name, b.surname, b.address, b.date, b.scuola, b.numero, b.email, (b.motivation||'').replace(/\n/g,' '), b.timestamp
+  ]);
+  const csv = [headers, ...rows].map(r => r.map(c => `"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'prenotazioni_stage.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+/* ===========================
+   ADMIN LOGIN / NAV
+   =========================== */
+
+function showAdminLogin(){
+  document.getElementById('adminLoginModal').classList.remove('hidden');
+}
+
+function closeAdminLogin(){
+  document.getElementById('adminLoginModal').classList.add('hidden');
+  document.getElementById('adminPasswordInput').value = '';
+  document.getElementById('adminLoginError').classList.add('hidden');
+}
+
+function loginAdmin(){
+  const p = document.getElementById('adminPasswordInput').value;
+  const err = document.getElementById('adminLoginError');
+  if(p === ADMIN_PASSWORD){
+    isAdminLoggedIn = true;
+    closeAdminLogin();
+    showPage('admin');
+    renderAdminTables();
+  } else {
+    err.textContent = 'Password errata. Riprova.';
+    err.classList.remove('hidden');
+  }
+}
+
+function logoutAdmin(){
+  if(!confirm('Vuoi uscire dall\'area admin?')) return;
+  isAdminLoggedIn = false;
+  showPage('home');
+}
+
+/* Override showPage: prevent direct access to admin if not logged in */
+function showPage(id){
+  document.querySelectorAll('.page-section').forEach(p => p.classList.add('hidden'));
+  if(id === 'admin' && !isAdminLoggedIn){
+    // show login modal instead
+    showAdminLogin();
+    return;
+  }
+  const el = document.getElementById(id);
+  if(el) el.classList.remove('hidden');
+
+  // update nav highlight (basic)
+  document.querySelectorAll('header nav button').forEach(btn => btn.classList.remove('bg-[var(--primary)]','text-white'));
+  const mapping = {
+    'home':'home','prenotazioni':'prenotazioni','cancellazione':'cancellazione','calendario':'calendario','feedback':'feedback','admin':'admin'
+  };
+  document.querySelectorAll('header nav button').forEach(btn => {
+    const t = btn.textContent.trim().toLowerCase();
+    if(t.includes(id)) btn.classList.add('bg-[var(--primary)]','text-white');
+  });
+}
+
+/* ===========================
+   INIT
+   =========================== */
+
+function renderAll(){
+  loadData();
+  populateFeedbackAddresses();
+  renderBookingTables();
+  renderVisualCalendar();
+  renderAdminTables();
+  // show default page
+  showPage('home');
+}
+
+window.addEventListener('load', renderAll);
+
+/* ===========================
+   AUX: inizializza se vuoto
+   =========================== */
+(function ensureInit(){
+  loadData();
+  // if stagesData empty or keys mismatch, reset
+  if(!stagesData || Object.keys(stagesData).length === 0){
+    initializeStages();
+  } else {
+    // ensure all addresses/dates present
+    for(const addr in STAGE_DATES){
+      if(!stagesData[addr]) stagesData[addr] = {};
+      STAGE_DATES[addr].forEach(d => {
+        if(typeof stagesData[addr][d] === 'undefined') stagesData[addr][d] = MAX_SPOTS;
+      });
+    }
+  }
+  saveData();
+})();
+
+</script>
+</body>
+</html>
