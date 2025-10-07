@@ -215,12 +215,13 @@
                 </p>
             </div>
             
-    <!-- ELEMENTO CHATBOT (Aggiunto) -->
-    <a href="#" class="fixed top-6 right-6 z-50 p-3 bg-indigo-500 rounded-full shadow-lg hover:bg-indigo-600 transition duration-300 transform hover:scale-105" aria-label="Contatta il chatbot">
-        <!-- SVG Robot Icona per simulare il chatbot -->
-        <svg class="w-8 h-8 text-white animate-spin-slow" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l-7-7-7 7m17 0l-7-7-7 7m1-1V5a2 2 0 012-2h10a2 2 0 012 2v14a2 2 0 01-2 2H8a2 2 0 01-2-2zM9 9h6m-6 4h6m-6 4h4"></path>
-        </svg>
+       <!-- ELEMENTO CHATBOT (Aggiornato con immagine e testo) -->
+    <a href="chatbot.html" class="fixed top-6 right-6 z-50 group flex items-center bg-white p-2 pr-4 rounded-full shadow-xl hover:shadow-2xl transition duration-300 transform hover:scale-105 border border-indigo-200" aria-label="Accedi al Chatbot">
+        <!-- Immagine Placeholder per foto_chatbot.png -->
+        <img src="https://placehold.co/40x40/5c6bc0/ffffff?text=AI" alt="Logo Chatbot" class="w-10 h-10 rounded-full mr-2">
+        <span class="text-indigo-700 font-semibold text-sm">
+            Chatbot
+        </span>
     </a>
 
     <div class="container mx-auto p-4 sm:p-6 lg:p-10 max-w-5xl">
@@ -273,32 +274,17 @@
                 </ul>
             </section>
 
-            <!-- SEZIONE 3: OBIETTIVI E ISCRIZIONE (Card più compatta) -->
-            <section class="lg:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="bg-white p-6 rounded-xl shadow-lg border-l-4 border-teal-500">
-                    <div class="flex items-center mb-4">
-                        <svg class="w-8 h-8 text-teal-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v14c-1.4 1.4-3.5 1.7-6 1.7s-4.6-.3-6-1.7zm12-14v14c-1.4 1.4-3.5 1.7-6 1.7s-4.6-.3-6-1.7"></path></svg>
-                        <h2 class="text-2xl font-bold text-gray-800">Obiettivi principali</h2>
-                    </div>
-                    <ul class="space-y-2 text-gray-700 list-disc pl-5">
-                        <li>Valutare l'ambiente e interagire con gli studenti.</li>
-                        <li>Comprendere l'approccio didattico e il livello richiesto.</li>
-                        <li>Sciogliere i dubbi sul percorso di studi.</li>
-                    </ul>
+            <!-- SEZIONE 3: OBIETTIVI (Ora occupa l'intera riga) -->
+            <section class="lg:col-span-3 bg-white p-6 rounded-xl shadow-lg border-l-4 border-teal-500">
+                <div class="flex items-center mb-4">
+                    <svg class="w-8 h-8 text-teal-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v14c-1.4 1.4-3.5 1.7-6 1.7s-4.6-.3-6-1.7zm12-14v14c-1.4 1.4-3.5 1.7-6 1.7s-4.6-.3-6-1.7"></path></svg>
+                    <h2 class="text-2xl font-bold text-gray-800">Obiettivi principali</h2>
                 </div>
-
-                <div class="bg-white p-6 rounded-xl shadow-lg border-l-4 border-yellow-500">
-                    <div class="flex items-center mb-4">
-                        <svg class="w-8 h-8 text-yellow-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
-                        <h2 class="text-2xl font-bold text-gray-800">Modalità di Iscrizione</h2>
-                    </div>
-                    <p class="text-gray-700">
-                        Tramite il presente sito web, selezionando l'indirizzo e la data.
-                    </p>
-                    <button class="mt-4 w-full bg-indigo-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-indigo-700 transition duration-150 shadow-md">
-                        Vai alla pagina di Iscrizione
-                    </button>
-                </div>
+                <ul class="space-y-2 text-gray-700 list-disc pl-5">
+                    <li>Valutare l'ambiente e interagire con gli studenti.</li>
+                    <li>Comprendere l'approccio didattico e il livello richiesto.</li>
+                    <li>Sciogliere i dubbi sul percorso di studi.</li>
+                </ul>
             </section>
         </main>
 
@@ -321,7 +307,7 @@
                 </div>
             </div>
         </footer>
-
+        
             <!-- Contenitori per le due viste Studente (Home e Dettaglio Date) -->
             <h2 class="text-4xl font-extrabold text-gray-800 text-center mb-10">Scegli il tuo Indirizzo</h2>
             
