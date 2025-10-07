@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+
 <html lang="it">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chatbot Ibrido - ITSCG Primo Levi Seregno</title>
+    <title>Chatbot AI - ITSCG Primo Levi Seregno</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         /* Animazione per lo sfondo sfumato */
@@ -13,6 +13,7 @@
             100% { background-position: 0% 50%; }
         }
         body {
+            /* Colori dal file originale: blu profondo, rosso, blu chiaro, giallo */
             background: linear-gradient(-45deg, #1d4ed8, #ef4444, #3182ce, #eab308);
             background-size: 400% 400%;
             animation: gradient-animation 15s ease infinite;
@@ -20,32 +21,20 @@
             color: #1a202c;
             display: flex;
             flex-direction: column;
-            justify-content: center;
+            justify-content: flex-start; /* Allineamento in alto per non forzare l'altezza */
             align-items: center;
             min-height: 100vh;
-            padding: 1rem;
+            padding: 1rem 1rem 3rem 1rem; /* Più padding in basso */
             margin: 0;
         }
         .main-content {
             display: flex;
-            flex-direction: column;
+            flex-direction: column; /* Stacks elements vertically: Chatbot SOPRA, Info SOTTO */
             gap: 2.5rem;
             align-items: center;
             width: 100%;
-            max-width: 1400px;
+            max-width: 1000px; /* Aumentato il limite massimo di larghezza per il chatbot */
             padding: 0;
-        }
-        /* Applica layout affiancato da tablet in su (md breakpoint) */
-        @media (min-width: 768px) {
-            .main-content {
-                flex-direction: row-reverse; /* Chatbot on the left, info on the right */
-                justify-content: space-between;
-                padding: 2rem;
-                align-items: stretch;
-                height: 90vh;
-                max-height: 900px;
-                min-height: 650px;
-            }
         }
 
         .text-box, .chatbot-box {
@@ -55,26 +44,14 @@
             box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
             backdrop-filter: blur(8px);
             border: 4px solid;
-            width: 100%;
+            width: 100%; /* Entrambi usano l'intera larghezza del main-content (max 1000px) */
         }
         .text-box {
             border-image: linear-gradient(45deg, #1d4ed8, #3b82f6, #93c5fd) 1;
         }
         .chatbot-box {
-            min-height: 650px;
-            max-height: 900px;
+            min-height: 500px; /* Altezza minima per la chat */
             border-image: linear-gradient(45deg, #eab308, #f59e0b, #ef4444) 1;
-        }
-        
-        @media (min-width: 768px) {
-            .text-box {
-                height: 100%;
-                max-width: 450px;
-            }
-            .chatbot-box {
-                height: 100%;
-                max-width: 800px;
-            }
         }
         
         .text-box h1 {
@@ -108,6 +85,7 @@
             display: flex;
             margin-bottom: 1rem;
         }
+        /* Stili per messaggi User e Bot - Aggiungo word-break per prevenire overflow */
         .bot-message {
             background-color: #e0f2fe; /* Light Blue */
             color: #1e40af; /* Darker Blue text */
@@ -117,8 +95,8 @@
             align-self: flex-start;
             font-size: 1rem;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-            white-space: pre-wrap; /* Preserve newlines */
-            word-break: break-word;
+            white-space: pre-wrap;
+            word-break: break-word; /* FIX: Evita che le parole lunghe escano dal riquadro */
             box-sizing: border-box;
         }
         .user-message {
@@ -130,33 +108,32 @@
             align-self: flex-end;
             font-size: 1rem;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-            word-break: break-word;
+            word-break: break-word; /* FIX: Evita che le parole lunghe escano dal riquadro */
             box-sizing: border-box;
         }
         .suggested-questions-container {
             padding: 1rem;
             border-top: 2px solid #e2e8f0;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 0.75rem;
-            justify-items: center;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            justify-content: center;
         }
         .suggested-question-button {
             background-color: #f3f4f6;
             color: #1f2937;
             border-radius: 20px;
-            padding: 0.75rem 1rem;
-            font-size: 1rem;
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
             font-weight: 500;
             cursor: pointer;
             transition: background-color 0.2s, transform 0.1s;
             text-align: center;
             border: 1px solid #d1d5db;
-            width: 100%;
         }
         .suggested-question-button:hover {
             background-color: #d1d5db;
-            transform: translateY(-2px);
+            transform: translateY(-1px);
         }
         .animated-logo {
             animation: rotate 10s infinite linear;
@@ -183,42 +160,46 @@
         }
         .dot:nth-child(1) { animation-delay: -0.32s; }
         .dot:nth-child(2) { animation-delay: -0.16s; }
-        .dot:nth-child(3) { animation-delay: 0s; }
+            .dot:nth-child(3) { animation-delay: 0s; }
         @keyframes bounce {
             0%, 80%, 100% { transform: scale(0); }
             40% { transform: scale(1.0); }
         }
+        
     </style>
 </head>
 <body>
     <div class="main-content">
-        <!-- Chatbot Area -->
+        <!-- CHATBOT AREA (ORA IL PRIMO ELEMENTO PER STARE SOPRA) -->
         <div class="chatbot-box">
             <div class="chatbot-window">
                 <div class="chatbot-header flex justify-between items-center">
                     <div class="flex items-center gap-3">
+                        <!-- Icona SVG per il logo -->
                         <svg class="animated-logo w-8 h-8 text-yellow-300" fill="currentColor" viewBox="0 0 24 24">
                             <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17.93c-3.95-.49-7-3.85-7-7.93s3.05-7.44 7-7.93v15.86zM13 4.07c3.95.49 7 3.85 7 7.93s-3.05 7.44-7 7.93V4.07z"/>
                         </svg>
-                        <h2 class="text-xl font-semibold">Chatbot Ibrido ITSCG "Primo Levi"</h2>
+                        <h2 class="text-xl font-semibold">Chatbot AI ITSCG "Primo Levi"</h2>
                     </div>
                 </div>
                 
                 <!-- Area Messaggi -->
                 <div id="chat-messages" class="chat-messages">
                     <div class="message-container">
-                        <div class="bot-message">Benvenuto/a! Scegli una domanda per risposte rapide (FAQ), oppure usa la casella di testo qui sotto per una ricerca specifica sul sito (es. "documenti PCTO Logistica").</div>
+                        <div class="bot-message">Ciao! Sono il tuo assistente virtuale. Chiedimi degli indirizzi, dei laboratori o delle date degli Open Day dell'ITSCG Primo Levi di Seregno.</div>
                     </div>
                 </div>
                 
-                <!-- Pulsanti Suggeriti (FAQ) -->
+                <!-- Pulsanti Suggeriti (MANTENUTI E FUNZIONANTI) -->
                 <div id="suggested-questions" class="suggested-questions-container">
-                    <!-- I pulsanti vengono iniettati qui da JS -->
+                    <button class="suggested-question-button" data-question="Quali indirizzi offre la scuola?">Indirizzi offerti</button>
+                    <button class="suggested-question-button" data-question="Quando sono i prossimi Open Day?">Open Day 2025</button>
+                    <button class="suggested-question-button" data-question="Cosa si intende per Apprendimento Attivo?">Apprendimento Attivo</button>
                 </div>
 
-                <!-- Input Chat per la Ricerca AI (Reintrodotto) -->
+                <!-- Input Chat -->
                 <div class="p-4 border-t border-gray-200 flex gap-2 bg-white">
-                    <input type="text" id="user-input" placeholder="Scrivi la tua domanda qui (es. Stage Modelli Moda)..." 
+                    <input type="text" id="user-input" placeholder="Scrivi la tua domanda qui..." 
                            class="flex-grow p-3 border border-gray-300 rounded-xl focus:ring-blue-500 focus:border-blue-500 text-gray-800"
                            autocomplete="off" onkeypress="if(event.key === 'Enter') document.getElementById('send-button').click()">
                     <button id="send-button"
@@ -229,12 +210,12 @@
             </div>
         </div>
 
-        <!-- Information/Description Area -->
-        <div class="text-box w-full lg:max-w-xl">
+        <!-- INFORMATION AREA (ORA IL SECONDO ELEMENTO PER STARE SOTTO) -->
+        <div class="text-box w-full">
             <h1 class="text-3xl md:text-4xl font-extrabold mb-6 text-center">Informazioni Essenziali per l'Orientamento</h1>
             
             <div class="flex flex-col items-center justify-center gap-6 mb-8">
-                <!-- Immagine Placeholder - Usiamo una URL per garantire che funzioni subito -->
+                <!-- Immagine Placeholder -->
                 <img src="https://placehold.co/400x250/3b82f6/ffffff?text=ITSCG+Primo+Levi" alt="Immagine placeholder dell'Istituto Primo Levi Seregno" class="w-full max-w-sm h-auto rounded-lg shadow-xl border-4 border-gray-300 object-cover">
                 <p class="text-lg text-gray-700 leading-relaxed text-justify mt-4">
                     Questo strumento è stato ideato per fornire un accesso rapido e guidato alle informazioni chiave dell'ITSCG Primo Levi di Seregno. Le risposte sono tratte direttamente dai documenti ufficiali e dalle **opportunità di indirizzo** presentate agli Open Day.
@@ -259,10 +240,12 @@
                     <h3 class="text-xl font-semibold mb-3 text-blue-600 border-b pb-2">Contatti e Sede</h3>
                     <ul class="text-lg text-gray-800 space-y-3 text-left">
                         <li class="flex items-start gap-3">
+                            <!-- Icona Sede (Mappa) -->
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6 text-red-500 flex-shrink-0"><path d="M20 10V8a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h4"/><path d="M10 22V6c0-1.1.9-2 2-2h10a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-4"/><path d="M15 16h4"/></svg>
                             <span><strong class="text-blue-700 block">Sede:</strong> Via Briantina, 68 - 20831 Seregno (MB)</span>
                         </li>
                         <li class="flex items-start gap-3">
+                            <!-- Icona Telefono -->
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6 text-red-500 flex-shrink-0"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-3.67-2.94L3 9.7a2 2 0 0 1 2-2h3"/><path d="M12 18h4"/><path d="M18 12h4"/><path d="M12 6h4"/><path d="M18 6h4"/></svg>
                             <span><strong class="text-blue-700 block">Telefono:</strong> <a href="tel:+390362224164" class="hover:underline text-blue-600">0362 224164</a></span>
                         </li>
@@ -274,21 +257,18 @@
     </div>
 
     <script>
-        // --- Configurazione e Stato AI & FAQ ---
+        // --- Configurazione e Stato AI (Mantenuto) ---
         let chatHistory = [];
         let isSending = false;
-        let isWaitingForReset = false; // Stato per la modalità FAQ
-
         const chatMessages = document.getElementById('chat-messages');
-        const suggestedQuestionsContainer = document.getElementById('suggested-questions');
         const userInput = document.getElementById('user-input');
         const sendButton = document.getElementById('send-button');
 
-        // Contesto AI per la ricerca dinamica (grounding)
+        // Informazioni specifiche dell'Istituto da contestualizzare per l'AI
         const CONTEXT_INFO = `
             Sei un assistente virtuale per l'orientamento dell'ITSCG "Primo Levi" di Seregno. Il tuo scopo principale è fornire informazioni precise e aggiornate sulla scuola, con particolare enfasi sui programmi di **Orientamento** e sulle opportunità di **Stage (alternanza scuola-lavoro/PCTO)**.
             Rispondi in modo estremamente preciso, cordiale e conciso.
-
+            
             Istruzioni per la Ricerca: DEVI usare la ricerca Google (grounding) per trovare informazioni precise e attuali, specialmente quando l'utente chiede dettagli su:
             1. Stage, PCTO, Alternanza Scuola-Lavoro, o Convenzioni aziendali.
             2. Pagine specifiche di Orientamento, eventi, o programmi didattici.
@@ -301,59 +281,39 @@
             - Open Day 2025: 15 NOVEMBRE, 29 NOVEMBRE, 13 DICEMBRE (prenotazione obbligatoria).
             - Sede: Via Briantina, 68 - 20831 Seregno (MB).
             - Telefono: 0362 224164.
+            
+            Integra le informazioni di ricerca con la tua base di conoscenza statica per dare una risposta completa e ben contestualizzata.
         `;
-        
-        // Dati FAQ Statici (Risposte Predefinite - come richiesto)
-        const qaData = {
-            "indirizzi offerti": {
-                "label": "Quali indirizzi sono offerti (Tecnici e Liceali)?",
-                "answer": "L'ITSCG Primo Levi offre un'ampia scelta in **Tecnico** e **Liceale**:\n\n**Tecnici**:\n- Costruzioni, Ambiente e Territorio (CAT)\n- Logistica (anche corso Quadriennale)\n- Sistema Moda\n- Relazioni Internazionali per il Marketing\n\n**Liceali**:\n- Liceo Scientifico Scienze Applicate"
-            },
-            "innovazione e laboratori": {
-                "label": "Cosa si intende per 'Apprendimento Attivo' e laboratori innovativi?",
-                "answer": "La scuola si impegna a progettare l'**Apprendimento Attivo** in ambienti didattici innovativi, realizzati anche con i fondi di **Scuola 4.0** (PNRR).\nQuesto include:\n- Potenziamento delle dotazioni laboratoriali in ogni indirizzo.\n- Utilizzo efficace delle nuove dotazioni tecnologiche e digitali."
-            },
-            "internazionalizzazione e stage": {
-                "label": "La scuola offre percorsi di internazionalizzazione o stage all'estero?",
-                "answer": "Il Primo Levi promuove l'**internazionalizzazione del curricolo** e lo scambio fra le diverse culture. Questo si concretizza in progetti che favoriscono lo **spirito transnazionale** e la preparazione alle dinamiche dei mercati esteri, specialmente negli indirizzi economici e tecnici."
-            },
-            "calendario open day": {
-                "label": "Quali sono le prossime date di Open Day 2025?",
-                "answer": "Le date ufficiali per l'Open Day 2025 (prenotazione obbligatoria per studenti di terza media) sono:\n- **15 NOVEMBRE**\n- **29 NOVEMBRE**\n- **13 DICEMBRE**\nVerifica il sito ufficiale per i dettagli di prenotazione."
-            },
-            "mezzi pubblici e raggiungibilità": {
-                "label": "Mezzi Pubblici per Raggiungere la Sede",
-                "answer": "La scuola è comodamente raggiungibile tramite diverse linee di autotrasporto:\n- **SILA**: Linee H208 (Seregno - Saronno) e H313 (Copreno-Lentate-Seveso FNM).\n- **Brianza Trasporti**: Linee Z231, Z232, Z233, Z228."
-            },
-            "colloqui e registro elettronico": {
-                "label": "Rapporti con le Famiglie (Colloqui e Voti)",
-                "answer": "Il rapporto con le famiglie è gestito principalmente tramite:\n1. **Registro Elettronico**: per voti, assenze, pagelle e richieste di permessi.\n2. **Colloqui con i singoli docenti**: in orario scolastico, previa prenotazione tramite Registro Elettronico."
-            },
-        };
 
-
-        // --- Funzioni di Utilità UI ---
-
-        /** Converte markdown di base (bold, newlines) in HTML. */
-        function formatTextToHtml(text) {
-            if (!text) return '';
-            let htmlText = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-            htmlText = htmlText.replace(/\n/g, '<br>');
-            return htmlText;
-        }
+        // --- Funzioni di Utilità UI (Mantenute) ---
 
         /** Aggiunge un messaggio alla chat e fa lo scroll automatico. */
-        function addMessage(text, sender) {
+        function addMessage(text, sender, messageId = null) {
             const messageContainer = document.createElement('div');
             messageContainer.classList.add('message-container');
             
             const messageBubble = document.createElement('div');
             messageBubble.classList.add(sender === 'user' ? 'user-message' : 'bot-message');
-            messageBubble.innerHTML = sender === 'user' ? text : formatTextToHtml(text);
+            messageBubble.innerHTML = formatTextToHtml(text);
             
+            if (messageId) {
+                messageBubble.id = messageId;
+            }
+
             messageContainer.appendChild(messageBubble);
             chatMessages.appendChild(messageContainer);
             chatMessages.scrollTop = chatMessages.scrollHeight;
+            return messageBubble;
+        }
+
+        /** Converte markdown di base (bold, newlines) in HTML. */
+        function formatTextToHtml(text) {
+            if (!text) return '';
+            // Converte grassetto **testo** in <strong>testo</strong>
+            let htmlText = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            // Converte le nuove linee in <br>
+            htmlText = htmlText.replace(/\n/g, '<br>');
+            return htmlText;
         }
 
         /** Aggiunge l'indicatore di caricamento del bot. */
@@ -384,73 +344,18 @@
             }
         }
 
+        // --- Logica Chatbot Gemini API (Mantenuta) ---
 
-        // --- Logica FAQ (Risposte Predefinite) ---
-
-        function createSuggestedButtons(data, isReset = false) {
-            suggestedQuestionsContainer.innerHTML = '';
-            
-            if (isReset) {
-                const resetButton = document.createElement('button');
-                resetButton.classList.add('suggested-question-button', 'bg-red-500', 'hover:bg-red-600', 'text-white', 'col-span-full', 'w-full');
-                resetButton.textContent = "Reinizia Chat/Vedi FAQ";
-                resetButton.id = "reset-button";
-                suggestedQuestionsContainer.appendChild(resetButton);
-            } else {
-                const questions = Object.keys(data);
-                questions.forEach(q => {
-                    const button = document.createElement('button');
-                    button.classList.add('suggested-question-button', 'faq-button');
-                    button.textContent = data[q].label || q;
-                    button.dataset.questionKey = q;
-                    suggestedQuestionsContainer.appendChild(button);
-                });
-            }
-        }
-
-        function handleQuestionSelection(questionKey) {
-            if (isWaitingForReset || isSending) return;
-
-            const userQuestion = qaData[questionKey].label;
-            const botResponse = qaData[questionKey].answer;
-            
-            addMessage(userQuestion, 'user');
-            
-            isWaitingForReset = true;
-            suggestedQuestionsContainer.innerHTML = '';
-
-            setTimeout(() => {
-                addMessage(botResponse, 'bot');
-                createSuggestedButtons(qaData, true);
-            }, 800);
-        }
-
-        function resetChat() {
-            chatMessages.innerHTML = `
-                <div class="message-container">
-                    <div class="bot-message">Benvenuto/a! Scegli una domanda per risposte rapide (FAQ), oppure usa la casella di testo qui sotto per una ricerca specifica sul sito (es. "documenti PCTO Logistica").</div>
-                </div>
-            `;
-            chatHistory = []; // Reset history per la ricerca AI
-            isWaitingForReset = false;
-            createSuggestedButtons(qaData, false);
-            userInput.value = ''; // Pulisci l'input
-            sendButton.disabled = false;
-            userInput.focus();
-        }
-
-        // --- Logica Chatbot Gemini API (Ricerca Dinamica) ---
-        
         /** Gestisce la chiamata all'API di Gemini con backoff esponenziale. */
         async function callGeminiAPI(query, systemInstruction, maxRetries = 3) {
-            const apiKey = "";
+            const apiKey = ""; // Lascia vuoto: l'ambiente Canvas lo fornirà
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
 
             const payload = {
                 contents: chatHistory.map(msg => ({
                     role: msg.role === 'user' ? 'user' : 'model',
                     parts: [{ text: msg.text }]
-                })).concat([{ parts: [{ text: query }] }]),
+                })).concat([{ parts: [{ text: query }] }]), // Aggiunge la query corrente
                 
                 tools: [{ "google_search": {} }], // Abilita Google Search Grounding
                 
@@ -468,6 +373,7 @@
                     });
 
                     if (response.status === 429 && i < maxRetries - 1) {
+                        // Gestione 429 (Too Many Requests) con backoff esponenziale
                         const delay = Math.pow(2, i) * 1000 + Math.random() * 1000;
                         await new Promise(resolve => setTimeout(resolve, delay));
                         continue;
@@ -489,15 +395,10 @@
             }
         }
 
-        /** Invia il messaggio dell'utente e gestisce la risposta dell'AI (RICERCA DINAMICA). */
+        /** Invia il messaggio dell'utente e gestisce la risposta dell'AI. */
         async function sendMessage() {
             const query = userInput.value.trim();
             if (!query || isSending) return;
-            
-            // Se eravamo in modalità FAQ (pulsante reset visibile), resetta la chat
-            if (isWaitingForReset) {
-                resetChat();
-            }
 
             // 1. Inizializzazione e Stato
             isSending = true;
@@ -512,7 +413,7 @@
             const loading = addLoadingIndicator();
 
             try {
-                // 4. Chiama l'API per la ricerca dinamica (grounding)
+                // 4. Chiama l'API
                 const result = await callGeminiAPI(query, CONTEXT_INFO);
                 
                 removeLoadingIndicator();
@@ -528,55 +429,35 @@
                 addMessage(botText, 'bot');
                 chatHistory.push({ role: 'bot', text: botText });
                 
-                // Metti la chat in stato di attesa, chiedendo il reset per la prossima ricerca AI
-                isWaitingForReset = true;
-                suggestedQuestionsContainer.innerHTML = '';
-                createSuggestedButtons(qaData, true); // Mostra il pulsante "Reinizia Chat"
-
-
             } catch (error) {
                 console.error("Errore fatale:", error);
                 removeLoadingIndicator();
-                addMessage("Si è verificato un errore critico nella ricerca (AI): " + error.message, 'bot');
+                addMessage("Si è verificato un errore critico: " + error.message, 'bot');
+                // Non aggiungiamo questo errore alla chatHistory per evitare di inquinare le conversazioni successive
             } finally {
-                // 6. Ripristina lo stato di invio (ma non lo stato di reset se ha funzionato)
+                // 6. Ripristina lo stato
                 isSending = false;
                 sendButton.disabled = false;
                 userInput.focus();
             }
         }
 
-        // --- Event Listeners Globali ---
-        document.addEventListener('DOMContentLoaded', () => {
-            // Inizializza i pulsanti FAQ all'avvio
-            createSuggestedButtons(qaData, false);
+        // --- Event Listeners (Mantenuti) ---
+        document.getElementById('send-button').addEventListener('click', sendMessage);
 
-            // Listener per i pulsanti FAQ e Reset
-            suggestedQuestionsContainer.addEventListener('click', (e) => {
-                const target = e.target;
-                
-                if (target.id === 'reset-button') {
-                    resetChat();
-                    return;
-                }
-
-                const questionKey = target.dataset.questionKey;
-                if (questionKey && !isWaitingForReset && !isSending) {
-                    handleQuestionSelection(questionKey);
-                }
+        document.querySelectorAll('.suggested-question-button').forEach(button => {
+            button.addEventListener('click', () => {
+                const question = button.dataset.question;
+                userInput.value = question;
+                sendMessage();
             });
-
-            // Listener per la casella di testo (Ricerca AI Dinamica)
-            if (sendButton) {
-                sendButton.addEventListener('click', sendMessage);
-            }
-            // L'event listener onkeypress è già nell'HTML
-            
-             // Focalizza l'input al caricamento
-            if (userInput) {
-                userInput.focus();
-            }
         });
+
+        // Focalizza l'input al caricamento
+        window.onload = () => {
+             userInput.focus();
+        };
+
     </script>
 </body>
 </html>
