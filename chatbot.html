@@ -35,11 +35,16 @@
             max-width: 1400px;
             padding: 0;
         }
-        @media (min-width: 1024px) {
+        /* Applica layout affiancato da tablet in su (md breakpoint) */
+        @media (min-width: 768px) {
             .main-content {
-                flex-direction: row-reverse; /* Inverti ordine per chatbot a sinistra su desktop */
+                flex-direction: row-reverse; /* Chatbot on the left, info on the right */
                 justify-content: space-between;
                 padding: 2rem;
+                align-items: stretch; /* Forziamo i figli a riempire l'altezza del contenitore */
+                height: 90vh; /* Imposta l'altezza del contenitore per allineare i box */
+                max-height: 900px;
+                min-height: 650px;
             }
         }
 
@@ -55,14 +60,25 @@
         }
         .text-box {
             border-image: linear-gradient(45deg, #1d4ed8, #3b82f6, #93c5fd) 1;
-            max-width: 600px; /* Più stretto per le info */
+            /* max-width: 600px; - Rimosso per usare le media query */
         }
         .chatbot-box {
             height: 90vh;
             min-height: 650px;
             max-height: 900px;
             border-image: linear-gradient(45deg, #eab308, #f59e0b, #ef4444) 1;
-            max-width: 800px; /* Più largo per la chat */
+            /* max-width: 800px; - Rimosso per usare le media query */
+        }
+        
+        @media (min-width: 768px) {
+            .text-box {
+                height: 100%; /* Forza la box a riempire l'altezza del main-content */
+                max-width: 450px; /* Bilancia lo spazio a favore della chat */
+            }
+            .chatbot-box {
+                height: 100%; /* Assicura che la chatbox mantenga l'altezza e allinei il suo contenuto */
+                max-width: 800px;
+            }
         }
         
         .text-box h1 {
@@ -142,8 +158,7 @@
             background-color: #d1d5db;
             transform: translateY(-2px);
         }
-        .animated-
- {
+        .animated-logo {
             animation: rotate 10s infinite linear;
         }
         @keyframes rotate {
@@ -172,8 +187,6 @@
                     </div>
                 </div>
                 
-                <!-- La sezione input è stata rimossa, rimangono solo i pulsanti di scelta -->
-                
                 <div id="suggested-questions" class="suggested-questions-container">
                     <!-- I pulsanti di scelta multipla saranno iniettati qui da JS -->
                 </div>
@@ -192,13 +205,38 @@
                 </p>
             </div>
             
-            <h2 class="text-2xl font-bold mb-4 text-blue-600">Indirizzi e Dati di Contatto Ufficiali</h2>
-            <ul class="text-lg text-gray-800 space-y-2 text-left bg-gray-50 p-4 rounded-lg border border-gray-200">
-                <li><strong class="text-blue-700">Indirizzi Tecnici:</strong> Costruzioni Ambiente e Territorio (CAT), Logistica, Sistema Moda, Relazioni Internazionali per il Marketing.</li>
-                <li><strong class="text-blue-700">Indirizzi Liceali:</strong> Liceo Scientifico Scienze Applicate, Liceo Scientifico con Curvatura Economica (NEW).</li>
-                <li><strong class="text-blue-700">Sede:</strong> Via Briantina, 68 - 20831 Seregno (MB)</li>
-                <li><strong class="text-blue-700">Telefono:</strong> 0362 224164</li>
-            </ul>
+            <!-- CORREZIONE: Allineamento e Spaziatura del Titolo -->
+            <h2 class="text-2xl font-bold mb-6 text-blue-600 text-left">Indirizzi e Dati di Contatto Ufficiali</h2>
+            
+            <!-- SEZIONE RISTRUTTURATA -->
+            <div class="space-y-6">
+                <!-- Offerta Formativa -->
+                <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                    <h3 class="text-xl font-semibold mb-3 text-blue-600 border-b pb-2">Offerta Formativa</h3>
+                    <ul class="text-lg text-gray-800 space-y-3 text-left">
+                        <li><strong class="text-blue-700 block mb-1">Indirizzi Tecnici:</strong> Costruzioni Ambiente e Territorio (CAT), Logistica, Sistema Moda, Relazioni Internazionali per il Marketing.</li>
+                        <li><strong class="text-blue-700 block mb-1">Indirizzi Liceali:</strong> Liceo Scientifico Scienze Applicate.</li>
+                    </ul>
+                </div>
+
+                <!-- Contatti e Sede -->
+                <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                    <h3 class="text-xl font-semibold mb-3 text-blue-600 border-b pb-2">Contatti e Sede</h3>
+                    <ul class="text-lg text-gray-800 space-y-3 text-left">
+                        <li class="flex items-start gap-3">
+                            <!-- Icona Sede (Mappa) -->
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6 text-red-500 flex-shrink-0"><path d="M20 10V8a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h4"/><path d="M10 22V6c0-1.1.9-2 2-2h10a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-4"/><path d="M15 16h4"/></svg>
+                            <span><strong class="text-blue-700 block">Sede:</strong> Via Briantina, 68 - 20831 Seregno (MB)</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <!-- Icona Telefono -->
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6 text-red-500 flex-shrink-0"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-3.67-2.94L3 9.7a2 2 0 0 1 2-2h3"/><path d="M12 18h4"/><path d="M18 12h4"/><path d="M12 6h4"/><path d="M18 6h4"/></svg>
+                            <span><strong class="text-blue-700 block">Telefono:</strong> <a href="tel:+390362224164" class="hover:underline text-blue-600">0362 224164</a></span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <!-- FINE SEZIONE RISTRUTTURATA -->
         </div>
     </div>
 
@@ -210,11 +248,11 @@
             const chatMessages = document.getElementById('chat-messages');
             const suggestedQuestionsContainer = document.getElementById('suggested-questions');
             
-            // Dati del chatbot aggiornati (più focus su innovazione e indirizzi)
+            // Dati del chatbot aggiornati (Rimosso il Liceo Scientifico con Curvatura Economica dalla risposta)
             const qaData = {
                 "indirizzi offerti": {
                     "label": "Quali indirizzi sono offerti (Tecnici e Liceali)?",
-                    "answer": "L'ITSCG Primo Levi offre un'ampia scelta in **Tecnico** e **Liceale**:\n\n**Tecnici**:\n- Costruzioni, Ambiente e Territorio (CAT)\n- Logistica (anche corso Quadriennale)\n- Sistema Moda\n- Relazioni Internazionali per il Marketing\n\n**Liceali**:\n- Liceo Scientifico Scienze Applicate\n- Liceo Scientifico con Curvatura Economica (NOVITÀ)"
+                    "answer": "L'ITSCG Primo Levi offre un'ampia scelta in **Tecnico** e **Liceale**:\n\n**Tecnici**:\n- Costruzioni, Ambiente e Territorio (CAT)\n- Logistica (anche corso Quadriennale)\n- Sistema Moda\n- Relazioni Internazionali per il Marketing\n\n**Liceali**:\n- Liceo Scientifico Scienze Applicate"
                 },
                 "innovazione e laboratori": {
                     "label": "Cosa si intende per 'Apprendimento Attivo' e laboratori innovativi?",
@@ -326,3 +364,5 @@
     </script>
 </body>
 </html>
+
+
