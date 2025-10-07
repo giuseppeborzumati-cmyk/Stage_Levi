@@ -1114,12 +1114,24 @@
             const confirmationText = `La prenotazione per lo studente ${data.studentName}, relativa allo stage in data ${new Date(data.date).toLocaleDateString('it-IT')} per l'indirizzo ${data.courseName} e identificata dal codice ${data.bookingCode}, è stata confermata.`;
             doc.text(confirmationText, 10, 112, { maxWidth: 190 });
             
-            // AVVISO OBBLIGATORIO NEL PDF (Testo Modificato)
-            doc.setFontSize(10);
-            doc.setTextColor(185, 28, 28); // Dark Red
-            const warningText = "⚠️ Questo documento di conferma è OBBLIGATORIO e DEVE essere presentato all'ingresso il giorno dello stage. La visualizzazione del documento da dispositivo (es. smartphone) è ammessa.";
-            doc.text(warningText, 10, 125, { maxWidth: 190 });
+// AVVISO OBBLIGATORIO NEL PDF (Testo Modificato)
 
+// Imposta la dimensione del font
+doc.setFontSize(10);
+
+// Imposta il colore del testo su Rosso Scuro (RGB: 185, 28, 28)
+// Nota: Questo colore è già un buon 'Dark Red'
+doc.setTextColor(185, 28, 28); 
+
+// Definisci il testo di avviso in una variabile chiara
+const warningText = "⚠️ Questo documento di conferma è OBBLIGATORIO e DEVE essere presentato all'ingresso il giorno dello stage.";
+
+// Coordinate e Opzioni
+// X = 10 (Margine sinistro)
+// Y = 125 (Posizione verticale)
+// maxWidth: 190 (Assicura che il testo non superi la larghezza del documento, importante per le righe lunghe)
+doc.text(warningText, 10, 125, { maxWidth: 190 });
+            
             doc.setFontSize(9);
             const noteText = "N.B. Conservare questo documento. Per annullare la prenotazione, devi rientrare nello stesso link dell'applicazione, cliccare il pulsante 'Annulla la mia Prenotazione' (in alto) e inserire il codice riportato qui sopra.";
             doc.setTextColor(239, 68, 68); // Red-500
