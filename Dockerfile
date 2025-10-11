@@ -5,17 +5,17 @@ FROM node:20-alpine
 WORKDIR /usr/src/app
 
 # 3. Copia File di Dipendenza
-# *** MODIFICATO PER COPIARE SOLO package.json ***
-COPY package.json ./ 
+# Copia solo package.json e package-lock.json per sfruttare il caching di Docker.
+# ASSICURATI DI AVER ESEGUITO npm install IN LOCALE PRIMA DI COMMETTERE package-lock.json!
+COPY package.json package-lock.json ./ 
 
 # 4. Installazione Dipendenze
-# 'npm install' proverà a generare un package-lock.json se non lo trova.
-RUN npm install --omit=dev 
+RUN npm install --omit=dev
 
 # 5. Copia Codice Sorgente
 COPY . .
 
-# 6. Variabili d'Ambiente e Porta
+# 6. Porta
 EXPOSE 3000
 
 # 7. Comando d'Avvio
