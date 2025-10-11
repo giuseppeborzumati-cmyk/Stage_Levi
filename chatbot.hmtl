@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot - ITSCG Primo Levi Seregno</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* [Immagine di uno sfondo sfumato animato] */
+        @keyframes gradient-animation {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        body {
+            background: linear-gradient(-45deg, #1d4ed8, #ef4444, #3182ce, #eab308);
+            background-size: 400% 400%;
+            animation: gradient-animation 15s ease infinite;
+            font-family: 'Inter', sans-serif;
+            color: #1a202c;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 1rem;
+            margin: 0;
+        }
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            gap: 2.5rem;
+            align-items: center;
+            width: 100%;
+            max-width: 1400px;
+            padding: 0;
+        }
+        @media (min-width: 1024px) {
+            .main-content {
+                flex-direction: row-reverse; 
+                justify-content: space-between;
+                padding: 2rem;
+            }
+        }
+
+        .text-box, .chatbot-box {
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 2.5rem;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(8px);
+            border: 4px solid;
+            transition: transform 0.3s ease;
+            width: 100%;
+        }
+        .text-box {
+            border-image: linear-gradient(45deg, #1d4ed8, #3b82f6, #93c5fd) 1;
+            max-width: 600px; 
+        }
+        .chatbot-box {
+            height: 90vh;
+            min-height: 650px;
+            max-height: 900px;
+            border-image: linear-gradient(45deg, #eab308, #f59e0b, #ef4444) 1;
+            max-width: 800px; 
+            display: flex; 
+            flex-direction: column;
+        }
+        
+        .text-box h1 {
+            color: #1d4ed8;
+        }
+        
+        .chatbot-window {
+            height: 100%;
+            width: 100%;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            flex-grow: 1; 
+        }
+        .chatbot-header {
+            background: linear-gradient(90deg, #1d4ed8, #3b82f6);
+            color: white;
+            padding: 1.25rem;
+            border-bottom: 2px solid #2563eb;
+            flex-shrink: 0;
+        }
+        .chat-area-scroll {
+            flex-grow: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            padding: 0;
+        }
+        .chat-messages {
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+        }
+        .message-container {
+            display: flex;
+            margin-bottom: 1rem;
+        }
+        .bot-message {
+            background-color: #e0f2fe;
+            color: #1e40af; 
+            border-radius: 16px 16px 16px 4px;
+            padding: 1rem 1.25rem;
+            max-width: 85%;
+            align-self: flex-start;
+            font-size: 1rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            white-space: pre-wrap; 
+        }
+        .user-message {
+            background-color: #3b82f6; 
+            color: white;
+            border-radius: 16px 16px 4px 16px;
+            padding: 1rem 1.25rem;
+            max-width: 85%;
+            align-self: flex-end;
+            margin-left: auto;
+            font-size: 1rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        .suggested-questions-container {
+            padding: 1rem;
+            border-top: 2px solid #e2e8f0;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
+            gap: 0.75rem;
+            justify-items: center;
+            flex-shrink: 0;
+        }
+        .suggested-question-button {
+            background-color: #f3f4f6;
+            color: #1f2937;
+            border-radius: 20px;
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+            text-align: center;
+            border: 1px solid #d1d5db;
+            width: 100%;
+        }
+        .suggested-question-button:hover {
+            background-color: #d1d5db;
+            transform: translateY(-2px);
+        }
+        .animated-logo {
+            animation: rotate 10s infinite linear;
+        }
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .chat-input-container {
+            padding: 1rem;
+            border-top: 1px solid #cbd5e1;
+            display: flex;
+            gap: 0.75rem;
+            flex-shrink: 0;
+        }
+        .chat-input-container input {
+            flex-grow: 1;
+            padding: 0.75rem 1rem;
+            border: 1px solid #d1d5db;
+            border-radius: 20px;
+            font-size: 1rem;
+        }
+        .chat-input-container button {
+            padding: 0.75rem 1.5rem;
+            background-color: #f59e0b;
+            color: white;
+            border-radius: 20px;
+            font-weight: 600;
+            transition: background-color 0.2s;
+        }
+        .chat-input-container button:hover {
+            background-color: #d97706;
+        }
+        .chat-input-container button:disabled {
+            background-color: #9ca3af;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <div class="main-content">
+        <div class="chatbot-box">
+            <div class="chatbot-window">
+                <div class="chatbot-header flex justify-between items-center">
+                    <div class="flex items-center gap-3">
+                        <svg class="animated-logo w-8 h-8 text-yellow-300" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17.93c-3.95-.49-7-3.85-7-7.93s3.05-7.44 7-7.93v15.86zM13 4.07c3.95.49 7 3.85 7 7.93s-3.05 7.44-7 7.93V4.07z"/>
+                        </svg>
+                        <h2 class="text-xl font-semibold">Chatbot FAQ/AI ITSCG "Primo Levi"</h2>
+                    </div>
+                </div>
+                
+                <div class="chat-area-scroll">
+                    <div id="chat-messages" class="chat-messages">
+                        <div class="message-container">
+                            <div class="bot-message">Benvenuto/a! Scegli una domanda rapida dalle opzioni qui sotto, oppure digita la tua domanda specifica sull'Istituto.</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="suggested-questions" class="suggested-questions-container">
+                    </div>
+            </div>
+            
+            <div class="chat-input-container">
+                <input type="text" id="ai-input" placeholder="Chiedi all'AI (es. 'Quali sono i contatti?')">
+                <button id="ai-send" disabled>Invia</button>
+            </div>
+        </div>
+
+        <div class="text-box w-full lg:max-w-xl">
+            <h1 class="text-3xl md:text-4xl font-extrabold mb-6 text-center">Informazioni Essenziali per l'Orientamento</h1>
+            
+            <div class="flex flex-col items-center justify-center gap-6 mb-8">
+                <p class="text-lg text-gray-700 leading-relaxed text-justify mt-4">
+                    Questo strumento combina **FAQ rapide** con un **Chatbot AI** (basato sull'indirizzo <a href="https://www.leviseregno.edu.it/" target="_blank" class="text-blue-600 hover:text-blue-800 underline">https://www.leviseregno.edu.it/</a>) per fornire risposte precise sull'offerta formativa e le attività del Primo Levi.
+                </p>
+            </div>
+            
+            <h2 class="text-2xl font-bold mb-4 text-blue-600">Indirizzi e Dati di Contatto Ufficiali</h2>
+            <ul class="text-lg text-gray-800 space-y-2 text-left bg-gray-50 p-4 rounded-lg border border-gray-200">
+                <li><strong class="text-blue-700">Indirizzi Tecnici:</strong> CAT, Logistica (anche Quadriennale), Sistema Moda, Relazioni Internazionali.</li>
+                <li><strong class="text-blue-700">Indirizzi Liceali:</strong> Liceo Scientifico Scienze Applicate, Liceo Scientifico con Curvatura Economica.</li>
+                <li><strong class="text-blue-700">Sede:</strong> Via Briantina, 68 - 20831 Seregno (MB)</li>
+                <li><strong class="text-blue-700">Telefono:</strong> 0362 224164</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // *** CONFIGURAZIONE PROXY ***
+        // URL COMPLETO DEL PROXY SU RENDER (il tuo server segreto)
+        const PROXY_URL = 'https://stage-levi.onrender.com/api/chat'; 
+
+        let isWaitingForReset = false; 
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const chatMessages = document.getElementById('chat-messages');
+            const suggestedQuestionsContainer = document.getElementById('suggested-questions');
+            const aiInput = document.getElementById('ai-input');
+            const aiSendButton = document.getElementById('ai-send');
+            const chatAreaScroll = document.querySelector('.chat-area-scroll');
+
+            // --- Logica Chatbot Statico (FAQ) ---
+            const qaData = {
+                // ... (I tuoi dati QA statici per i pulsanti) ...
+                "indirizzi offerti": {
+                    "label": "Quali indirizzi sono offerti (Tecnici e Liceali)?",
+                    "answer": "L'ITSCG Primo Levi offre un'ampia scelta in **Tecnico** e **Liceale**:\n\n**Tecnici**:\n- Costruzioni, Ambiente e Territorio (CAT)\n- Logistica (anche corso Quadriennale)\n- Sistema Moda\n- Relazioni Internazionali per il Marketing\n\n**Liceali**:\n- Liceo Scientifico Scienze Applicate\n- Liceo Scientifico con Curvatura Economica (NOVITÀ)"
+                },
+                "innovazione e laboratori": {
+                    "label": "Quali progetti innovativi (PNRR, Scuola 4.0) ci sono?",
+                    "answer": "La scuola investe in **Apprendimento Attivo** e ambienti didattici innovativi, grazie anche ai fondi **PNRR**.\nQuesto include:\n- Potenziamento delle dotazioni laboratoriali in ogni indirizzo (es. laboratori 4.0).\n- Corsi specifici sull'uso di nuove tecnologie e sulla digitalizzazione."
+                },
+                "internazionalizzazione e stage": {
+                    "label": "Si organizzano scambi/stage all'estero o percorsi internazionali?",
+                    "answer": "Il Primo Levi promuove attivamente l'**internazionalizzazione del curricolo** e lo scambio fra le diverse culture, con progetti che preparano gli studenti alle dinamiche globali, essenziali per gli indirizzi tecnici come Relazioni Internazionali e Logistica."
+                },
+                "prossime date open day": {
+                    "label": "Quali sono le prossime date di Open Day?",
+                    "answer": "Le date ufficiali per l'Open Day sono:\n- **15 NOVEMBRE**\n- **29 NOVEMBRE**\n- **13 DICEMBRE**\nSi raccomanda di consultare il sito ufficiale per i dettagli e la **prenotazione obbligatoria** per gli studenti delle scuole medie."
+                },
+                "mezzi pubblici e raggiungibilità": {
+                    "label": "Mezzi Pubblici per Raggiungere la Sede",
+                    "answer": "La scuola è comodamente raggiungibile tramite diverse linee di autotrasporto:\n- **SILA**: Linee H208 (Seregno - Saronno) e H313.\n- **Brianza Trasporti**: Linee Z231, Z232, Z233, Z228. La fermata è vicina alla sede di Via Briantina, 68."
+                },
+                "colloqui e registro elettronico": {
+                    "label": "Rapporti con le Famiglie (Colloqui e Voti)",
+                    "answer": "Il rapporto con le famiglie è gestito principalmente tramite:\n1. **Registro Elettronico**: per voti, assenze e documentazione.\n2. **Colloqui con i singoli docenti**: in orario scolastico, previa prenotazione."
+                },
+                "calendario scolastico 2025/2026": {
+                    "label": "Date di Inizio/Fine Lezioni (2025/2026)",
+                    "answer": "Secondo il Calendario Scolastico 2025/2026:\n- L'inizio delle lezioni è fissato per **giovedì 11 settembre 2025**.\n- La fine delle lezioni sarà **sabato 6 giugno 2026**."
+                }
+            };
+            
+            // Funzioni di utilità (addMessage, formatBotMessage, scrollToBottom, etc.)
+            function formatBotMessage(text) {
+                let htmlText = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+                htmlText = htmlText.replace(/\n/g, '<br>');
+                return htmlText;
+            }
+
+            function scrollToBottom() {
+                chatAreaScroll.scrollTop = chatAreaScroll.scrollHeight;
+            }
+
+            function addMessage(text, sender) {
+                const messageContainer = document.createElement('div');
+                messageContainer.classList.add('message-container');
+                const messageBubble = document.createElement('div');
+                messageBubble.classList.add(sender === 'user' ? 'user-message' : 'bot-message');
+                
+                messageBubble.innerHTML = sender === 'user' ? text : formatBotMessage(text);
+                
+                messageContainer.appendChild(messageBubble);
+                chatMessages.appendChild(messageContainer);
+                scrollToBottom();
+            }
+
+            function createSuggestedButtons(data, isReset = false) {
+                suggestedQuestionsContainer.innerHTML = '';
+                
+                if (isReset) {
+                    const resetButton = document.createElement('button');
+                    resetButton.classList.add('suggested-question-button', 'bg-red-500', 'hover:bg-red-600', 'text-white', 'col-span-full', 'w-full');
+                    resetButton.textContent = "Torna alle Opzioni Rapide";
+                    resetButton.id = "reset-button";
+                    suggestedQuestionsContainer.appendChild(resetButton);
+                } else {
+                    const questions = Object.keys(data);
+                    questions.forEach(q => {
+                        const button = document.createElement('button');
+                        button.classList.add('suggested-question-button');
+                        button.textContent = data[q].label || q;
+                        button.dataset.questionKey = q;
+                        suggestedQuestionsContainer.appendChild(button);
+                    });
+                }
+                scrollToBottom();
+            }
+
+            function handleQuestionSelection(questionKey) {
+                if (isWaitingForReset) return;
+
+                const userQuestion = qaData[questionKey].label;
+                const botResponse = qaData[questionKey].answer;
+                
+                addMessage(userQuestion, 'user');
+                
+                isWaitingForReset = true;
+                suggestedQuestionsContainer.innerHTML = ''; 
+                
+                setTimeout(() => {
+                    addMessage(botResponse, 'bot');
+                    createSuggestedButtons(qaData, true); 
+                }, 800);
+            }
+
+            // --- Logica Chatbot AI (Domanda Libera) ---
+            
+            aiInput.addEventListener('input', () => {
+                aiSendButton.disabled = aiInput.value.trim() === '';
+            });
+
+            aiInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter' && !aiSendButton.disabled) {
+                    handleAISend();
+                }
+            });
+
+            aiSendButton.addEventListener('click', handleAISend);
+            
+            async function handleAISend() {
+                const userMessage = aiInput.value.trim();
+                if (!userMessage) return;
+
+                addMessage(userMessage, 'user');
+                aiInput.value = '';
+                aiSendButton.disabled = true;
+                
+                const loadingMessage = "Sto consultando il sito web per darti una risposta...";
+                addMessage(loadingMessage, 'bot');
+                scrollToBottom();
+                
+                const loadingBubble = chatMessages.lastChild.querySelector('.bot-message');
+
+                try {
+                    const response = await fetch(PROXY_URL, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        // Invia solo la domanda; la logica RAG è nel server.js
+                        body: JSON.stringify({ prompt: userMessage }),
+                    });
+
+                    const data = await response.json();
+                    
+                    if (response.ok) {
+                        loadingBubble.innerHTML = formatBotMessage(data.text); 
+                    } else {
+                        loadingBubble.innerHTML = formatBotMessage(`Errore dal server proxy: ${data.error || response.statusText}. Verifica la configurazione.`);
+                    }
+
+                } catch (error) {
+                    loadingBubble.innerHTML = formatBotMessage(`Errore di connessione: Impossibile raggiungere il server proxy (${PROXY_URL}).`);
+                    console.error('Fetch error:', error);
+                } finally {
+                    aiSendButton.disabled = false; 
+                    scrollToBottom();
+                }
+            }
+
+            // --- Gestione Eventi Globali ---
+            
+            suggestedQuestionsContainer.addEventListener('click', (e) => {
+                const target = e.target;
+                
+                if (target.id === 'reset-button') {
+                    chatMessages.innerHTML = ''; 
+                    addMessage("Benvenuto/a! Scegli una domanda rapida, oppure usa la casella in basso per l'AI.", 'bot');
+                    isWaitingForReset = false;
+                    createSuggestedButtons(qaData, false);
+                    return;
+                }
+
+                const questionKey = target.dataset.questionKey;
+                if (questionKey && !isWaitingForReset) {
+                    handleQuestionSelection(questionKey);
+                }
+            });
+            
+            createSuggestedButtons(qaData, false);
+        });
+    </script>
+</body>
+</html>
