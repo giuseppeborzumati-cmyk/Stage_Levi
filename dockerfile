@@ -5,8 +5,7 @@ FROM node:20-alpine
 WORKDIR /usr/src/app
 
 # 3. Copia File di Dipendenza
-# Copia solo package.json e package-lock.json per sfruttare il caching di Docker.
-# ASSICURATI DI AVER ESEGUITO npm install IN LOCALE PRIMA DI COMMETTERE package-lock.json!
+# Assicurati di aver eseguito 'npm install' in locale e committato package-lock.json!
 COPY package.json package-lock.json ./ 
 
 # 4. Installazione Dipendenze
