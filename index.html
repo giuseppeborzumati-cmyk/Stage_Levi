@@ -70,58 +70,64 @@
 
 <!-- Header compatto con logo -->
 <header class="bg-white shadow-md sticky top-0 z-40">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 flex items-center justify-between">
-        <div class="flex items-center">
-            <img src="Levi.png" 
-                 onerror="this.onerror=null; this.src='Levi.png';" 
-                 alt="Logo Primo Levi" 
-                 class="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-indigo-500 mr-2">
-            <h1 class="text-lg sm:text-xl font-semibold text-gray-900">
-                Stage Orientamento <span class="text-indigo-600 font-bold">ITSCG Primo Levi</span>
-            </h1>
-        </div>
-        
-        <div class="flex items-center space-x-4">
-            <a href="chatbot.html" 
-               class="px-3 py-1.5 text-sm font-medium text-white bg-yellow-500 rounded-lg hover:bg-yellow-600 transition duration-150 shadow-md flex items-center">
-                <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.669A9.76 9.76 0 0112 4c4.97 0 9 3.582 9 8z"></path></svg>
-                Chatbot AI (FAQ)
-            </a>
-            <div id="auth-status" class="text-xs text-gray-400 truncate">
-                <div id="current-user-id">ID: In attesa...</div>
-            </div>
-        </div>
-        </div>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 flex items-center justify-between">
+        <div class="flex items-center">
+            <img src="Levi.png" 
+                 onerror="this.onerror=null; this.src='Levi.png';" 
+                 alt="Logo Primo Levi" 
+                 class="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-indigo-500 mr-2">
+            <h1 class="text-lg sm:text-xl font-semibold text-gray-900">
+                Stage Orientamento <span class="text-indigo-600 font-bold">ITSCG Primo Levi</span>
+            </h1>
+        </div>
+        <div id="auth-status" class="text-xs text-gray-400 truncate">
+            <div id="current-user-id">ID: In attesa...</div>
+        </div>
+    </div>
 </header>
 
-<main class="max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
-    <div id="message-box" class="hidden fixed top-20 right-5 p-4 rounded-xl shadow-xl text-white z-50 transition-opacity duration-300"></div>
-    
-    <div id="loading" class="flex justify-center items-center py-4 text-gray-600">
-         <div id="loading-spinner" class="spinner mr-3"></div>
-        <span id="loading-status" class="text-lg font-medium">Connessione al database in corso...</span>
-    </div>
+    <main class="max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
+        <!-- Message Box per feedback utente -->
+        <div id="message-box" class="hidden fixed top-20 right-5 p-4 rounded-xl shadow-xl text-white z-50 transition-opacity duration-300"></div>
+        
+        <!-- Indicatore di caricamento del DB -->
+        <div id="loading" class="flex justify-center items-center py-4 text-gray-600">
+             <div id="loading-spinner" class="spinner mr-3"></div>
+            <span id="loading-status" class="text-lg font-medium">Connessione al database in corso...</span>
+        </div>
 
-    <section id="docente-view" class="hidden">
-        <h2 class="text-4xl font-extrabold text-indigo-800 text-center mb-6 border-b-4 border-indigo-600 pb-2">Area Docenti - Monitoraggio Stage</h2>
-        
-        <div class="mb-6 flex justify-between items-center bg-gray-100 p-4 rounded-xl shadow-md">
-            <button id="logout-docente-btn" class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 transition duration-150 shadow-md">
-                Logout Docente
-            </button>
-            <div class="flex space-x-3">
-                <button id="export-csv-btn" class="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 transition duration-150 shadow-md flex items-center">
-                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                    Esporta in CSV (Excel)
-                </button>
-                <button id="open-delete-modal-btn" class="px-4 py-2 text-sm font-medium text-white bg-red-800 rounded-lg hover:bg-red-900 transition duration-150 shadow-md flex items-center">
-                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                    Cancella TUTTI i Dati
-                </button>
-            </div>
-        </div>
-    </section>
-</main>
+        <!-- Vista Docente (Inizialmente nascosta) -->
+        <section id="docente-view" class="hidden">
+            <h2 class="text-4xl font-extrabold text-indigo-800 text-center mb-6 border-b-4 border-indigo-600 pb-2">Area Docenti - Monitoraggio Stage</h2>
+            
+            <!-- Controlli Docente -->
+            <div class="mb-6 flex justify-between items-center bg-gray-100 p-4 rounded-xl shadow-md">
+                <button id="logout-docente-btn" class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 transition duration-150 shadow-md">
+                    Logout Docente
+                </button>
+                <div class="flex space-x-3">
+                    <button id="export-csv-btn" class="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 transition duration-150 shadow-md flex items-center">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                        Esporta in CSV (Excel)
+                    </button>
+                    <!-- Pulsante Elimina Dati Totale -->
+                    <button id="open-delete-modal-btn" class="px-4 py-2 text-sm font-medium text-white bg-red-800 rounded-lg hover:bg-red-900 transition duration-150 shadow-md flex items-center">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                        Cancella TUTTI i Dati
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tab Navigation -->
+            <div class="flex border-b border-gray-300 mb-6">
+                <button id="tab-bookings" data-tab="bookings" class="tab-button px-6 py-3 text-gray-600 hover:text-indigo-600 hover:border-indigo-300 border-b-2 border-transparent tab-active">
+                    Prenotazioni Attive
+                </button>
+                <button id="tab-cancellations" data-tab="cancellations" class="tab-button px-6 py-3 text-gray-600 hover:text-red-600 hover:border-red-300 border-b-2 border-transparent">
+                    Storico Annullamenti
+                </button>
+            </div>" 
+            
             <!-- Contenuto Tab: Prenotazioni Attive -->
             <div id="content-bookings" class="tab-content">
                 <h3 class="text-2xl font-bold text-gray-700 mb-4">Elenco Prenotazioni Attive per posti e data)</h3>
