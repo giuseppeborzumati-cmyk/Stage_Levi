@@ -7,12 +7,13 @@ const express = require('express');
 const cors = require('cors');
 const { GoogleGenAI } = require('@google/genai');
 
+// Inizializzazione AI. L'API Key deve essere impostata su Render.
 const ai = new GoogleGenAI({apiKey: process.env.GEMINI_API_KEY});
 const app = express();
 const port = process.env.PORT || 3000; 
 
 // CONFIGURAZIONE CORS: L'unico dominio ammessso è la tua pagina GitHub Pages
-// Questo deve corrispondere a https://giuseppeborzumati-cmyk.github.io
+// DEVI SOSTITUIRE QUESTO CON IL TUO VERO URL DI GITHUB PAGES!
 const ALLOWED_ORIGIN = 'https://giuseppeborzumati-cmyk.github.io'; 
 const SITE_URL = "https://www.leviseregno.edu.it/"; // Il sito di riferimento
 
@@ -32,7 +33,7 @@ app.post('/api/chat', async (req, res) => {
 
     try {
         // Istruzione a Gemini di BASARE la risposta sul contenuto del sito
-        const fullPrompt = `Rispondi in modo conciso e utile alla domanda: "${userPrompt}", cercando di usare le informazioni che puoi trovare in questo sito: ${SITE_URL}. Se non trovi informazioni specifiche o pertinenti, rispondi con cortesia che non puoi aiutare con quella richiesta specifica, ma non inventare informazioni.`;
+        const fullPrompt = `Sei un assistente per l'orientamento del ITSCG Primo Levi di Seregno. Rispondi in modo conciso e professionale alla domanda: "${userPrompt}". Le tue risposte devono essere basate sulle informazioni che trovi nel sito: ${SITE_URL}. Se non trovi informazioni specifiche o pertinenti, rispondi con cortesia che non puoi aiutare con quella richiesta specifica, ma non inventare informazioni.`;
 
         // Chiama l'API di Gemini
         const response = await ai.models.generateContent({
