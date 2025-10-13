@@ -41,7 +41,7 @@
             background-color: var(--primary-color);
             color: var(--text-light);
             padding: 15px 20px;
-            display: flex;
+            display: flex; /* <-- USA FLEXBOX PER AFFIANCARE GLI ELEMENTI */
             align-items: center;
             font-size: 1.4em;
             border-bottom: 4px solid var(--secondary-color);
@@ -54,6 +54,21 @@
             object-fit: cover; /* Assicura che l'immagine copra l'area */
             margin-right: 15px;
             border: 2px solid var(--text-light);
+            flex-shrink: 0; /* Impedisce all'immagine di restringersi */
+        }
+        .header-info {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.2;
+        }
+        .header-title {
+            font-weight: 700;
+            font-size: 1.1em;
+        }
+        .header-subtitle {
+            font-weight: 400;
+            font-size: 0.8em;
+            opacity: 0.8;
         }
         .chat-box {
             flex-grow: 1;
@@ -126,7 +141,11 @@
     <div class="chat-container">
         <div class="chat-header">
             <img src="foto_chatbot.png" alt="Logo Primo Levi" class="logo-img"> 
-            Assistente ITSCG Primo Levi
+            
+            <div class="header-info">
+                <span class="header-title">ITSCG Primo Levi</span>
+                <span class="header-subtitle">Assistente Virtuale - Gemini Proxy</span>
+            </div>
         </div>
         
         <div class="chat-box" id="chatBox">
@@ -164,7 +183,7 @@
         function appendMessage(text, sender) {
             const messageDiv = document.createElement('div');
             messageDiv.classList.add('message', sender === 'user' ? 'user-message' : 'bot-message');
-            // Gestione dei ritorni a capo (se il bot li invia)
+            // Gestione dei ritorni a capo
             messageDiv.innerHTML = text.replace(/\n/g, '<br>'); 
             chatBox.appendChild(messageDiv);
             scrollToBottom();
@@ -200,7 +219,7 @@
                     // 4. Aggiungi la risposta del bot
                     appendMessage(data.response, 'bot');
                 } else if (data.error) {
-                    // Gestione errori lato server
+                    // Gestione errori lato server (es. API key mancante)
                     appendMessage(`ERRORE SERVER: ${data.error}`, 'bot');
                 } else {
                     // Errore generico
