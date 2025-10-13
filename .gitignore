@@ -1,0 +1,7 @@
+# Dipendenze
+
+/node_modules
+
+# Variabili d'ambiente private (la chiave API)
+
+.env
