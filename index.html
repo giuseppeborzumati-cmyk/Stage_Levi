@@ -709,18 +709,15 @@ doc.text(
 
             <!-- Bottoni di Navigazione Rapida (Home) -->
             <div class="flex flex-col sm:flex-row justify-between space-y-4 sm:space-y-0 sm:space-x-8 mb-12">
+                <!-- Bottone Chatbot (Grigio) -->
+<button onclick="location.href='chatbot.html'" 
+        class="bg-gray-400 text-gray-900 px-6 py-3 rounded-lg font-bold hover:bg-gray-500 transition duration-150 shadow-lg flex-1 sm:max-w-xs">
+    Assistente Chatbot (Prossimamente)
+</button>
                 <!-- Bottone Cancella a Sinistra (Rosso) -->
                 <button onclick="showView('cancellation-input-view')" 
                         class="danger-color text-white px-6 py-3 rounded-lg font-bold hover:bg-red-700 transition duration-150 shadow-lg flex-1 sm:max-w-xs">
                     Cancella Prenotazione
-                </button>
-<section id="chatbot-view" data-view="chatbot-view" 
-         class="cursor-pointer hover:bg-gray-100 p-6 rounded-xl transition duration-300 shadow-sm hover:shadow-md"
-         onclick="location.href='chatbot.html'">
-    <h2 class="text-3xl font-extrabold text-gray-900 mb-4">Assistente Chatbot (Prossimamente)</h2>
-    <p class="text-gray-600">Un assistente virtuale per rispondere alle tue domande più frequenti in tempo reale.</p>
-</section>
-e Chatbot
                 </button>
                 <!-- Area Docenti a Destra (Blu) -->
                 <button onclick="showView('login-docenti-view')" 
