@@ -26,11 +26,10 @@
             min-height: 100vh;
         }
 
-        /* Container principale che contiene Sidebar e Chat */
         .main-container {
             display: flex;
             width: 100%;
-            max-width: 1200px; /* Aumentato per accogliere la sidebar */
+            max-width: 1200px;
             margin: 40px auto;
             box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
             border-radius: 12px;
@@ -79,7 +78,7 @@
             display: block;
         }
 
-        /* Chat Container (Occupa lo spazio rimanente) */
+        /* CHAT INTERFACE */
         .chat-container {
             flex-grow: 1;
             display: flex;
@@ -117,34 +116,73 @@
             font-size: 0.8em;
             opacity: 0.8;
         }
+
+        /* BOX MESSAGGI con avatar */
         .chat-box {
             flex-grow: 1;
             padding: 20px;
             overflow-y: auto;
             background-color: var(--background-chat);
         }
-        .message {
+        .message-row {
+            display: flex;
             margin-bottom: 15px;
+            align-items: flex-end;
+        }
+        .message-row.user {
+            justify-content: flex-end;
+        }
+        .message-row.bot {
+            justify-content: flex-start;
+        }
+        .avatar {
+            height: 30px;
+            width: 30px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        .message-row.bot .avatar {
+            margin-right: 10px;
+        }
+        .message-row.user .avatar {
+            margin-left: 10px;
+        }
+        .message {
             padding: 12px 18px;
             border-radius: 20px;
-            max-width: 85%;
+            max-width: 70%; 
             word-wrap: break-word;
             line-height: 1.4;
             box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
         }
         .user-message {
             background-color: #c5e1a5; 
-            margin-left: auto;
             text-align: right;
         }
         .bot-message {
             background-color: var(--text-light);
-            margin-right: auto;
             text-align: left;
             border: 1px solid #e0e0e0;
         }
         
-        /* Stili per le Domande Preimpostate */
+        /* Animazione per l'indicatore di scrittura (migliora percezione di velocità) */
+        .typing-indicator span {
+            display: inline-block;
+            background-color: #aaa;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin: 0 2px;
+            animation: bounce 1.4s infinite ease-in-out both;
+        }
+        .typing-indicator span:nth-child(1) { animation-delay: -0.32s; }
+        .typing-indicator span:nth-child(2) { animation-delay: -0.16s; }
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1.0); }
+        }
+
+        /* Domande Preimpostate */
         .quick-replies {
             padding: 10px 20px;
             border-top: 1px solid #ddd;
@@ -193,13 +231,6 @@
             border-radius: 25px;
             cursor: pointer;
         }
-        .loading-indicator {
-            text-align: center;
-            color: #757575;
-            padding: 10px;
-            display: none;
-            font-style: italic;
-        }
     </style>
 </head>
 <body>
@@ -218,21 +249,21 @@
 
             <div class="info-card">
                 <h4>Contatti</h4>
-                <p><strong>Indirizzo:</strong> Via Briantina, 68 - 20831 Seregno (MB)</p>
+                <p><strong>Indirizzo:</strong> Via Briantina, 62 - 20831 Seregno (MB)</p>
                 <p><strong>Telefono:</strong> 0362 231572</p>
-                <p><strong>Email:</strong> mbtc01000b@istruzione.it</p>
+                <p><strong>Email:</strong> mbtd430001@istruzione.it</p>
             </div>
             
             <div class="info-card">
                 <h4>Link Utili</h4>
                 <p><a href="https://www.leviseregno.edu.it/" target="_blank">Sito Web Ufficiale</a></p>
-                <p><a href="https://www.leviseregno.edu.it/privacy" target="_blank">Informativa Privacy</a></p>
+                <p><a href="https://www.leviseregno.edu.it/pagina/albo-pretorio" target="_blank">Albo Pretorio</a></p>
             </div>
         </div>
 
         <div class="chat-container">
             <div class="chat-header">
-                <img src="foto_chatbot.png" alt="Logo Primo Levi" class="logo-img"> 
+                <img src="images/logo_levi.png" alt="Logo Primo Levi" class="logo-img"> 
                 <div class="header-info">
                     <span class="header-title">ITSCG Primo Levi</span>
                     <span class="header-subtitle">Assistente Virtuale - Chatbot</span>
@@ -240,17 +271,16 @@
             </div>
             
             <div class="chat-box" id="chatBox">
-                <div class="message bot-message">
-                    Benvenuto! Sono l'assistente virtuale dell'ITSCG Primo Levi. Inizia scegliendo una domanda qui sotto o scrivendone una.
+                <div class="message-row bot">
+                    <img src="images/bot_avatar.png" alt="Bot" class="avatar">
+                    <div class="message bot-message">
+                         Ciao! Sono l'assistente virtuale dell'ITSCG Primo Levi. Sono qui per aiutarti! Inizia scegliendo una domanda qui sotto.
+                    </div>
                 </div>
             </div>
             
             <div class="quick-replies" id="quickReplies">
                 </div>
-            
-            <div class="loading-indicator" id="loadingIndicator">
-                Il bot sta rispondendo...
-            </div>
             
             <div class="chat-input">
                 <input type="text" id="userInput" placeholder="Scrivi un messaggio..." autofocus>
@@ -267,7 +297,6 @@
         const chatBox = document.getElementById('chatBox');
         const userInput = document.getElementById('userInput');
         const sendButton = document.getElementById('sendButton');
-        const loadingIndicator = document.getElementById('loadingIndicator');
         const quickRepliesContainer = document.getElementById('quickReplies');
         
         // Array delle domande fisse
@@ -275,18 +304,70 @@
             "Quali corsi di studio offre la scuola?",
             "Qual è l'orario della segreteria?",
             "Ci sono eventi in programma questa settimana?",
-            "Dove trovo il calendario scolastico?"
+            "Vorrei sapere di più sulla didattica a distanza."
         ];
+
+        let loadingMessageElement = null; 
 
         function scrollToBottom() {
             chatBox.scrollTop = chatBox.scrollHeight;
         }
 
+        // Funzione per aggiungere un messaggio con avatar
         function appendMessage(text, sender) {
+            // ✅ PULIZIA DEGLI ASTERISCHI
+            let cleanText = text;
+            // Rimuove ** (grassetto) e * (punti elenco/grassetto) da tutte le risposte (anche quick replies cliccate)
+            cleanText = text.replace(/\*\*/g, '').replace(/\*/g, '');
+
+            const messageRow = document.createElement('div');
+            messageRow.classList.add('message-row', sender);
+            
+            const avatar = document.createElement('img');
+            avatar.classList.add('avatar');
+            // Assicurati che i percorsi delle immagini siano corretti!
+            avatar.src = sender === 'user' ? 'images/user_avatar.png' : 'images/bot_avatar.png'; 
+            avatar.alt = sender === 'user' ? 'Utente' : 'Bot';
+
             const messageDiv = document.createElement('div');
-            messageDiv.classList.add('message', sender === 'user' ? 'user-message' : 'bot-message');
-            messageDiv.innerHTML = text.replace(/\n/g, '<br>'); 
-            chatBox.appendChild(messageDiv);
+            messageDiv.classList.add('message', `${sender}-message`);
+            
+            // Usa cleanText per la visualizzazione
+            messageDiv.innerHTML = cleanText.replace(/\n/g, '<br>'); 
+
+            if (sender === 'bot') {
+                messageRow.appendChild(avatar);
+                messageRow.appendChild(messageDiv);
+            } else {
+                messageRow.appendChild(messageDiv);
+                messageRow.appendChild(avatar);
+            }
+            
+            chatBox.appendChild(messageRow);
+            scrollToBottom();
+            return messageRow;
+        }
+        
+        // Funzione per mostrare l'indicatore di scrittura (migliora la percezione di velocità)
+        function showTypingIndicator() {
+            const indicatorHTML = `
+                <div class="message bot-message typing-indicator" style="width: fit-content; padding: 12px 20px;">
+                    Sono qui, sto cercando la risposta... <span></span>
+                </div>`;
+            
+            const messageRow = document.createElement('div');
+            messageRow.classList.add('message-row', 'bot');
+            
+            const avatar = document.createElement('img');
+            avatar.classList.add('avatar');
+            avatar.src = 'images/bot_avatar.png';
+            avatar.alt = 'Bot';
+            messageRow.appendChild(avatar);
+            
+            messageRow.innerHTML += indicatorHTML;
+            chatBox.appendChild(messageRow);
+            
+            loadingMessageElement = messageRow;
             scrollToBottom();
         }
 
@@ -299,11 +380,12 @@
             }
 
             // 1. Aggiungi il messaggio dell'utente
-            appendMessage(message, 'user');
+            appendMessage(message, 'user'); 
 
-            // 2. Disabilita input, bottoni e mostra indicatore di caricamento
+            // 2. Disabilita input e MOSTRA INDICATORE DI SCRITTURA
             disableInput(true);
-            
+            showTypingIndicator(); 
+
             try {
                 // 3. Invia la richiesta al proxy server
                 const response = await fetch(PROXY_URL, {
@@ -316,22 +398,31 @@
 
                 const data = await response.json();
 
+                // 4. Rimuovi l'indicatore di scrittura
+                if (loadingMessageElement) {
+                    loadingMessageElement.remove();
+                }
+
                 if (response.ok && data.response) {
-                    // 4. Aggiungi la risposta del bot
+                    // 5. Aggiungi la risposta del bot
                     appendMessage(data.response, 'bot');
                 } else if (data.error) {
                     appendMessage(`ERRORE SERVER: ${data.error}`, 'bot');
                 } else {
-                    appendMessage('ERRORE: La risposta dal server è vuota o non valida. Controlla i log di Render.', 'bot');
+                    appendMessage('ERRORE: La risposta dal server è vuota o non valida.', 'bot');
                 }
 
             } catch (error) {
                 console.error('Errore di connessione al proxy:', error);
+                if (loadingMessageElement) {
+                    loadingMessageElement.remove();
+                }
                 appendMessage('ERRORE DI CONNESSIONE: Impossibile raggiungere il proxy server su Render.', 'bot');
             } finally {
-                // 5. Riabilita input e nascondi indicatore
+                // 6. Riabilita input 
                 disableInput(false);
                 userInput.focus();
+                loadingMessageElement = null;
             }
         }
         
@@ -339,7 +430,6 @@
             sendButton.disabled = state;
             userInput.disabled = state;
             quickRepliesContainer.querySelectorAll('button').forEach(btn => btn.disabled = state);
-            loadingIndicator.style.display = state ? 'block' : 'none';
         }
 
         function setupQuickReplies() {
