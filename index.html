@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prenotazione Mini-Stage di Orientamento</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Chart.js for Analytics -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+    <!-- jsPDF and html2canvas for PDF Generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+    <style>
+        /* Stili Custom per un look 'prezioso e dolce' */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Pacifico&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+        .header-bg { background: linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%); } /* Viola/Indaco */
+        .card-shadow { box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08), 0 6px 6px rgba(0, 0, 0, 0.04); }
+        .btn-primary { background-color: #6366f1; border: none; transition: background-color 0.3s, transform 0.1s; }
+        .btn-primary:hover { background-color: #4f46e5; transform: translateY(-1px); }
+        .btn-secondary { background-color: #facc15; color: #1f2937; border: none; transition: background-color 0.3s, transform 0.1s; }
+        .btn-secondary:hover { background-color: #eab308; transform: translateY(-1px); }
+        .input-style { border: 2px solid #e5e7eb; border-radius: 0.75rem; padding: 0.75rem; transition: border-color 0.3s; }
+        .input-style:focus { border-color: #a78bfa; outline: none; box-shadow: 0 0 0 3px rgba(167, 139, 250, 0.5); }
+        .logo-font { font-family: 'Pacifico', cursive; color: white; text-shadow: 1px 1px 2px rgba(0,0,0,0.1); }
+        .docenti-login { background-color: #f1f5f9; }
+
+        /* Animazione per lo stato di connessione */
+        @keyframes pulse-dot { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        .status-dot { animation: pulse-dot 1.5s infinite; }
+    </style>
+</head>
+<body class="min-h-screen">
+
+    <!-- Header Section -->
+    <header class="header-bg p-6 shadow-xl">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <h1 class="text-4xl font-bold logo-font">
+                StageSchool Orientamento
+            </h1>
+            <nav class="flex items-center space-x-4">
+                <!-- Chatbot Link (Carino e Bellino) -->
+                <a id="chatbot-link" href="chatbot.html" target="_blank" class="group flex items-center space-x-2 p-3 bg-yellow-300 text-gray-900 rounded-full font-semibold hover:bg-yellow-400 transition transform hover:scale-105 shadow-lg">
+                    <i data-lucide="bot" class="w-5 h-5 group-hover:animate-bounce"></i>
+                    <span class="hidden sm:inline">Assistente AI Chat</span>
+                </a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+
+        <!-- Firebase Connection Status -->
+        <div class="mb-8 text-center">
+            <span id="firebase-status" class="inline-flex items-center px-4 py-2 text-sm font-medium rounded-full bg-gray-100 text-gray-700 border border-gray-300 shadow-sm">
+                <span id="status-dot" class="status-dot w-3 h-3 mr-2 rounded-full bg-red-500"></span>
+                <span id="status-text">Connessione a Firebase in corso...</span>
+            </span>
+        </div>
+
+        <!-- Ministage Description Section -->
+        <section class="mb-12 p-8 bg-white rounded-2xl card-shadow border-t-4 border-indigo-400">
+            <h2 class="text-3xl font-bold text-gray-900 mb-4 flex items-center">
+                <i data-lucide="school" class="w-8 h-8 text-indigo-500 mr-3"></i>
+                Mini-Stage di Orientamento: Vivi la tua Scelta!
+            </h2>
+            <p class="text-base text-red-600 font-semibold mb-6 p-3 bg-red-50 rounded-lg">
+                DATE IN VIA DI DEFINIZIONE. A BREVE POTRETE PRENOTARE TRAMITE LINK CARICATO SU QUESTA PAGINA
+            </p>
+            <div id="ministage-text" class="space-y-4 text-gray-700">
+                <p>Per supportare al meglio l'importante scelta della scuola superiore, il nostro Istituto organizza dei **Ministage di Orientamento**, che permetteranno agli studenti di terza media di vivere un'esperienza diretta all'interno delle nostre aule.</p>
+                
+                <h3 class="font-bold text-xl pt-2 text-indigo-600 flex items-center"><i data-lucide="help-circle" class="w-5 h-5 mr-2"></i>Cos'è un Ministage?</h3>
+                <p>Il ministage è un'opportunità per gli studenti di terza media di trascorrere alcune ore presso la nostra scuola, inseriti direttamente in una classe. Lo scopo è far sperimentare in modo immersivo l'ambiente scolastico, i metodi di insegnamento e le materie di studio, facilitando così una scelta più consapevole.</p>
+                
+                <h3 class="font-bold text-xl pt-2 text-indigo-600 flex items-center"><i data-lucide="users" class="w-5 h-5 mr-2"></i>Come si svolge il Ministage</h3>
+                <p>Ogni studente partecipante sarà assegnato a una classe del nostro Istituto e prenderà parte a due ore di lezione consecutive. L'organizzazione prevede:</p>
+                <ul class="list-disc list-inside ml-4 space-y-2 p-4 bg-indigo-50 rounded-lg">
+                    <li>**Inserimento in Classe:** Lo studente sarà accolto da un docente o un tutor e accompagnato nella classe che frequenterà per la durata del ministage.</li>
+                    <li>**Partecipazione alle Lezioni:** Lo studente assisterà come uditore attivo a due lezioni curricolari (per esempio, una di Matematica e una di Italiano, o Fisica e Storia, a seconda dell’indirizzo scelto). Questo permetterà di comprendere l'approccio didattico e il ritmo delle lezioni.</li>
+                    <li>**Durata:** L'esperienza complessiva durerà circa due ore.</li>
+                    <li>**Tutoraggio:** Sarà sempre presente un docente o uno studente tutor per rispondere a domande e garantire che l'esperienza si svolga nel modo più sereno e proficuo possibile.</li>
+                </ul>
+                
+                <h3 class="font-bold text-xl pt-2 text-indigo-600 flex items-center"><i data-lucide="target" class="w-5 h-5 mr-2"></i>Obiettivi</h3>
+                <p>L'obiettivo principale del ministage è fornire una visione realistica della vita scolastica superiore, permettendo agli studenti di:</p>
+                <ul class="list-disc list-inside ml-4 space-y-2">
+                    <li>**Valutare l'ambiente:** Sperimentare l'atmosfera della scuola e interagire con i nostri studenti.</li>
+                    <li>**Comprendere le materie:** Avere esperienza diretta di come vengono trattate le materie e il livello richiesto.</li>
+                    <li>**Sciogliere i dubbi:** Porre domande specifiche e superare eventuali incertezze sulla scelta del percorso di studi.</li>
+                </ul>
+                <h3 class="font-bold text-xl pt-2 text-indigo-600">Modalità di Iscrizione</h3>
+                <p>Le date disponibili e le modalità di prenotazione saranno comunicate in dettaglio a breve. Le iscrizioni si effettueranno tramite un modulo online per permettere la migliore organizzazione logistica.</p>
+            </div>
+        </section>
+
+        <!-- Booking Section -->
+        <section class="mb-12 p-8 bg-white rounded-2xl card-shadow">
+            <h2 class="text-3xl font-bold text-gray-900 mb-6 flex items-center">
+                <i data-lucide="calendar-check" class="w-7 h-7 text-green-500 mr-3"></i>
+                Seleziona Data e Indirizzo
+            </h2>
+            <div id="booking-lists" class="space-y-10">
+                <!-- Session Cards will be dynamically inserted here -->
+            </div>
+        </section>
+
+        <!-- Cancellation Section -->
+        <section class="mb-12 p-8 bg-white rounded-2xl card-shadow border-t-4 border-red-400">
+            <h2 class="text-3xl font-bold text-gray-900 mb-6 flex items-center">
+                <i data-lucide="x-circle" class="w-7 h-7 text-red-500 mr-3"></i>
+                Annulla Prenotazione
+            </h2>
+            <p class="text-gray-600 mb-4">Inserisci il **Codice di Prenotazione (es. MS-123456)** per annullare il tuo Mini-Stage. Ti forniremo un Codice di Annullamento e il PDF di conferma.</p>
+
+            <form id="cancellation-form" class="space-y-4 max-w-lg mx-auto p-6 bg-red-50 rounded-xl">
+                <input type="text" id="cancellation-code" placeholder="Codice Prenotazione (es. MS-123456)" required class="w-full input-style uppercase">
+                <button type="submit" class="w-full bg-red-500 text-white font-bold py-3 rounded-xl shadow-md hover:bg-red-600 transition">
+                    Cancella Prenotazione
+                </button>
+            </form>
+            <div id="cancellation-message" class="mt-4 p-4 text-sm rounded-lg text-center hidden" role="alert"></div>
+        </section>
+
+
+        <!-- Teacher Access Section -->
+        <section id="teacher-section" class="mb-12 p-8 rounded-2xl card-shadow docenti-login border-t-4 border-purple-400">
+            <h2 class="text-3xl font-bold text-gray-900 mb-6 flex items-center">
+                <i data-lucide="lock" class="w-7 h-7 text-purple-600 mr-3"></i>
+                Area Riservata Docenti
+            </h2>
+
+            <!-- Teacher Login Form -->
+            <div id="teacher-login-area" class="max-w-md mx-auto">
+                <p class="text-gray-600 mb-4 text-center">Solo per il personale autorizzato.</p>
+                <form id="teacher-login-form" class="space-y-4 p-6 bg-white rounded-xl card-shadow">
+                    <input type="text" id="teacher-username" placeholder="Nome Utente" required class="w-full input-style">
+                    <input type="password" id="teacher-password" placeholder="Password" required class="w-full input-style">
+                    <button type="submit" class="w-full btn-secondary text-gray-900 font-bold py-3 rounded-xl shadow-md hover:shadow-lg">
+                        Accedi alla Dashboard
+                    </button>
+                </form>
+                <div id="login-error-message" class="mt-4 text-red-600 font-semibold text-center hidden"></div>
+            </div>
+
+            <!-- Teacher Dashboard -->
+            <div id="teacher-dashboard" class="hidden mt-8">
+                <div class="flex flex-col sm:flex-row justify-between items-center mb-6 border-b pb-4">
+                    <h3 class="text-2xl font-bold text-indigo-700">Dashboard Analitica e Gestionale</h3>
+                    <button id="logout-button" class="mt-4 sm:mt-0 flex items-center space-x-2 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition shadow-md">
+                        <i data-lucide="log-out" class="w-5 h-5"></i>
+                        <span>Esci</span>
+                    </button>
+                </div>
+
+                <!-- Filters -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6 p-4 bg-purple-50 rounded-xl">
+                    <div>
+                        <label for="filter-course" class="block text-sm font-medium text-gray-700">Filtra per Indirizzo</label>
+                        <select id="filter-course" class="w-full input-style mt-1"></select>
+                    </div>
+                    <div>
+                        <label for="filter-date" class="block text-sm font-medium text-gray-700">Filtra per Data/Ora</label>
+                        <select id="filter-date" class="w-full input-style mt-1"></select>
+                    </div>
+                    <div>
+                        <label for="filter-status" class="block text-sm font-medium text-gray-700">Filtra per Stato</label>
+                        <select id="filter-status" class="w-full input-style mt-1">
+                            <option value="">Tutti gli Stati</option>
+                            <option value="confermata">Confermata</option>
+                            <option value="annullata">Annullata</option>
+                        </select>
+                    </div>
+                    <div class="flex items-end">
+                        <button id="export-csv-button" class="w-full btn-primary text-white font-bold py-2 rounded-xl shadow-md">
+                            <i data-lucide="download" class="w-5 h-5 inline-block mr-2"></i>
+                            Scarica (CSV/Excel)
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Statistics and Graphs -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                    <!-- Stat Card 1 -->
+                    <div class="p-5 bg-white rounded-xl card-shadow border-l-4 border-indigo-500">
+                        <p class="text-sm font-medium text-gray-500 flex items-center"><i data-lucide="bookmark" class="w-4 h-4 mr-1 text-indigo-400"></i> Prenotazioni Attive</p>
+                        <p id="stat-total-bookings" class="text-4xl font-extrabold text-indigo-600 mt-1">0</p>
+                    </div>
+                    <!-- Stat Card 2 -->
+                    <div class="p-5 bg-white rounded-xl card-shadow border-l-4 border-green-500">
+                        <p class="text-sm font-medium text-gray-500 flex items-center"><i data-lucide="bar-chart-2" class="w-4 h-4 mr-1 text-green-400"></i> Posti Liberi Residui</p>
+                        <p id="stat-available-slots" class="text-4xl font-extrabold text-green-600 mt-1">0</p>
+                    </div>
+                    <!-- Stat Card 3 -->
+                    <div class="p-5 bg-white rounded-xl card-shadow border-l-4 border-red-500">
+                        <p class="text-sm font-medium text-gray-500 flex items-center"><i data-lucide="trash-2" class="w-4 h-4 mr-1 text-red-400"></i> Tasso di Annullamento</p>
+                        <p id="stat-cancellation-rate" class="text-4xl font-extrabold text-red-600 mt-1">0%</p>
+                    </div>
+                </div>
+
+                <!-- Charts -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                    <div class="p-5 bg-white rounded-xl card-shadow">
+                        <h4 class="text-xl font-semibold mb-3 text-gray-800">Distribuzione per Indirizzo (Attive)</h4>
+                        <canvas id="chart-courses"></canvas>
+                    </div>
+                    <div class="p-5 bg-white rounded-xl card-shadow">
+                        <h4 class="text-xl font-semibold mb-3 text-gray-800">Affluenza per Data (Attive)</h4>
+                        <canvas id="chart-dates"></canvas>
+                    </div>
+                </div>
+
+                <!-- Detailed Table -->
+                <div class="bg-white rounded-xl card-shadow p-6">
+                    <h3 class="text-xl font-semibold mb-4 text-gray-800 flex items-center"><i data-lucide="list-checks" class="w-5 h-5 mr-2"></i>Registro Dettagliato</h3>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Codice</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nome Studente</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Indirizzo</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data/Ora Stage</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Scuola Prov.</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Stato</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Codice Annullamento</th>
+                                </tr>
+                            </thead>
+                            <tbody id="bookings-table-body" class="bg-white divide-y divide-gray-200">
+                                <!-- Data will be populated here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- Modals for Booking, Confirmation, and General Messaging -->
+        <div id="modal-container">
+            <!-- Booking Modal -->
+            <div id="booking-modal" class="fixed inset-0 bg-gray-600 bg-opacity-75 z-50 flex items-center justify-center hidden p-4">
+                <div class="bg-white rounded-xl p-8 w-full max-w-lg card-shadow">
+                    <h3 id="modal-title" class="text-2xl font-bold text-gray-900 mb-4">Prenota Mini-Stage</h3>
+                    <p id="modal-session-info" class="text-indigo-600 font-semibold mb-6 p-2 bg-indigo-50 rounded-lg"></p>
+                    <form id="booking-form" class="space-y-4">
+                        <input type="text" id="booking-name" placeholder="Nome e Cognome Studente" required class="w-full input-style">
+                        <input type="tel" id="booking-phone" placeholder="Numero di Cellulare Genitore" required class="w-full input-style">
+                        <input type="date" id="booking-dob" required class="w-full input-style">
+                        <input type="text" id="booking-school" placeholder="Scuola di Provenienza (Nome Completo)" required class="w-full input-style">
+                        <input type="email" id="booking-email" placeholder="Email Genitore" required class="w-full input-style">
+                        <div class="flex justify-end space-x-4 pt-4">
+                            <button type="button" onclick="closeModal('booking-modal')" class="px-6 py-2 bg-gray-200 text-gray-700 font-semibold rounded-lg hover:bg-gray-300 transition">Annulla</button>
+                            <button type="submit" class="btn-primary text-white font-bold py-2 px-6 rounded-lg shadow-md hover:shadow-lg">Conferma Prenotazione</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Confirmation Modal -->
+            <div id="confirmation-modal" class="fixed inset-0 bg-gray-600 bg-opacity-75 z-50 flex items-center justify-center hidden p-4">
+                <div class="bg-white rounded-xl p-8 w-full max-w-xl card-shadow text-center">
+                    <i id="confirmation-icon" data-lucide="check-circle" class="w-16 h-16 text-green-500 mx-auto mb-4"></i>
+                    <h3 class="text-2xl font-bold text-gray-900 mb-2"></h3>
+                    <p class="text-gray-600 mb-4"></p>
+                    <p class="text-3xl font-extrabold text-indigo-600 mb-6 border p-2 rounded-lg" id="confirmation-code-display">MS-XXXXXX</p>
+
+                    <div id="pdf-content-preview" class="p-4 border border-gray-200 rounded-lg text-left text-sm mb-6 bg-gray-50">
+                        <h4 class="font-bold text-lg mb-2">Dettagli</h4>
+                        <ul id="pdf-details-list" class="space-y-1 text-gray-700"></ul>
+                    </div>
+
+                    <button id="download-pdf-button" class="btn-primary text-white font-bold py-3 px-8 rounded-lg shadow-md hover:shadow-lg">
+                        <i data-lucide="download" class="w-5 h-5 inline-block mr-2"></i>
+                        Scarica PDF
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="mt-12 py-6 border-t border-gray-200 text-center text-sm text-gray-500">
+        &copy; 2025 StageSchool. Orientamento Scolastico.
+    </footer>
+
+    <!-- Firebase SDKs and Logic -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, addDoc, updateDoc, onSnapshot, collection, query, where, serverTimestamp, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // --- GLOBAL CONFIG & INITIALIZATION (USING USER'S HARDCODED CONFIG) ---
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAP-Bmf02SZp4o6K2z2B1GgIlUJ3Wuc8Zk",
+            authDomain: "progetto-63fb3.firebaseapp.com",
+            projectId: "progetto-63fb3",
+            storageBucket: "progetto-63fb3.firebasestorage.app",
+            messagingSenderId: "883088850197",
+            appId: "1:883088850197:web:29b8573ea43555041b3d1c",
+            measurementId: "G-2PNR8PQHDR"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        // Hardcoded Path based on user's required Firestore structure and ID
+        const CANVAS_APP_ID = 'ClJzJkLPS6LWHAzKjLQe';
+        const COLLECTION_PATH = `artifacts/${CANVAS_APP_ID}/public/data/prenotazioni`;
+        let userId = null;
+        let allBookingsData = []; // Global store for teacher dashboard data
+
+        // Set log level for debugging
+        setLogLevel('Debug');
+
+        // Fictional Teacher Credentials (only in JS for comparison)
+        const TEACHER_USER = 'docente';
+        const TEACHER_PASS = 'stage2025!';
+
+        // --- DATA STRUCTURE FOR MINI-STAGES ---
+        const CAPACITY = 4;
+        const coursesData = [
+            {
+                name: "Amministrazione, Finanza e Marketing (AFM)",
+                sessions: [
+                    { date: "03/11", day: "Lunedì", time: "11:50-13:50", capacity: CAPACITY }, { date: "10/11", day: "Lunedì", time: "11:50-13:50", capacity: CAPACITY },
+                    { date: "17/11", day: "Lunedì", time: "11:50-13:50", capacity: CAPACITY }, { date: "24/11", day: "Lunedì", time: "11:50-13:50", capacity: CAPACITY },
+                    { date: "01/12", day: "Lunedì", time: "11:50-13:50", capacity: CAPACITY }, { date: "15/12", day: "Lunedì", time: "11:50-13:50", capacity: CAPACITY },
+                    { date: "05/11", day: "Mercoledì", time: "08:50-10:50", capacity: CAPACITY }, { date: "12/11", day: "Mercoledì", time: "08:50-10:50", capacity: CAPACITY },
+                    { date: "19/11", day: "Mercoledì", time: "08:50-10:50", capacity: CAPACITY }, { date: "26/11", day: "Mercoledì", time: "08:50-10:50", capacity: CAPACITY },
+                    { date: "03/12", day: "Mercoledì", time: "08:50-10:50", capacity: CAPACITY }, { date: "10/12", day: "Mercoledì", time: "08:50-10:50", capacity: CAPACITY },
+                    { date: "17/12", day: "Mercoledì", time: "08:50-10:50", capacity: CAPACITY }, { date: "10/12", day: "Mercoledì", time: "11:50-13:50", capacity: CAPACITY }, // Extra
+                ]
+            },
+            {
+                name: "Relazioni Internazionali per il Marketing (RIM)",
+                sessions: [
+                    { date: "03/11", day: "Lunedì", time: "12:50-14:40", capacity: CAPACITY }, { date: "10/11", day: "Lunedì", time: "12:50-14:40", capacity: CAPACITY },
+                    { date: "17/11", day: "Lunedì", time: "12:50-14:40", capacity: CAPACITY }, { date: "24/11", day: "Lunedì", time: "12:50-14:40", capacity: CAPACITY },
+                    { date: "01/12", day: "Lunedì", time: "12:50-14:40", capacity: CAPACITY }, { date: "15/12", day: "Lunedì", time: "12:50-14:40", capacity: CAPACITY },
+                    { date: "05/11", day: "Mercoledì", time: "08:50-10:50", capacity: CAPACITY }, { date: "12/11", day: "Mercoledì", time: "08:50-10:50", capacity: CAPACITY },
+                    { date: "19/11", day: "Mercoledì", time: "08:50-10:50", capacity: CAPACITY }, { date: "26/11", day: "Mercoledì", time: "08:50-10:50", capacity: CAPACITY },
+                    { date: "03/12", day: "Mercoledì", time: "08:50-10:50", capacity: CAPACITY }, { date: "10/12", day: "Mercoledì", time: "08:50-10:50", capacity: CAPACITY },
+                    { date: "17/12", day: "Mercoledì", time: "08:50-10:50", capacity: CAPACITY }, { date: "10/12", day: "Mercoledì", time: "13:00-14:40", capacity: CAPACITY }, // Extra
+                ]
+            },
+            {
+                name: "Logistica (Corso Quadriennale)",
+                sessions: [
+                    { date: "05/11", day: "Mercoledì", time: "08:50-10:50", capacity: CAPACITY }, { date: "12/11", day: "Mercoledì", time: "08:50-10:50", capacity: CAPACITY },
+                    { date: "19/11", day: "Mercoledì", time: "08:50-10:50", capacity: CAPACITY }, { date: "26/11", day: "Mercoledì", time: "08:50-10:50", capacity: CAPACITY },
+                    { date: "03/12", day: "Mercoledì", time: "08:50-10:50", capacity: CAPACITY }, { date: "10/12", day: "Mercoledì", time: "08:50-10:50", capacity: CAPACITY },
+                    { date: "17/12", day: "Mercoledì", time: "08:50-10:50", capacity: CAPACITY },
+                    { date: "03/11", day: "Lunedì", time: "12:50-14:40", capacity: CAPACITY }, { date: "10/11", day: "Lunedì", time: "12:50-14:40", capacity: CAPACITY },
+                    { date: "17/11", day: "Lunedì", time: "12:50-14:40", capacity: CAPACITY }, { date: "24/11", day: "Lunedì", time: "12:50-14:40", capacity: CAPACITY },
+                    { date: "01/12", day: "Lunedì", time: "12:50-14:40", capacity: CAPACITY }, { date: "15/12", day: "Lunedì", time: "12:50-14:40", capacity: CAPACITY },
+                    { date: "10/12", day: "Mercoledì", time: "13:00-14:40", capacity: CAPACITY }, // Extra to reach 14
+                ]
+            },
+            {
+                name: "Costruzione, Ambiente e Territorio (CAT)",
+                sessions: [
+                    { date: "03/11", day: "Lunedì", time: "12:50-14:40", capacity: CAPACITY }, { date: "10/11", day: "Lunedì", time: "12:50-14:40", capacity: CAPACITY },
+                    { date: "17/11", day: "Lunedì", time: "12:50-14:40", capacity: CAPACITY }, { date: "24/11", day: "Lunedì", time: "12:50-14:40", capacity: CAPACITY },
+                    { date: "01/12", day: "Lunedì", time: "12:50-14:40", capacity: CAPACITY }, { date: "15/12", day: "Lunedì", time: "12:50-14:40", capacity: CAPACITY },
+                    { date: "05/11", day: "Mercoledì", time: "08:50-10:50", capacity: CAPACITY }, { date: "12/11", day: "Mercoledì", time: "08:50-10:50", capacity: CAPACITY },
+                    { date: "19/11", day: "Mercoledì", time: "08:50-10:50", capacity: CAPACITY }, { date: "26/11", day: "Mercoledì", time: "08:50-10:50", capacity: CAPACITY },
+                    { date: "03/12", day: "Mercoledì", time: "08:50-10:50", capacity: CAPACITY }, { date: "10/12", day: "Mercoledì", time: "08:50-10:50", capacity: CAPACITY },
+                    { date: "17/12", day: "Mercoledì", time: "08:50-10:50", capacity: CAPACITY }, { date: "10/12", day: "Mercoledì", time: "13:00-14:40", capacity: CAPACITY }, // Extra
+                ]
+            },
+            {
+                name: "Sistema Moda",
+                sessions: [
+                    { date: "03/11", day: "Lunedì", time: "12:50-14:40", capacity: CAPACITY }, { date: "10/11", day: "Lunedì", time: "12:50-14:40", capacity: CAPACITY },
+                    { date: "17/11", day: "Lunedì", time: "12:50-14:40", capacity: CAPACITY }, { date: "24/11", day: "Lunedì", time: "12:50-14:40", capacity: CAPACITY },
+                    { date: "01/12", day: "Lunedì", time: "12:50-14:40", capacity: CAPACITY }, { date: "15/12", day: "Lunedì", time: "12:50-14:40", capacity: CAPACITY },
+                    { date: "05/11", day: "Mercoledì", time: "08:50-10:50", capacity: CAPACITY }, { date: "12/11", day: "Mercoledì", time: "08:50-10:50", capacity: CAPACITY },
+                    { date: "19/11", day: "Mercoledì", time: "08:50-10:50", capacity: CAPACITY }, { date: "26/11", day: "Mercoledì", time: "08:50-10:50", capacity: CAPACITY },
+                    { date: "03/12", day: "Mercoledì", time: "08:50-10:50", capacity: CAPACITY }, { date: "10/12", day: "Mercoledì", time: "08:50-10:50", capacity: CAPACITY },
+                    { date: "17/12", day: "Mercoledì", time: "08:50-10:50", capacity: CAPACITY }, { date: "10/12", day: "Mercoledì", time: "13:00-14:40", capacity: CAPACITY }, // Extra
+                ]
+            },
+        ];
+
+        // --- AUTHENTICATION & INITIAL SETUP ---
+        // Sign in anonymously immediately since we don't have the custom token
+        signInAnonymously(auth).then(userCredential => {
+            userId = userCredential.user.uid;
+            updateConnectionStatus('Connesso (ID: ' + userId.substring(0, 8) + '...)', 'bg-green-500');
+            setupRealtimeListener();
+
+            // Check for teacher session
+            if (sessionStorage.getItem('isTeacherLoggedIn') === 'true') {
+                showTeacherDashboard();
+            }
+        }).catch(err => {
+            console.error("Errore nell'accesso anonimo a Firebase:", err);
+            updateConnectionStatus('Errore di Connessione', 'bg-red-500');
+        });
+
+
+        function updateConnectionStatus(text, colorClass) {
+            const dot = document.getElementById('status-dot');
+            const statusText = document.getElementById('status-text');
+            if (dot && statusText) {
+                dot.className = `status-dot w-3 h-3 mr-2 rounded-full ${colorClass}`;
+                statusText.textContent = `Tutto a posto connesso: ${text}`;
+            }
+        }
+
+        // --- UI RENDERING FUNCTIONS ---
+
+        function renderBookingLists(bookings) {
+            const container = document.getElementById('booking-lists');
+            container.innerHTML = '';
+            const bookingCounts = getBookingCounts(bookings);
+
+            coursesData.forEach(course => {
+                let html = `
+                    <div class="bg-gray-50 p-6 rounded-xl border border-gray-200 card-shadow">
+                        <h3 class="text-2xl font-bold text-indigo-700 mb-4">${course.name}</h3>
+                        <div class="space-y-3">
+                `;
+
+                course.sessions.forEach((session, index) => {
+                    const sessionId = `${course.name.replace(/[^a-zA-Z0-9]/g, '')}-${index}`;
+                    const fullDate = `${session.day} ${session.date}/2025 ${session.time}`;
+                    const count = bookingCounts[sessionId] || 0;
+                    const available = session.capacity - count;
+                    const isFull = available <= 0;
+
+                    html += `
+                        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 bg-white rounded-xl shadow-sm border border-gray-100 transition hover:border-indigo-300">
+                            <div class="flex-grow">
+                                <p class="text-lg font-semibold text-gray-800">${session.day}, ${session.date}/2025</p>
+                                <p class="text-sm text-gray-500 flex items-center"><i data-lucide="clock" class="w-4 h-4 mr-1"></i> ${session.time}</p>
+                            </div>
+                            <div class="text-center sm:text-right mt-2 sm:mt-0 sm:ml-4">
+                                <span class="font-bold text-base ${isFull ? 'text-red-500' : 'text-green-600'}">
+                                    ${isFull ? 'COMPLETO' : `${available}/${session.capacity} Posti Liberi`}
+                                </span>
+                            </div>
+                            <div class="mt-3 sm:mt-0 sm:ml-6">
+                                <button data-course="${course.name}" data-date="${fullDate}" data-session-id="${sessionId}"
+                                    ${isFull ? 'disabled' : ''}
+                                    class="open-booking-modal w-full sm:w-auto px-5 py-2 btn-primary text-white font-medium rounded-xl ${isFull ? 'opacity-50 cursor-not-allowed' : 'hover:bg-indigo-600 shadow-md'}">
+                                    <i data-lucide="book-open" class="w-4 h-4 inline-block mr-1"></i> Prenota
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                html += `</div></div>`;
+                container.innerHTML += html;
+            });
+
+            // Re-initialize lucide icons for new elements
+            lucide.createIcons();
+            // Attach event listeners to new buttons
+            document.querySelectorAll('.open-booking-modal').forEach(button => {
+                button.addEventListener('click', handleOpenBookingModal);
+            });
+        }
+
+        // --- REAL-TIME FIRESTORE LISTENER ---
+
+        function setupRealtimeListener() {
+            const q = query(collection(db, COLLECTION_PATH));
+            onSnapshot(q, (snapshot) => {
+                allBookingsData = [];
+                snapshot.forEach((doc) => {
+                    allBookingsData.push({ id: doc.id, ...doc.data() });
+                });
+
+                // Update UI based on data
+                renderBookingLists(allBookingsData);
+                if (sessionStorage.getItem('isTeacherLoggedIn') === 'true') {
+                    // Update dashboard if the teacher is logged in
+                    updateTeacherDashboard();
+                }
+            }, (error) => {
+                console.error("Errore nell'ascolto in tempo reale:", error);
+                // Handle error (e.g., security rule violation)
+            });
+        }
+
+        // --- BOOKING LOGIC ---
+
+        let currentSession = null;
+
+        function getBookingCounts(bookings) {
+            const counts = {};
+            bookings.filter(b => b.status === 'confermata').forEach(b => {
+                counts[b.sessionId] = (counts[b.sessionId] || 0) + 1;
+            });
+            return counts;
+        }
+
+        function handleOpenBookingModal(event) {
+            const button = event.currentTarget;
+            currentSession = {
+                course: button.dataset.course,
+                date: button.dataset.date,
+                sessionId: button.dataset.sessionId
+            };
+
+            document.getElementById('modal-title').textContent = `Prenota: ${currentSession.course}`;
+            document.getElementById('modal-session-info').textContent = `Data e Ora: ${currentSession.date}`;
+            document.getElementById('booking-form').reset();
+            document.getElementById('booking-modal').classList.remove('hidden');
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.add('hidden');
+        }
+
+        function generateUniqueCode(prefix) {
+            return prefix + Math.floor(100000 + Math.random() * 900000); // MS- or CN- + 6 digits
+        }
+
+        document.getElementById('booking-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            if (!currentSession) return;
+
+            const name = document.getElementById('booking-name').value;
+            const phone = document.getElementById('booking-phone').value;
+            const dob = document.getElementById('booking-dob').value;
+            const school = document.getElementById('booking-school').value;
+            const email = document.getElementById('booking-email').value;
+            const bookingCode = generateUniqueCode('MS-');
+
+            // Check if capacity allows
+            const bookingCounts = getBookingCounts(allBookingsData);
+            const count = bookingCounts[currentSession.sessionId] || 0;
+            if (count >= CAPACITY) {
+                alertUser("Attenzione: Sessione appena riempita. Per favore, scegli un'altra data.", 'bg-red-100 text-red-800');
+                closeModal('booking-modal');
+                return;
+            }
+
+            const bookingData = {
+                code: bookingCode,
+                name: name,
+                phone: phone,
+                dob: dob,
+                school: school,
+                email: email,
+                course: currentSession.course,
+                date: currentSession.date,
+                sessionId: currentSession.sessionId,
+                status: 'confermata', // Primary status: confirmed
+                bookedAt: serverTimestamp(),
+                userId: userId,
+                cancellationCode: null,
+            };
+
+            try {
+                await addDoc(collection(db, COLLECTION_PATH), bookingData);
+
+                // Close booking modal and show confirmation modal
+                closeModal('booking-modal');
+                await showConfirmationModal(bookingData, 'Prenotazione');
+
+            } catch (error) {
+                console.error("Errore salvataggio prenotazione: ", error);
+                alertUser(`Si è verificato un errore durante la prenotazione. Riprova. Errore: ${error.message}`, 'bg-red-100 text-red-800');
+            }
+        });
+
+        // --- CANCELLATION LOGIC ---
+
+        document.getElementById('cancellation-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const code = document.getElementById('cancellation-code').value.trim().toUpperCase();
+            const messageDiv = document.getElementById('cancellation-message');
+
+            if (!code.startsWith('MS-') || code.length !== 9) {
+                alertUser("Formato codice non valido. Deve iniziare con MS- e avere 6 cifre.", 'bg-yellow-100 text-yellow-800 border-yellow-300', messageDiv);
+                return;
+            }
+
+            const bookingToCancel = allBookingsData.find(b => b.code === code);
+
+            if (!bookingToCancel) {
+                alertUser("Prenotazione non trovata. Verifica il codice inserito.", 'bg-red-100 text-red-800 border-red-300', messageDiv);
+                return;
+            }
+
+            if (bookingToCancel.status === 'annullata') {
+                alertUser("Questa prenotazione risulta già annullata. Non è necessaria un'ulteriore cancellazione.", 'bg-yellow-100 text-yellow-800 border-yellow-300', messageDiv);
+                return;
+            }
+
+            try {
+                const cancellationCode = generateUniqueCode('CN-'); // Cancellation Code
+
+                // 1. Update the document in Firestore to mark as cancelled
+                const docRef = doc(db, COLLECTION_PATH, bookingToCancel.id);
+                await updateDoc(docRef, {
+                    status: 'annullata',
+                    cancellationCode: cancellationCode,
+                    cancelledAt: serverTimestamp()
+                });
+
+                // 2. Show cancellation confirmation
+                const cancellationDetails = {
+                    ...bookingToCancel,
+                    status: 'annullata',
+                    cancellationCode: cancellationCode
+                };
+
+                await showConfirmationModal(cancellationDetails, 'Annullamento');
+                alertUser(`Annullamento confermato. Codice Annullamento: ${cancellationCode}`, 'bg-green-100 text-green-800 border-green-300', messageDiv);
+                document.getElementById('cancellation-form').reset();
+
+
+            } catch (error) {
+                console.error("Errore annullamento: ", error);
+                alertUser(`Si è verificato un errore durante l'annullamento. Errore: ${error.message}`, 'bg-red-100 text-red-800 border-red-300', messageDiv);
+            }
+        });
+
+        function alertUser(message, className, element = null) {
+            const el = element || document.getElementById('cancellation-message');
+            if (el) {
+                el.textContent = message;
+                el.className = `mt-4 p-4 text-sm rounded-lg border ${className}`;
+                el.classList.remove('hidden');
+            }
+        }
+
+        // --- PDF GENERATION & CONFIRMATION MODAL ---
+
+        async function showConfirmationModal(data, type) {
+            const modal = document.getElementById('confirmation-modal');
+            const codeDisplay = document.getElementById('confirmation-code-display');
+            const detailsList = document.getElementById('pdf-details-list');
+            const confirmationIcon = document.getElementById('confirmation-icon');
+
+            const isCancellation = type === 'Annullamento';
+            const code = isCancellation ? data.cancellationCode : data.code;
+            const pdfTitle = isCancellation ? 'Annullamento Prenotazione' : 'Conferma Prenotazione';
+
+            // Update icon and colors
+            confirmationIcon.setAttribute('data-lucide', isCancellation ? 'x-octagon' : 'check-circle');
+            confirmationIcon.classList.toggle('text-red-500', isCancellation);
+            confirmationIcon.classList.toggle('text-green-500', !isCancellation);
+            lucide.createIcons();
+
+            // Update modal text and code
+            modal.querySelector('h3').textContent = `${type} Confermata!`;
+            modal.querySelector('p').textContent = isCancellation
+                ? `Il tuo annullamento è andato a buon fine. **Il codice di annullamento ti serve come prova.**`
+                : 'La tua prenotazione è andata a buon fine. **Il codice e il documento devono essere portati il giorno dello stage.**';
+
+            codeDisplay.textContent = code;
+            codeDisplay.classList.toggle('bg-red-50', isCancellation);
+            codeDisplay.classList.toggle('bg-indigo-50', !isCancellation);
+
+
+            // Prepare details list for PDF preview
+            detailsList.innerHTML = `
+                <li><span class="font-bold">${pdfTitle}:</span> ${code}</li>
+                <li><span class="font-bold">Studente:</span> ${data.name}</li>
+                <li><span class="font-bold">Indirizzo Stage:</span> ${data.course}</li>
+                <li><span class="font-bold">Data/Ora Stage:</span> ${data.date}</li>
+                <li><span class="font-bold">Scuola di Provenienza:</span> ${data.school}</li>
+                <li><span class="font-bold">Email Contatto:</span> ${data.email}</li>
+                <li><span class="font-bold">Stato:</span> ${isCancellation ? 'ANNULLATA' : 'CONFERMATA'}</li>
+                ${isCancellation ? `<li><span class="font-bold">Codice Prenotazione Originale:</span> ${data.code}</li>` : ''}
+            `;
+
+            // Setup download button
+            const downloadButton = document.getElementById('download-pdf-button');
+            downloadButton.onclick = () => generatePDF(data, pdfTitle, code);
+            downloadButton.querySelector('span').textContent = `Scarica PDF ${type}`;
+
+            modal.classList.remove('hidden');
+        }
+
+        async function generatePDF(data, title, code) {
+            // Re-render the content to a hidden div for clean PDF generation
+            const pdfContent = document.createElement('div');
+            pdfContent.style.width = '210mm'; // A4 width
+            pdfContent.style.padding = '20mm';
+            pdfContent.style.backgroundColor = '#ffffff';
+
+            const isCancellation = title.includes('Annullamento');
+            const statusColor = isCancellation ? '#ef4444' : '#10b981';
+
+            pdfContent.innerHTML = `
+                <div style="font-family: Arial, sans-serif; font-size: 11pt; color: #333;">
+                    <h1 style="color: #6366f1; text-align: center; font-size: 18pt; margin-bottom: 5px; border-bottom: 2px solid #6366f1;">ISTITUTO SUPERIORE - MINI-STAGE</h1>
+                    <h2 style="color: #4f46e5; text-align: center; font-size: 14pt; margin-bottom: 20px;">DOCUMENTO: ${title.toUpperCase()}</h2>
+
+                    <div style="border: 3px solid ${statusColor}; padding: 15px; border-radius: 10px; margin-bottom: 25px; background-color: ${isCancellation ? '#fef2f2' : '#ecfdf5'};">
+                        <p style="font-size: 18pt; font-weight: bold; text-align: center; margin: 0; color: #333;">CODICE: <span style="color: #6366f1;">${code}</span></p>
+                    </div>
+
+                    <h3 style="font-size: 12pt; font-weight: bold; margin-bottom: 15px; color: #6366f1; border-bottom: 1px solid #ddd; padding-bottom: 5px;">DETTAGLI EVENTO E PERSONALI</h3>
+
+                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+                        <tr><td style="padding: 7px; font-weight: bold; width: 35%; background-color: #f3f4f6;">STATO:</td><td style="padding: 7px; color: ${statusColor}; font-weight: bold; border-bottom: 1px solid #eee;">${isCancellation ? 'ANNULLATA' : 'CONFERMATA'}</td></tr>
+                        <tr><td style="padding: 7px; font-weight: bold; background-color: #f3f4f6;">STUDENTE:</td><td style="padding: 7px; border-bottom: 1px solid #eee;">${data.name}</td></tr>
+                        <tr><td style="padding: 7px; font-weight: bold; background-color: #f3f4f6;">DATA DI NASCITA:</td><td style="padding: 7px; border-bottom: 1px solid #eee;">${data.dob}</td></tr>
+                        <tr><td style="padding: 7px; font-weight: bold; background-color: #f3f4f6;">SCUOLA PROVENIENZA:</td><td style="padding: 7px; border-bottom: 1px solid #eee;">${data.school}</td></tr>
+                        <tr><td style="padding: 7px; font-weight: bold; background-color: #f3f4f6;">INDIRIZZO STAGE:</td><td style="padding: 7px; border-bottom: 1px solid #eee; color: #6366f1; font-weight: bold;">${data.course}</td></tr>
+                        <tr><td style="padding: 7px; font-weight: bold; background-color: #f3f4f6;">DATA E ORA STAGE:</td><td style="padding: 7px; font-weight: bold; color: #6366f1; border-bottom: 1px solid #eee;">${data.date}</td></tr>
+                        <tr><td style="padding: 7px; font-weight: bold; background-color: #f3f4f6;">CONTATTO EMAIL:</td><td style="padding: 7px; border-bottom: 1px solid #eee;">${data.email}</td></tr>
+                        ${isCancellation ? `
+                            <tr><td style="padding: 7px; font-weight: bold; background-color: #f3f4f6;">CODICE PRENOTAZIONE ORIGINALE:</td><td style="padding: 7px; border-bottom: 1px solid #eee;">${data.code}</td></tr>
+                        ` : ''}
+                    </table>
+
+                    <p style="margin-top: 30px; padding: 15px; background-color: #ffe4e6; border: 1px solid #fda4af; border-radius: 8px; color: #991b1b; font-weight: bold; text-align: center;">
+                        ${isCancellation ? 'CONSERVA QUESTO PDF. È LA TUA PROVA DI ANNULLAMENTO. NESSUN ULTERIORE AZIONE È RICHIESTA.' : 'STAMPA O SALVA QUESTO PDF: È OBBLIGATORIO MOSTRARE QUESTO DOCUMENTO (CON IL CODICE) IL GIORNO DELLO STAGE PER L\'ACCESSO.'}
+                    </p>
+
+                    <p style="margin-top: 40px; text-align: right; font-size: 10pt; color: #666;">Documento generato il: ${new Date().toLocaleString('it-IT')}</p>
+                </div>
+            `;
+
+            document.body.appendChild(pdfContent);
+
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF('p', 'mm', 'a4');
+            const filename = `${code}_${title.replace(' ', '_')}.pdf`;
+
+            html2canvas(pdfContent, {
+                scale: 2, // Migliora la qualità
+                useCORS: true
+            }).then(canvas => {
+                const imgData = canvas.toDataURL('image/png');
+                const imgWidth = 210;
+                const pageHeight = 297;
+                const imgHeight = canvas.height * imgWidth / canvas.width;
+                let heightLeft = imgHeight;
+                let position = 0;
+
+                pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                heightLeft -= pageHeight;
+
+                while (heightLeft >= 0) {
+                    position = heightLeft - imgHeight;
+                    pdf.addPage();
+                    pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                    heightLeft -= pageHeight;
+                }
+
+                pdf.save(filename);
+                pdfContent.remove(); // Pulisce il div nascosto
+            });
+        }
+
+        // --- TEACHER DASHBOARD LOGIC ---
+
+        // Chart instances
+        let coursesChart, datesChart;
+
+        function showTeacherDashboard() {
+            document.getElementById('teacher-login-area').classList.add('hidden');
+            document.getElementById('teacher-dashboard').classList.remove('hidden');
+            document.getElementById('teacher-section').classList.remove('docenti-login');
+            lucide.createIcons(); // Re-render icons
+            populateFilterOptions();
+            updateTeacherDashboard(); // Ensure dashboard is updated immediately after login
+        }
+
+        function hideTeacherDashboard() {
+            sessionStorage.removeItem('isTeacherLoggedIn');
+            document.getElementById('teacher-login-area').classList.remove('hidden');
+            document.getElementById('teacher-dashboard').classList.add('hidden');
+            document.getElementById('teacher-section').classList.add('docenti-login');
+            document.getElementById('teacher-login-form').reset();
+        }
+
+        document.getElementById('teacher-login-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const username = document.getElementById('teacher-username').value;
+            const password = document.getElementById('teacher-password').value;
+            const errorMsg = document.getElementById('login-error-message');
+
+            if (username === TEACHER_USER && password === TEACHER_PASS) {
+                sessionStorage.setItem('isTeacherLoggedIn', 'true');
+                errorMsg.classList.add('hidden');
+                showTeacherDashboard();
+            } else {
+                errorMsg.textContent = "Credenziali non valide. Riprova.";
+                errorMsg.classList.remove('hidden');
+            }
+        });
+
+        document.getElementById('logout-button').addEventListener('click', hideTeacherDashboard);
+
+        function populateFilterOptions() {
+            const courseFilter = document.getElementById('filter-course');
+            const dateFilter = document.getElementById('filter-date');
+
+            // Populate Course Filter
+            courseFilter.innerHTML = '<option value="">Tutti gli Indirizzi</option>';
+            coursesData.forEach(course => {
+                courseFilter.innerHTML += `<option value="${course.name}">${course.name}</option>`;
+            });
+
+            // Populate Date Filter
+            dateFilter.innerHTML = '<option value="">Tutte le Sessioni</option>';
+            const uniqueDates = new Set();
+            coursesData.forEach(course => {
+                course.sessions.forEach(session => {
+                    uniqueDates.add(`${session.day} ${session.date}/2025 ${session.time}`);
+                });
+            });
+            Array.from(uniqueDates).sort().forEach(date => {
+                dateFilter.innerHTML += `<option value="${date}">${date}</option>`;
+            });
+
+            // Attach filter events (if not already attached)
+            document.getElementById('filter-course').onchange = updateTeacherDashboard;
+            document.getElementById('filter-date').onchange = updateTeacherDashboard;
+            document.getElementById('filter-status').onchange = updateTeacherDashboard;
+        }
+
+        function updateTeacherDashboard() {
+            const filterCourse = document.getElementById('filter-course').value;
+            const filterDate = document.getElementById('filter-date').value;
+            const filterStatus = document.getElementById('filter-status').value;
+
+            // Apply Filters
+            let filteredData = allBookingsData;
+            if (filterCourse) {
+                filteredData = filteredData.filter(b => b.course === filterCourse);
+            }
+            if (filterDate) {
+                filteredData = filteredData.filter(b => b.date === filterDate);
+            }
+            if (filterStatus) {
+                filteredData = filteredData.filter(b => b.status === filterStatus);
+            }
+
+            // --- Update Table ---
+            const tableBody = document.getElementById('bookings-table-body');
+            tableBody.innerHTML = '';
+
+            filteredData.sort((a, b) => {
+                const dateA = new Date(a.date.split(' ')[1].replace('/', '-') + '/2025 ' + a.date.split(' ')[2].split('-')[0]);
+                const dateB = new Date(b.date.split(' ')[1].replace('/', '-') + '/2025 ' + b.date.split(' ')[2].split('-')[0]);
+                return dateA - dateB;
+            }).forEach(booking => {
+                const status = booking.status || 'sconosciuto';
+                let statusColor = 'text-gray-500';
+                if (status === 'confermata') statusColor = 'text-green-600 font-semibold';
+                if (status === 'annullata') statusColor = 'text-red-600 font-bold';
+
+                tableBody.innerHTML += `
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${booking.code}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${booking.name}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${booking.course}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${booking.date}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${booking.school}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm ${statusColor}">${status.toUpperCase()}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${booking.cancellationCode || '-'}</td>
+                    </tr>
+                `;
+            });
+
+            // --- Update Statistics and Charts ---
+            const confirmedBookings = allBookingsData.filter(b => b.status === 'confermata');
+            const totalConfirmed = confirmedBookings.length;
+            const totalCancelled = allBookingsData.filter(b => b.status === 'annullata').length;
+            const totalBookings = totalConfirmed + totalCancelled;
+
+            // Calculate total available slots remaining
+            const bookingCounts = getBookingCounts(allBookingsData);
+            let totalCapacity = 0;
+            let occupiedSlots = 0;
+
+            coursesData.forEach(course => {
+                course.sessions.forEach((session, index) => {
+                    const sessionId = `${course.name.replace(/[^a-zA-Z0-9]/g, '')}-${index}`;
+                    totalCapacity += session.capacity;
+                    occupiedSlots += bookingCounts[sessionId] || 0;
+                });
+            });
+
+            const availableSlots = totalCapacity - occupiedSlots;
+            const cancellationRate = totalBookings > 0 ? ((totalCancelled / totalBookings) * 100).toFixed(1) : 0;
+
+            document.getElementById('stat-total-bookings').textContent = totalConfirmed;
+            document.getElementById('stat-available-slots').textContent = availableSlots;
+            document.getElementById('stat-cancellation-rate').textContent = `${cancellationRate}%`;
+
+            // Prepare Chart Data
+            const courseCounts = confirmedBookings.reduce((acc, b) => {
+                acc[b.course] = (acc[b.course] || 0) + 1;
+                return acc;
+            }, {});
+
+            const dateCounts = confirmedBookings.reduce((acc, b) => {
+                acc[b.date] = (acc[b.date] || 0) + 1;
+                return acc;
+            }, {});
+
+            // Update/Initialize Charts
+            updateCharts(courseCounts, dateCounts);
+        }
+
+        function updateCharts(courseCounts, dateCounts) {
+            const colors = ['#6366f1', '#a855f7', '#06b6d4', '#10b981', '#f97316'];
+
+            // Chart 1: Courses
+            const courseLabels = Object.keys(courseCounts);
+            const courseData = Object.values(courseCounts);
+            const courseCtx = document.getElementById('chart-courses').getContext('2d');
+
+            if (coursesChart) coursesChart.destroy();
+            coursesChart = new Chart(courseCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: courseLabels,
+                    datasets: [{
+                        data: courseData,
+                        backgroundColor: courseLabels.map((_, i) => colors[i % colors.length]),
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { position: 'right' } }
+                }
+            });
+
+            // Chart 2: Dates
+            const dateLabels = Object.keys(dateCounts).sort((a, b) => {
+                // Sorting by actual date component (e.g., "03/11")
+                const dateA = a.split(' ')[1];
+                const dateB = b.split(' ')[1];
+                return dateA.localeCompare(dateB);
+            });
+            const dateGraphData = dateLabels.map(label => dateCounts[label]);
+            const dateCtx = document.getElementById('chart-dates').getContext('2d');
+
+            if (datesChart) datesChart.destroy();
+            datesChart = new Chart(dateCtx, {
+                type: 'bar',
+                data: {
+                    labels: dateLabels,
+                    datasets: [{
+                        label: 'Prenotazioni Confermate',
+                        data: dateGraphData,
+                        backgroundColor: '#a78bfa',
+                        borderColor: '#6366f1',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+        }
+
+        // --- EXPORT CSV FUNCTION ---
+
+        document.getElementById('export-csv-button').addEventListener('click', () => {
+            const headers = ["Codice", "Nome", "Telefono", "Data Nascita", "Scuola", "Email", "Indirizzo", "Data Stage", "ID Sessione", "Stato", "Codice Annullamento", "Data Prenotazione", "Utente ID"];
+
+            const csvRows = [];
+            csvRows.push(headers.join(';'));
+
+            allBookingsData.forEach(booking => {
+                const bookedAtDate = booking.bookedAt ? new Date(booking.bookedAt.toDate()).toLocaleString('it-IT') : '';
+                const row = [
+                    booking.code,
+                    booking.name,
+                    booking.phone,
+                    booking.dob,
+                    booking.school,
+                    booking.email,
+                    booking.course,
+                    booking.date,
+                    booking.sessionId,
+                    booking.status,
+                    booking.cancellationCode || '',
+                    bookedAtDate,
+                    booking.userId
+                ];
+                // Escape fields and join
+                const escapedRow = row.map(field => `"${String(field).replace(/"/g, '""')}"`).join(';');
+                csvRows.push(escapedRow);
+            });
+
+            const csvString = csvRows.join('\n');
+            const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'prenotazioni_ministage_export.csv';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        });
+
+        // Initialize lucide icons on load for static elements
+        window.onload = () => {
+             lucide.createIcons();
+        };
+
+    </script>
+</body>
+</html>
