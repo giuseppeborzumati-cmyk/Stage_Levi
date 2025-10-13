@@ -198,6 +198,7 @@
             <p class="text-gray-600 text-center">Accesso riservato per la gestione e l'analisi dei dati di prenotazione.</p>
             
             <form id="docenti-login-form" class="space-y-4">
+                <!-- Ricorda: Username: docente, Password: stage2025 -->
                 <input type="text" id="docenti-username" placeholder="Username" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary-color focus:border-primary-color" required>
                 <input type="password" id="docenti-password" placeholder="Password" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary-color focus:border-primary-color" required>
                 <button type="submit" class="w-full btn-primary font-bold py-3 px-4 rounded-lg shadow-lg">
@@ -225,7 +226,7 @@
                     </select>
                 </div>
                 <div>
-                    <label for="filter-data" class="block text-sm font-medium text-gray-700">Filtra per Data</label>
+                    <label for="filter-data" class="block text-sm font-medium text-gray-700">Filtra per Data/Ora</label>
                     <select id="filter-data" class="mt-1 w-full p-2 border border-gray-300 rounded-lg">
                         <option value="">Tutte le Date</option>
                     </select>
@@ -306,6 +307,7 @@
         const { jsPDF } = window.jspdf;
         
         // Credenziali fittizie per l'Area Docenti (NON SONO NEL DB!)
+        // Ricorda: Per l'accesso docenti, usa Username: docente, Password: stage2025
         const TEACHER_USER = 'docente'; 
         const TEACHER_PASS = 'stage2025'; 
 
@@ -322,8 +324,8 @@
                     { date: "01/12", time: "11:50-13:50", day: "lunedì" }, { date: "15/12", time: "11:50-13:50", day: "lunedì" },
                     { date: "05/11", time: "08:50-10:50", day: "mercoledì" }, { date: "12/11", time: "08:50-10:50", day: "mercoledì" },
                     { date: "19/11", time: "08:50-10:50", day: "mercoledì" }, { date: "26/11", time: "08:50-10:50", day: "mercoledì" },
-                    { date: "03/12", time: "08:50-10:50", day: "mercoledì" }, { date: "10/12", time: "08:50-10:50", day: "mercoledì" },
-                    { date: "17/12", time: "08:50-10:50", day: "mercoledì" },
+                    { date: "03/12", time: "08:50-10:50", day: "mercoledì" }, { date: "17/12", time: "08:50-10:50", day: "mercoledì" },
+                    { date: "10/12", time: "08:50-10:50", day: "mercoledì" }, 
                     { date: "10/12", time: "11:50-13:50", day: "mercoledì", unique: true }, // Data extra
                 ]
             },
@@ -335,8 +337,8 @@
                     { date: "01/12", time: "12:50-14:40", day: "lunedì" }, { date: "15/12", time: "12:50-14:40", day: "lunedì" },
                     { date: "05/11", time: "08:50-10:50", day: "mercoledì" }, { date: "12/11", time: "08:50-10:50", day: "mercoledì" },
                     { date: "19/11", time: "08:50-10:50", day: "mercoledì" }, { date: "26/11", time: "08:50-10:50", day: "mercoledì" },
-                    { date: "03/12", time: "08:50-10:50", day: "mercoledì" }, { date: "10/12", time: "08:50-10:50", day: "mercoledì" },
-                    { date: "17/12", time: "08:50-10:50", day: "mercoledì" },
+                    { date: "03/12", time: "08:50-10:50", day: "mercoledì" }, { date: "17/12", time: "08:50-10:50", day: "mercoledì" },
+                    { date: "10/12", time: "08:50-10:50", day: "mercoledì" }, 
                     { date: "10/12", time: "13:00-14:40", day: "mercoledì", unique: true }, // Data extra
                 ]
             },
@@ -360,8 +362,8 @@
                     { date: "01/12", time: "12:50-14:40", day: "lunedì" }, { date: "15/12", time: "12:50-14:40", day: "lunedì" },
                     { date: "05/11", time: "08:50-10:50", day: "mercoledì" }, { date: "12/11", time: "08:50-10:50", day: "mercoledì" },
                     { date: "19/11", time: "08:50-10:50", day: "mercoledì" }, { date: "26/11", time: "08:50-10:50", day: "mercoledì" },
-                    { date: "03/12", time: "08:50-10:50", day: "mercoledì" }, { date: "10/12", time: "08:50-10:50", day: "mercoledì" },
-                    { date: "17/12", time: "08:50-10:50", day: "mercoledì" },
+                    { date: "03/12", time: "08:50-10:50", day: "mercoledì" }, { date: "17/12", time: "08:50-10:50", day: "mercoledì" },
+                    { date: "10/12", time: "08:50-10:50", day: "mercoledì" }, 
                     { date: "10/12", time: "13:00-14:40", day: "mercoledì", unique: true }, // Data extra
                 ]
             },
@@ -373,8 +375,8 @@
                     { date: "01/12", time: "12:50-14:40", day: "lunedì" }, { date: "15/12", time: "12:50-14:40", day: "lunedì" },
                     { date: "05/11", time: "08:50-10:50", day: "mercoledì" }, { date: "12/11", time: "08:50-10:50", day: "mercoledì" },
                     { date: "19/11", time: "08:50-10:50", day: "mercoledì" }, { date: "26/11", time: "08:50-10:50", day: "mercoledì" },
-                    { date: "03/12", time: "08:50-10:50", day: "mercoledì" }, { date: "10/12", time: "08:50-10:50", day: "mercoledì" },
-                    { date: "17/12", time: "08:50-10:50", day: "mercoledì" },
+                    { date: "03/12", time: "08:50-10:50", day: "mercoledì" }, { date: "17/12", time: "08:50-10:50", day: "mercoledì" },
+                    { date: "10/12", time: "08:50-10:50", day: "mercoledì" }, 
                     { date: "10/12", time: "13:00-14:40", day: "mercoledì", unique: true }, // Data extra
                 ]
             },
@@ -397,8 +399,10 @@
         let allBookings = []; // Stato globale per i dati della dashboard
         let chartIndirizzoInstance, chartStatoInstance;
         
+        // Uso delle variabili globali fornite da Canvas
         const APP_ID = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        const COLLECTION_PATH = `artifacts/${APP_ID}/public/data/ministage_bookings`;
+        // PERCORSO PUBBLICO MANDATORIO: artifacts/{appId}/public/data/{your_collection_name}
+        const COLLECTION_PATH = `artifacts/${APP_ID}/public/data/ministage_bookings`; 
 
         const dbStatusEl = document.getElementById('db-status');
         const bookingModalEl = document.getElementById('booking-modal');
@@ -497,6 +501,7 @@
 
         function formatDate(timestamp) {
             if (!timestamp) return 'N/A';
+            // Se è un timestamp di Firestore, usa toDate(), altrimenti assumi Date()
             const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
             return date.toLocaleDateString('it-IT', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
         }
@@ -508,7 +513,6 @@
         // Funzione per generare l'HTML della lista degli stage
         function renderStages() {
             const container = document.getElementById('indirizzi-container');
-            container.innerHTML = '<p class="text-center text-gray-500">Caricamento disponibilità in corso...</p>';
             
             // Mappa per contare le prenotazioni attive per ogni combinazione (Indirizzo + Data + Orario)
             const activeBookingsMap = allBookings
@@ -590,7 +594,7 @@
                     throw new Error("Spiacenti, i posti sono esauriti in questo momento.");
                 }
 
-                // 2. Salva la prenotazione
+                // 2. Salva la prenotazione in Firestore
                 const bookingData = {
                     indirizzo, date_stage, ora_stage, nome, email, telefono, scuola_provenienza,
                     codice_prenotazione,
@@ -606,6 +610,7 @@
                 e.target.reset(); // Pulisce il form
 
                 // 3. Genera il PDF
+                // Nota: jspdf funziona bene in questo ambiente
                 generatePDF(bookingData, 'Prenotazione', 'prenotazione_confermata.pdf');
 
                 // 4. Mostra la conferma
@@ -656,7 +661,7 @@
                 const docToCancel = snapshot.docs[0];
                 const data = docToCancel.data();
 
-                // 2. Conferma e aggiorna il DB
+                // 2. Funzione di conferma e aggiornamento DB
                 const confirmCancel = () => {
                     updateDoc(doc(db, COLLECTION_PATH, docToCancel.id), {
                         stato: 'Cancellato',
@@ -681,7 +686,7 @@
                     });
                 };
 
-                // 3. Chiedi conferma
+                // 3. Chiedi conferma tramite modale
                 showModal(
                     "Conferma Annullamento",
                     `Sei sicuro di voler annullare la prenotazione per **${data.indirizzo}** in data **${data.date_stage}** a nome di **${data.nome}**?`,
@@ -776,7 +781,7 @@
         }
 
         // ----------------------------------------------------------------------
-        // DASHBOARD DOCENTI - LOGICHE
+        // DASHBOARD DOCENTI - LOGICHE DI AUTENTICAZIONE E GESTIONE
         // ----------------------------------------------------------------------
         
         function docentiLogin() {
@@ -790,7 +795,7 @@
                 docentiLoginSection.classList.add('hidden');
                 docentiDashboardSection.classList.remove('hidden');
             } else {
-                msgEl.textContent = 'Credenziali non valide.';
+                msgEl.textContent = 'Credenziali non valide. (Suggerimento: docente / stage2025)';
             }
         }
         window.docentiLogout = () => {
@@ -804,20 +809,14 @@
             docentiLogin();
         });
 
-        // Controlla subito se il docente è già loggato
+        // Controlla subito se il docente è già loggato (persiste la sessione con localStorage)
         if (localStorage.getItem('docentiLoggedIn') === 'true') {
             docentiLoginSection.classList.add('hidden');
             docentiDashboardSection.classList.remove('hidden');
         }
 
 
-        // Funzione principale di gestione dei dati (chiamata da onSnapshot)
-        function handleBookingsUpdate(bookings) {
-            allBookings = bookings;
-            renderStages(); // Aggiorna la disponibilità nella Home
-            updateDashboard(bookings);
-        }
-
+        // Funzione per impostare i listener di Firestore e filtri
         function setupDocentiListeners() {
             if (!db) return;
 
@@ -830,7 +829,9 @@
                     ...doc.data(),
                     data_prenotazione_str: formatDate(doc.data().data_prenotazione) // Formatta per visualizzazione
                 }));
-                handleBookingsUpdate(bookings);
+                allBookings = bookings;
+                renderStages(); // Aggiorna la disponibilità nella Home
+                updateDashboard(bookings);
             }, (error) => {
                 console.error("Errore onSnapshot:", error);
                 dbStatusEl.innerHTML = '<i class="fas fa-exclamation-triangle mr-2"></i> Errore DB';
@@ -849,6 +850,11 @@
 
             let filteredBookings = rawBookings;
 
+            // Popola i filtri dropdown se sono vuoti (solo la prima volta)
+            if (document.getElementById('filter-indirizzo').options.length <= 1) {
+                populateFilters(rawBookings);
+            }
+
             // Applicazione filtri
             if (filterIndirizzo) {
                 filteredBookings = filteredBookings.filter(b => b.indirizzo === filterIndirizzo);
@@ -860,11 +866,6 @@
                 filteredBookings = filteredBookings.filter(b => b.stato === filterStato);
             }
             
-            // Popola i filtri dropdown se sono vuoti (solo la prima volta)
-            if (document.getElementById('filter-indirizzo').options.length <= 1) {
-                populateFilters(rawBookings);
-            }
-
             // Statistiche
             const totalConfirmed = filteredBookings.filter(b => b.stato === 'Confermato').length;
             const totalCancelled = filteredBookings.filter(b => b.stato === 'Cancellato').length;
@@ -872,9 +873,9 @@
             document.getElementById('stat-total-confirm').textContent = totalConfirmed;
             document.getElementById('stat-total-cancell').textContent = totalCancelled;
             
-            // Posti max raggiunti (Stima basata sul massimo raggiunto in una singola data/indirizzo)
+            // Posti max raggiunti
             const capacityMap = filteredBookings.filter(b => b.stato === 'Confermato').reduce((acc, b) => {
-                const key = `${b.indirizzo}|${b.date_stage}`;
+                const key = `${b.indirizzo}|${b.date_stage}|${b.ora_stage}`;
                 acc[key] = (acc[key] || 0) + 1;
                 return acc;
             }, {});
@@ -890,22 +891,19 @@
             const indirizzoFilter = document.getElementById('filter-indirizzo');
             const dataFilter = document.getElementById('filter-data');
 
-            const uniqueIndirizzi = [...new Set(bookings.map(b => b.indirizzo))];
+            const uniqueIndirizzi = [...new Set(bookings.map(b => b.indirizzo))].sort();
             const uniqueDates = [...new Set(bookings.map(b => `${b.date_stage} ${b.ora_stage}`))]
                                     .sort((a, b) => {
-                                        const dateA = new Date(a.split(' ')[0].split('/').reverse().join('-'));
-                                        const dateB = new Date(b.split(' ')[0].split('/').reverse().join('-'));
-                                        return dateA - dateB;
+                                        // Simple date sort based on the date part (DD/MM)
+                                        const dateA = a.split(' ')[0].split('/');
+                                        const dateB = b.split(' ')[0].split('/');
+                                        // Sort by Month, then Day
+                                        if (dateA[1] !== dateB[1]) return parseInt(dateA[1]) - parseInt(dateB[1]);
+                                        return parseInt(dateA[0]) - parseInt(dateB[0]);
                                     });
 
-            uniqueIndirizzi.forEach(i => {
-                const option = new Option(i, i);
-                indirizzoFilter.add(option);
-            });
-            uniqueDates.forEach(d => {
-                const option = new Option(d, d);
-                dataFilter.add(option);
-            });
+            uniqueIndirizzi.forEach(i => indirizzoFilter.add(new Option(i, i)));
+            uniqueDates.forEach(d => dataFilter.add(new Option(d, d)));
         }
 
         function renderTable(bookings) {
@@ -916,6 +914,10 @@
                 tbody.innerHTML = '<tr><td colspan="7" class="text-center py-4 text-gray-500">Nessuna prenotazione trovata con i filtri attuali.</td></tr>';
                 return;
             }
+
+            // Ordina prima di renderizzare: (Es. per data di prenotazione)
+            bookings.sort((a, b) => (b.data_prenotazione?.toMillis() || 0) - (a.data_prenotazione?.toMillis() || 0));
+
 
             bookings.forEach(b => {
                 const statoClass = b.stato === 'Cancellato' ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700';
@@ -963,7 +965,7 @@
                         borderRadius: 5,
                     }]
                 },
-                options: { responsive: true, scales: { y: { beginAtZero: true } } }
+                options: { responsive: true, scales: { y: { beginAtZero: true, title: { display: true, text: 'Numero Prenotazioni' } } } }
             });
 
             // Grafico 2: Stato Prenotazioni (Tutti i dati)
@@ -991,19 +993,18 @@
         
         // Funzione per esportare in CSV
         function exportToCSV() {
-            const tableBody = document.getElementById('bookings-table-body');
             let csvContent = "data:text/csv;charset=utf-8,";
             
             // Header
             const headers = ["Codice", "Stato", "Indirizzo", "Data", "Orario", "Nome", "Email", "Telefono", "Scuola", "Data Prenotazione", "Data Cancellazione"];
             csvContent += headers.join(";") + "\n";
             
-            // Dati filtrati
+            // Dati filtrati (basati sui filtri correnti della dashboard)
+            const filterIndirizzo = document.getElementById('filter-indirizzo').value;
+            const filterData = document.getElementById('filter-data').value;
+            const filterStato = document.getElementById('filter-stato').value;
+            
             const dataToExport = allBookings.filter(b => {
-                const filterIndirizzo = document.getElementById('filter-indirizzo').value;
-                const filterData = document.getElementById('filter-data').value;
-                const filterStato = document.getElementById('filter-stato').value;
-                
                 let matches = true;
                 if (filterIndirizzo && b.indirizzo !== filterIndirizzo) matches = false;
                 if (filterStato && b.stato !== filterStato) matches = false;
@@ -1022,8 +1023,8 @@
                     b.email,
                     b.telefono,
                     b.scuola_provenienza,
-                    formatDate(b.data_prenotazione).split(' ')[0],
-                    b.data_cancellazione ? formatDate(b.data_cancellazione).split(' ')[0] : ''
+                    formatDate(b.data_prenotazione).split(',')[0],
+                    b.data_cancellazione ? formatDate(b.data_cancellazione).split(',')[0] : ''
                 ];
                 csvContent += row.map(item => `"${item}"`).join(";") + "\n";
             });
