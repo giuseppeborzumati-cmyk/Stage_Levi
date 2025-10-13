@@ -51,12 +51,13 @@ async function initializeAndStartServer() {
         
         gemini = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
         
-        // Inizializza la sessione di chat con GROUNDING WEB
+        // Inizializza la sessione di chat con GROUNDING WEB e ISTRUZIONE DI PULIZIA
         chat = gemini.chats.create({ 
              model: "gemini-2.5-flash",
              config: {
-                systemInstruction: "Sei un assistente per l'ITSCG Primo Levi. Se le tue conoscenze interne sono insufficienti, puoi effettuare una ricerca web per rispondere. Rispondi in modo conciso e amichevole, fornendo informazioni utili legate alla scuola. Il sito web ufficiale è: https://www.leviseregno.edu.it/",
-                // ✅ AGGIUNGE LO STRUMENTO DI RICERCA GOOGLE (GROUNDING)
+                // ✅ ISTRUZIONE PER NON USARE MARKDOWN/ASTERISCHI
+                systemInstruction: "Sei un assistente per l'ITSCG Primo Levi. Rispondi usando esclusivamente testo semplice, evita grassetti, punti elenco o qualsiasi altra formattazione come gli asterischi (*). Se le tue conoscenze interne sono insufficienti, puoi effettuare una ricerca web per rispondere. Rispondi in modo conciso e amichevole, fornendo informazioni utili legate alla scuola. Il sito web ufficiale è: https://www.leviseregno.edu.it/",
+                // AGGIUNGE LO STRUMENTO DI RICERCA GOOGLE (GROUNDING)
                 tools: [{ googleSearch: {} }] 
              }
         });
