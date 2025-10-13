@@ -270,6 +270,10 @@
                         <span class="text-indigo-500 font-extrabold text-xl mr-2">&bull;</span>
                         <span>Tutoraggio costante per supporto e domande.</span>
                     </li>
+                    <li class="flex items-start">
+                        <span class="text-indigo-500 font-extrabold text-xl mr-2">&bull;</span>
+                        <span>Tutti i Lunedì e Mercoledì di Novembre e i primi tre di Dicembre i ragazzi seguiranno due ore di lezione (2°e3° oppure 5°-6° o 7°) presso il nostro istituto.</span>
+                    </li>
                 </ul>
             </section>
 
@@ -513,12 +517,36 @@
             { id: 'costruzione-territorio', name: 'Costruzione Ambiente e Territorio', color: 'bg-purple-100 text-purple-800', icon: '<svg class="w-8 h-8 text-purple-600 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>' }
         ];
 
-        // 14 Date di programmazione AGGIORNATE
-const PROGRAMMED_DATES = [
-    '2025-11-03', '2025-11-05', '2025-11-10', '2025-11-12', 
-    '2025-11-17', '2025-11-19', '2025-11-24', '2025-11-26', 
-    '2025-12-01', '2025-12-03', '2025-12-08', '2025-12-10', 
-    '2025-12-15', '2025-12-17' 
+const PROGRAMMED_DATES_WITH_TIMES = [
+    // Novembre - Lunedì (12:50-14:40)
+    { date: '2025-11-03', day: 'Lunedì', time: '12:50-14:40' },
+    // Novembre - Mercoledì (8:50-10:50)
+    { date: '2025-11-05', day: 'Mercoledì', time: '8:50-10:50' },
+    // Novembre - Lunedì (12:50-14:40)
+    { date: '2025-11-10', day: 'Lunedì', time: '12:50-14:40' },
+    // Novembre - Mercoledì (8:50-10:50)
+    { date: '2025-11-12', day: 'Mercoledì', time: '8:50-10:50' },
+    // Novembre - Lunedì (12:50-14:40)
+    { date: '2025-11-17', day: 'Lunedì', time: '12:50-14:40' },
+    // Novembre - Mercoledì (8:50-10:50)
+    { date: '2025-11-19', day: 'Mercoledì', time: '8:50-10:50' },
+    // Novembre - Lunedì (12:50-14:40)
+    { date: '2025-11-24', day: 'Lunedì', time: '12:50-14:40' },
+    // Novembre - Mercoledì (8:50-10:50)
+    { date: '2025-11-26', day: 'Mercoledì', time: '8:50-10:50' },
+    
+    // Dicembre - Lunedì (12:50-14:40)
+    { date: '2025-12-01', day: 'Lunedì', time: '12:50-14:40' },
+    // Dicembre - Mercoledì (8:50-10:50)
+    { date: '2025-12-03', day: 'Mercoledì', time: '8:50-10:50' },
+    // Dicembre - Lunedì (12:50-14:40)
+    { date: '2025-12-08', day: 'Lunedì', time: '12:50-14:40' },
+    // Dicembre - Mercoledì (8:50-10:50)
+    { date: '2025-12-10', day: 'Mercoledì', time: '8:50-10:50' },
+    // Dicembre - Lunedì (12:50-14:40)
+    { date: '2025-12-15', day: 'Lunedì', time: '12:50-14:40' },
+    // Dicembre - Mercoledì (8:50-10:50)
+    { date: '2025-12-17', day: 'Mercoledì', time: '8:50-10:50' }
 ];
         
         const PDF_SIGNATURE = 'ITSCG PRIMO LEVI DI SEREGNO VIA BRIANTINA 68 - Funzioni Orientamento: Prof. ssa Laura Corvi e Prof. ssa Maria Grazia Calabrese';
