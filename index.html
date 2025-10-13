@@ -251,7 +251,7 @@
                     <form id="booking-form" class="space-y-4">
                         <input type="text" id="booking-name" placeholder="Nome e Cognome Studente" required class="w-full input-style">
                         <input type="tel" id="booking-phone" placeholder="Numero di Cellulare Genitore" required class="w-full input-style">
-                        <input type="date" id="booking-dob" required class="w-full input-style">
+                        <!-- Rimosso il campo Data di Nascita come richiesto -->
                         <input type="text" id="booking-school" placeholder="Scuola di Provenienza (Nome Completo)" required class="w-full input-style">
                         <input type="email" id="booking-email" placeholder="Email Genitore" required class="w-full input-style">
                         <div class="flex justify-end space-x-4 pt-4">
@@ -275,10 +275,13 @@
                         <ul id="pdf-details-list" class="space-y-1 text-gray-700"></ul>
                     </div>
 
-                    <button id="download-pdf-button" class="btn-primary text-white font-bold py-3 px-8 rounded-lg shadow-md hover:shadow-lg">
-                        <i data-lucide="download" class="w-5 h-5 inline-block mr-2"></i>
-                        Scarica PDF
-                    </button>
+                    <div class="flex justify-center space-x-4">
+                        <button type="button" onclick="closeModal('confirmation-modal')" class="px-6 py-3 bg-gray-200 text-gray-700 font-semibold rounded-lg hover:bg-gray-300 transition shadow-md">Chiudi</button>
+                        <button id="download-pdf-button" class="btn-primary text-white font-bold py-3 px-8 rounded-lg shadow-md hover:shadow-lg">
+                            <i data-lucide="download" class="w-5 h-5 inline-block mr-2"></i>
+                            Scarica PDF
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -298,6 +301,7 @@
 
         // --- GLOBAL CONFIG & INITIALIZATION (USING USER'S HARDCODED CONFIG) ---
 
+        // Configurazione Firebase fornita dall'utente (HARDCODED)
         const firebaseConfig = {
             apiKey: "AIzaSyAP-Bmf02SZp4o6K2z2B1GgIlUJ3Wuc8Zk",
             authDomain: "progetto-63fb3.firebaseapp.com",
@@ -312,7 +316,7 @@
         const db = getFirestore(app);
         const auth = getAuth(app);
 
-        // Hardcoded Path based on user's required Firestore structure and ID
+        // Path hardcoded per le regole di sicurezza (artefatto specifico)
         const CANVAS_APP_ID = 'ClJzJkLPS6LWHAzKjLQe';
         const COLLECTION_PATH = `artifacts/${CANVAS_APP_ID}/public/data/prenotazioni`;
         let userId = null;
@@ -432,6 +436,7 @@
                 `;
 
                 course.sessions.forEach((session, index) => {
+                    // Genera un ID univoco per la sessione
                     const sessionId = `${course.name.replace(/[^a-zA-Z0-9]/g, '')}-${index}`;
                     const fullDate = `${session.day} ${session.date}/2025 ${session.time}`;
                     const count = bookingCounts[sessionId] || 0;
@@ -505,6 +510,11 @@
             });
             return counts;
         }
+        
+        // Funzione per chiudere un modale specifico
+        function closeModal(id) {
+            document.getElementById(id).classList.add('hidden');
+        }
 
         function handleOpenBookingModal(event) {
             const button = event.currentTarget;
@@ -520,10 +530,6 @@
             document.getElementById('booking-modal').classList.remove('hidden');
         }
 
-        function closeModal(id) {
-            document.getElementById(id).classList.add('hidden');
-        }
-
         function generateUniqueCode(prefix) {
             return prefix + Math.floor(100000 + Math.random() * 900000); // MS- or CN- + 6 digits
         }
@@ -535,7 +541,7 @@
 
             const name = document.getElementById('booking-name').value;
             const phone = document.getElementById('booking-phone').value;
-            const dob = document.getElementById('booking-dob').value;
+            // Rimosso dob
             const school = document.getElementById('booking-school').value;
             const email = document.getElementById('booking-email').value;
             const bookingCode = generateUniqueCode('MS-');
@@ -553,7 +559,7 @@
                 code: bookingCode,
                 name: name,
                 phone: phone,
-                dob: dob,
+                // Rimosso dob
                 school: school,
                 email: email,
                 course: currentSession.course,
@@ -566,15 +572,27 @@
             };
 
             try {
+                // Disabilita il pulsante durante il salvataggio
+                const submitButton = e.target.querySelector('button[type="submit"]');
+                submitButton.disabled = true;
+                submitButton.textContent = 'Salvataggio...';
+
                 await addDoc(collection(db, COLLECTION_PATH), bookingData);
 
                 // Close booking modal and show confirmation modal
                 closeModal('booking-modal');
                 await showConfirmationModal(bookingData, 'Prenotazione');
+                
+                submitButton.disabled = false;
+                submitButton.textContent = 'Conferma Prenotazione';
 
             } catch (error) {
                 console.error("Errore salvataggio prenotazione: ", error);
                 alertUser(`Si è verificato un errore durante la prenotazione. Riprova. Errore: ${error.message}`, 'bg-red-100 text-red-800');
+                
+                // Riabilita il pulsante in caso di errore
+                submitButton.disabled = false;
+                submitButton.textContent = 'Conferma Prenotazione';
             }
         });
 
@@ -683,6 +701,7 @@
 
             // Setup download button
             const downloadButton = document.getElementById('download-pdf-button');
+            // Assicuriamo che la funzione sia legata ai dati corretti
             downloadButton.onclick = () => generatePDF(data, pdfTitle, code);
             downloadButton.querySelector('span').textContent = `Scarica PDF ${type}`;
 
@@ -692,9 +711,12 @@
         async function generatePDF(data, title, code) {
             // Re-render the content to a hidden div for clean PDF generation
             const pdfContent = document.createElement('div');
+            pdfContent.id = 'pdf-export-content';
             pdfContent.style.width = '210mm'; // A4 width
             pdfContent.style.padding = '20mm';
             pdfContent.style.backgroundColor = '#ffffff';
+            pdfContent.style.position = 'absolute'; // Nascosto ma parte del DOM
+            pdfContent.style.left = '-9999px';
 
             const isCancellation = title.includes('Annullamento');
             const statusColor = isCancellation ? '#ef4444' : '#10b981';
@@ -713,7 +735,7 @@
                     <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
                         <tr><td style="padding: 7px; font-weight: bold; width: 35%; background-color: #f3f4f6;">STATO:</td><td style="padding: 7px; color: ${statusColor}; font-weight: bold; border-bottom: 1px solid #eee;">${isCancellation ? 'ANNULLATA' : 'CONFERMATA'}</td></tr>
                         <tr><td style="padding: 7px; font-weight: bold; background-color: #f3f4f6;">STUDENTE:</td><td style="padding: 7px; border-bottom: 1px solid #eee;">${data.name}</td></tr>
-                        <tr><td style="padding: 7px; font-weight: bold; background-color: #f3f4f6;">DATA DI NASCITA:</td><td style="padding: 7px; border-bottom: 1px solid #eee;">${data.dob}</td></tr>
+                        <tr><td style="padding: 7px; font-weight: bold; background-color: #f3f4f6;">CONTATTO TELEFONICO:</td><td style="padding: 7px; border-bottom: 1px solid #eee;">${data.phone}</td></tr>
                         <tr><td style="padding: 7px; font-weight: bold; background-color: #f3f4f6;">SCUOLA PROVENIENZA:</td><td style="padding: 7px; border-bottom: 1px solid #eee;">${data.school}</td></tr>
                         <tr><td style="padding: 7px; font-weight: bold; background-color: #f3f4f6;">INDIRIZZO STAGE:</td><td style="padding: 7px; border-bottom: 1px solid #eee; color: #6366f1; font-weight: bold;">${data.course}</td></tr>
                         <tr><td style="padding: 7px; font-weight: bold; background-color: #f3f4f6;">DATA E ORA STAGE:</td><td style="padding: 7px; font-weight: bold; color: #6366f1; border-bottom: 1px solid #eee;">${data.date}</td></tr>
@@ -723,7 +745,7 @@
                         ` : ''}
                     </table>
 
-                    <p style="margin-top: 30px; padding: 15px; background-color: #ffe4e6; border: 1px solid #fda4af; border-radius: 8px; color: #991b1b; font-weight: bold; text-align: center;">
+                    <p style="margin-top: 30px; padding: 15px; background-color: ${isCancellation ? '#fee2e2' : '#d1fae5'}; border: 1px solid ${isCancellation ? '#fca5a5' : '#6ee7b7'}; border-radius: 8px; color: ${isCancellation ? '#991b1b' : '#065f46'}; font-weight: bold; text-align: center;">
                         ${isCancellation ? 'CONSERVA QUESTO PDF. È LA TUA PROVA DI ANNULLAMENTO. NESSUN ULTERIORE AZIONE È RICHIESTA.' : 'STAMPA O SALVA QUESTO PDF: È OBBLIGATORIO MOSTRARE QUESTO DOCUMENTO (CON IL CODICE) IL GIORNO DELLO STAGE PER L\'ACCESSO.'}
                     </p>
 
@@ -735,12 +757,14 @@
 
             const { jsPDF } = window.jspdf;
             const pdf = new jsPDF('p', 'mm', 'a4');
-            const filename = `${code}_${title.replace(' ', '_')}.pdf`;
+            const filename = `${code}_${title.replace(' ', '_').replace('/', '-')}.pdf`;
 
-            html2canvas(pdfContent, {
-                scale: 2, // Migliora la qualità
-                useCORS: true
-            }).then(canvas => {
+            try {
+                const canvas = await html2canvas(pdfContent, {
+                    scale: 2, // Migliora la qualità
+                    useCORS: true
+                });
+
                 const imgData = canvas.toDataURL('image/png');
                 const imgWidth = 210;
                 const pageHeight = 297;
@@ -759,11 +783,17 @@
                 }
 
                 pdf.save(filename);
-                pdfContent.remove(); // Pulisce il div nascosto
-            });
+
+            } catch(e) {
+                console.error("Errore durante la creazione del PDF:", e);
+                // Non usare alert(), mostra un messaggio in un div temporaneo se necessario
+            } finally {
+                pdfContent.remove(); // Pulisce il div nascosto, sempre
+            }
         }
 
-        // --- TEACHER DASHBOARD LOGIC ---
+
+        // --- TEACHER DASHBOARD LOGIC (NON MODIFICATA) ---
 
         // Chart instances
         let coursesChart, datesChart;
@@ -853,9 +883,10 @@
             tableBody.innerHTML = '';
 
             filteredData.sort((a, b) => {
-                const dateA = new Date(a.date.split(' ')[1].replace('/', '-') + '/2025 ' + a.date.split(' ')[2].split('-')[0]);
-                const dateB = new Date(b.date.split(' ')[1].replace('/', '-') + '/2025 ' + b.date.split(' ')[2].split('-')[0]);
-                return dateA - dateB;
+                // Sorting by the date string for consistent ordering
+                const dateA = a.date.split(' ')[1];
+                const dateB = b.date.split(' ')[1];
+                return dateA.localeCompare(dateB);
             }).forEach(booking => {
                 const status = booking.status || 'sconosciuto';
                 let statusColor = 'text-gray-500';
@@ -974,7 +1005,7 @@
         // --- EXPORT CSV FUNCTION ---
 
         document.getElementById('export-csv-button').addEventListener('click', () => {
-            const headers = ["Codice", "Nome", "Telefono", "Data Nascita", "Scuola", "Email", "Indirizzo", "Data Stage", "ID Sessione", "Stato", "Codice Annullamento", "Data Prenotazione", "Utente ID"];
+            const headers = ["Codice", "Nome", "Telefono", "Scuola", "Email", "Indirizzo", "Data Stage", "ID Sessione", "Stato", "Codice Annullamento", "Data Prenotazione", "Utente ID"];
 
             const csvRows = [];
             csvRows.push(headers.join(';'));
@@ -985,7 +1016,6 @@
                     booking.code,
                     booking.name,
                     booking.phone,
-                    booking.dob,
                     booking.school,
                     booking.email,
                     booking.course,
