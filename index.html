@@ -1,951 +1,1235 @@
-<!DOCTYPE html>
+
 <html lang="it">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Prenotazione Mini Stage Orientamento</title>
-    <!-- Tailwind CSS CDN -->
+    <title>Prenotazione Mini Stage - Istituto Tecnico</title>
+    <!-- Caricamento di Tailwind CSS per una grafica pulita e responsiva -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Chart.js for statistics in teacher area -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-    <!-- jsPDF for PDF generation -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary': '#4CAF50', // Verde scuola
+                        'secondary': '#81C784', // Verde chiaro
+                        'accent': '#FFC107', // Giallo per accenti
+                        'background-soft': '#F1F8E9',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f7fafc;
+        .scroll-to-top {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
         }
-        .modal {
+        /* Stile personalizzato per il logo del chatbot */
+        .chatbot-logo-circle {
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background-color: #03A9F4; /* Blu Chatbot */
+            box-shadow: 0 4px 15px rgba(3, 169, 244, 0.4);
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+        .chatbot-logo-circle:hover {
+            transform: scale(1.05);
+        }
+        .chatbot-logo-circle img {
+            width: 30px;
+            height: 30px;
+        }
+        /* Stile per le sezioni nascoste */
+        .hidden-section {
             display: none;
         }
-        .text-shadow-custom {
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        /* Stili per l'area docenti */
+        .admin-stat-card {
+            background-color: white;
+            padding: 1rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
         }
-        .glow-button {
+        .admin-stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+        }
+        /* Stile grafico per i pulsanti */
+        .btn-style {
             transition: all 0.3s ease;
-            box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+            box-shadow: 0 4px #2E7D32;
         }
-        .glow-button:hover {
-            box-shadow: 0 0 20px rgba(59, 130, 246, 0.8);
+        .btn-style:hover {
+            transform: translateY(1px);
+            box-shadow: 0 3px #2E7D32;
         }
-        .teacher-bg {
-            background: linear-gradient(135deg, #1f2937, #0f172a);
-        }
-        /* Custom scrollbar for chat/table */
-        .overflow-y-auto::-webkit-scrollbar {
-            width: 8px;
-        }
-        .overflow-y-auto::-webkit-scrollbar-thumb {
-            background-color: #9ca3af;
-            border-radius: 10px;
+        .btn-style:active {
+            transform: translateY(3px);
+            box-shadow: 0 1px #2E7D32;
         }
     </style>
-</head>
-<body class="min-h-screen">
 
-    <!-- Header Section -->
-    <header class="bg-blue-600 shadow-xl sticky top-0 z-10">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-            <div class="flex items-center space-x-3">
-                <!-- Logo Placeholder -->
-                <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a8 8 0 100 16 8 8 0 000-16zM6 10a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1z"></path></svg>
-                <h1 class="text-3xl font-bold text-white tracking-tight">Mini Stage <span class="text-yellow-300">Orientamento</span></h1>
-            </div>
-            <div class="flex items-center space-x-4">
-                <span id="firebase-status" class="text-sm font-semibold px-3 py-1 rounded-full transition-colors duration-300">
-                    Connessione in corso...
-                </span>
-                <a href="chatbot.html" target="_blank" class="glow-button bg-pink-500 hover:bg-pink-600 text-white font-bold py-2 px-4 rounded-full transition duration-300 flex items-center shadow-lg">
-                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.693C5.586 15.483 5 13.847 5 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
-                    Chatbot AI
-                </a>
-                <button onclick="showLoginModal()" class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-lg transition duration-300 shadow-md">
-                    Accesso Docenti
-                </button>
-            </div>
-        </div>
-    </header>
-
-    <!-- Main Content -->
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        
-        <!-- Welcome Section -->
-        <section class="mb-12 p-8 bg-white rounded-xl shadow-2xl">
-            <div class="md:flex md:space-x-8">
-                <div class="md:w-2/3">
-                    <h2 class="text-4xl font-extrabold text-gray-800 mb-4">Dettagli sui Mini Stage di Orientamento</h2>
-                    <p class="text-lg text-red-600 font-semibold mb-4">
-                        DATE IN VIA DI DEFINIZIONE. A BREVE POTRETE PRENOTARE TRAMITE LINK CARICATO SU QUESTA PAGINA
-                    </p>
-                    <p class="text-gray-600 leading-relaxed">
-                        Per supportare al meglio l'importante scelta della scuola superiore, il nostro Istituto organizza dei **Ministage di Orientamento**, che permetteranno agli studenti di terza media di vivere un'esperienza diretta all'interno delle nostre aule.
-                    </p>
-                    <h3 class="text-2xl font-bold text-gray-700 mt-6 mb-2">Cos'è un Ministage?</h3>
-                    <p class="text-gray-600 leading-relaxed">
-                        Il ministage è un'opportunità per gli studenti di terza media di trascorrere alcune ore presso la nostra scuola, inseriti direttamente in una classe. Lo scopo è far sperimentare in modo immersivo l'ambiente scolastico, i metodi di insegnamento e le materie di studio, facilitando così una scelta più consapevole.
-                    </p>
-                    <h3 class="text-2xl font-bold text-gray-700 mt-6 mb-2">Come si svolge il Ministage</h3>
-                    <ul class="list-disc list-inside text-gray-600 ml-4 space-y-2">
-                        <li>**Inserimento in Classe:** Lo studente sarà accolto da un docente o un tutor e accompagnato nella classe che frequenterà per la durata del ministage.</li>
-                        <li>**Partecipazione alle Lezioni:** Lo studente assisterà come uditore attivo a due lezioni curricolari (per esempio, una di Matematica e una di Italiano, o Fisica e Storia, a seconda dell’indirizzo scelto). Questo permetterà di comprendere l'approccio didattico e il ritmo delle lezioni.</li>
-                        <li>**Durata:** L'esperienza complessiva durerà circa due ore.</li>
-                        <li>**Tutoraggio:** Sarà sempre presente un docente o uno studente tutor per rispondere a domande e garantire che l'esperienza si svolga nel modo più sereno e proficuo possibile.</li>
-                    </ul>
-                    <h3 class="text-2xl font-bold text-gray-700 mt-6 mb-2">Obiettivi</h3>
-                    <ul class="list-disc list-inside text-gray-600 ml-4 space-y-1">
-                        <li>Valutare l'ambiente: Sperimentare l'atmosfera della scuola e interagire con i nostri studenti.</li>
-                        <li>Comprendere le materie: Avere esperienza diretta di come vengono trattate le materie e il livello richiesto.</li>
-                        <li>Sciogliere i dubbi: Porre domande specifiche e superare eventuali incertezze sulla scelta del percorso di studi.</li>
-                    </ul>
-                    <h3 class="text-2xl font-bold text-gray-700 mt-6 mb-2">Modalità di Iscrizione</h3>
-                    <p class="text-gray-600 leading-relaxed">
-                        Le date disponibili e le modalità di prenotazione saranno comunicate in dettaglio a breve. Le iscrizioni si effettueranno tramite un modulo online per permettere la migliore organizzazione logistica. **Potete prenotare direttamente nella sezione sottostante!**
-                    </p>
-                </div>
-                <!-- Image Placeholder -->
-                <div class="md:w-1/3 mt-8 md:mt-0">
-                    <img src="https://placehold.co/400x500/A0C4FF/000?text=Logo+e+Foto+Istituzione" alt="Logo dell'Istituto e studenti" class="w-full h-auto rounded-xl shadow-lg object-cover">
-                </div>
-            </div>
-        </section>
-        
-        <hr class="my-10 border-blue-200">
-
-        <!-- Booking Section -->
-        <section class="mb-12" id="sezione-prenotazioni">
-            <h2 class="text-4xl font-extrabold text-center text-blue-700 mb-6 text-shadow-custom">Scegli la Data del tuo Mini Stage</h2>
-            <!-- Loading message is now OUTSIDE the dynamic container to prevent the error -->
-            <div class="text-center p-4 bg-yellow-100 text-yellow-800 rounded-lg shadow-inner mb-6" id="loading-message">
-                Caricamento delle date e verifica della disponibilità in corso...
-            </div>
-            <div id="stages-list" class="space-y-12">
-                <!-- Stage tables will be injected here by JavaScript -->
-            </div>
-        </section>
-
-        <hr class="my-10 border-blue-200">
-
-        <!-- Cancellation Section -->
-        <section class="p-8 bg-red-50 rounded-xl shadow-lg flex justify-between items-center">
-            <h2 class="text-2xl font-bold text-red-600">Hai bisogno di cancellare una prenotazione?</h2>
-            <button onclick="showCancellationModal()" class="bg-red-500 hover:bg-red-600 text-white font-semibold py-3 px-6 rounded-lg transition duration-300 shadow-md">
-                Cancella Prenotazione
-            </button>
-        </section>
-
-    </main>
-
-    <!-- Modals (Unchanged structure) -->
-
-    <!-- Modal 1: Booking Form -->
-    <div id="booking-modal" class="modal fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center p-4 z-50">
-        <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg p-8">
-            <h3 class="text-2xl font-bold text-blue-600 mb-6">Prenota il tuo Mini Stage</h3>
-            <p class="text-sm text-gray-500 mb-4">Indirizzo: <span id="modal-address" class="font-semibold"></span> | Data: <span id="modal-date" class="font-semibold"></span> | Ora: <span id="modal-time" class="font-semibold"></span></p>
-            
-            <form id="booking-form">
-                <input type="hidden" id="booking-slot-id">
-                <div class="mb-4">
-                    <label for="nome" class="block text-gray-700 font-semibold mb-2">Nome e Cognome</label>
-                    <input type="text" id="nome" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
-                </div>
-                <div class="mb-4">
-                    <label for="cellulare" class="block text-gray-700 font-semibold mb-2">Cellulare</label>
-                    <input type="tel" id="cellulare" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
-                </div>
-                <div class="mb-4">
-                    <label for="scuola" class="block text-gray-700 font-semibold mb-2">Scuola di Provenienza (Terza Media)</label>
-                    <input type="text" id="scuola" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
-                </div>
-                <div class="mb-6">
-                    <label for="email" class="block text-gray-700 font-semibold mb-2">E-mail</label>
-                    <input type="email" id="email" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
-                </div>
-                
-                <div class="flex justify-end space-x-4">
-                    <button type="button" onclick="hideModal('booking-modal')" class="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition duration-300">Annulla</button>
-                    <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition duration-300 shadow-lg">Conferma Prenotazione</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Modal 2: Confirmation Screen -->
-    <div id="confirmation-modal" class="modal fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center p-4 z-50">
-        <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg p-8 text-center">
-            <svg class="w-16 h-16 text-green-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-            <h3 class="text-3xl font-bold text-green-600 mb-4">Prenotazione Confermata!</h3>
-            <p class="text-gray-600 mb-6">La tua prenotazione è stata registrata con successo. Assicurati di scaricare il PDF.</p>
-            <div class="bg-gray-100 p-4 rounded-lg mb-6">
-                <p class="text-sm font-semibold text-gray-500">Codice Prenotazione:</p>
-                <p id="confirmation-code" class="text-2xl font-extrabold text-blue-700 mt-1 break-all"></p>
-            </div>
-            <p class="text-sm text-red-500 mb-6">**IMPORTANTE:** Devi portare il PDF stampato o mostrare il codice a schermo il giorno dello stage per essere accettato.</p>
-            
-            <button onclick="downloadBookingPDF()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition duration-300 shadow-lg mb-4">
-                <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                Scarica PDF Prenotazione
-            </button>
-            <button onclick="hideModal('confirmation-modal')" class="block w-full px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition duration-300">Chiudi</button>
-        </div>
-    </div>
-
-    <!-- Modal 3: Cancellation Form -->
-    <div id="cancellation-modal" class="modal fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center p-4 z-50">
-        <div class="bg-white rounded-xl shadow-2xl w-full max-w-md p-8">
-            <h3 class="text-2xl font-bold text-red-600 mb-6">Cancella la tua Prenotazione</h3>
-            <form id="cancellation-form">
-                <div class="mb-6">
-                    <label for="cancellation-code-input" class="block text-gray-700 font-semibold mb-2">Inserisci il Codice Prenotazione</label>
-                    <input type="text" id="cancellation-code-input" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-red-500 focus:border-red-500" placeholder="Esempio: XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX">
-                </div>
-                <div class="flex justify-end space-x-4">
-                    <button type="button" onclick="hideModal('cancellation-modal')" class="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition duration-300">Annulla</button>
-                    <button type="submit" class="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-lg transition duration-300 shadow-lg">Conferma Cancellazione</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Modal 4: Cancellation Confirmation -->
-    <div id="cancellation-confirmation-modal" class="modal fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center p-4 z-50">
-        <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg p-8 text-center">
-            <svg class="w-16 h-16 text-red-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-            <h3 class="text-3xl font-bold text-red-600 mb-4">Cancellazione Confermata!</h3>
-            <p class="text-gray-600 mb-6">La prenotazione con codice <span id="cancellation-confirmed-code" class="font-bold"></span> è stata annullata con successo. Lo slot è nuovamente disponibile.</p>
-            
-            <button onclick="downloadCancellationPDF()" class="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-lg transition duration-300 shadow-lg mb-4">
-                <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                Scarica PDF Cancellazione
-            </button>
-            <button onclick="hideModal('cancellation-confirmation-modal')" class="block w-full px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition duration-300">Chiudi</button>
-        </div>
-    </div>
-
-    <!-- Modal 5: Teacher Login -->
-    <div id="login-modal" class="modal fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center p-4 z-50">
-        <div class="bg-white rounded-xl shadow-2xl w-full max-w-sm p-8">
-            <h3 class="text-2xl font-bold text-blue-600 mb-6">Accesso Riservato Docenti</h3>
-            <form id="login-form">
-                <div class="mb-4">
-                    <label for="login-username" class="block text-gray-700 font-semibold mb-2">Nome Utente</label>
-                    <input type="text" id="login-username" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
-                </div>
-                <div class="mb-6">
-                    <label for="login-password" class="block text-gray-700 font-semibold mb-2">Password</label>
-                    <input type="password" id="login-password" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
-                </div>
-                <div class="flex justify-end space-x-4">
-                    <button type="button" onclick="hideModal('login-modal')" class="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition duration-300">Annulla</button>
-                    <button type="submit" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg transition duration-300 shadow-lg">Accedi</button>
-                </div>
-            </form>
-            <p id="login-error" class="text-red-500 text-sm mt-3 text-center hidden">Credenziali non valide.</p>
-        </div>
-    </div>
-
-    <!-- Modal 6: Teacher Dashboard -->
-    <div id="dashboard-modal" class="modal fixed inset-0 overflow-y-auto teacher-bg p-4 z-50">
-        <div class="w-full max-w-7xl mx-auto py-8">
-            <div class="flex justify-between items-center mb-8">
-                <h3 class="text-4xl font-extrabold text-white text-shadow-custom">Area Docenti Riservata</h3>
-                <div class="space-x-3">
-                    <button onclick="exportToCSV()" class="bg-yellow-400 hover:bg-yellow-500 text-gray-800 font-bold py-2 px-4 rounded-lg transition duration-300 shadow-lg flex items-center">
-                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                        Scarica Report Excel
-                    </button>
-                    <button onclick="logoutTeacher()" class="bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded-lg transition duration-300 shadow-lg">
-                        Esci
-                    </button>
-                </div>
-            </div>
-
-            <!-- Statistics Section -->
-            <div class="bg-gray-800 p-6 rounded-xl shadow-inner mb-8">
-                <h4 class="text-2xl font-bold text-white mb-4">Statistiche Riassuntive</h4>
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <div class="bg-blue-600 p-4 rounded-lg shadow-md text-white">
-                        <p class="text-sm opacity-80">Prenotazioni Totali (Comprese Cancellate)</p>
-                        <p id="stat-total" class="text-3xl font-extrabold"></p>
-                    </div>
-                    <div class="bg-green-600 p-4 rounded-lg shadow-md text-white">
-                        <p class="text-sm opacity-80">Prenotazioni Attive</p>
-                        <p id="stat-confirmed" class="text-3xl font-extrabold"></p>
-                    </div>
-                    <div class="bg-red-600 p-4 rounded-lg shadow-md text-white">
-                        <p class="text-sm opacity-80">Cancellazioni Totali</p>
-                        <p id="stat-canceled" class="text-3xl font-extrabold"></p>
-                    </div>
-                    <div class="bg-purple-600 p-4 rounded-lg shadow-md text-white">
-                        <p class="text-sm opacity-80">Posti Totali Occupati (Attivi)</p>
-                        <p id="stat-occupied" class="text-3xl font-extrabold"></p>
-                    </div>
-                </div>
-                <div class="mt-6 bg-gray-900 p-4 rounded-lg">
-                    <canvas id="bookingsChart" class="max-h-96"></canvas>
-                </div>
-            </div>
-
-            <!-- Filter Section -->
-            <div class="bg-gray-700 p-6 rounded-xl shadow-inner mb-8">
-                <h4 class="text-2xl font-bold text-white mb-4">Filtro Intelligente</h4>
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <div>
-                        <label for="filter-address" class="block text-sm font-medium text-gray-300 mb-1">Filtra per Indirizzo</label>
-                        <select id="filter-address" onchange="filterBookings()" class="w-full p-2 rounded-lg bg-gray-800 text-white border-gray-600">
-                            <option value="">Tutti gli Indirizzi</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label for="filter-date" class="block text-sm font-medium text-gray-300 mb-1">Filtra per Data Esatta</label>
-                        <input type="date" id="filter-date" onchange="filterBookings()" class="w-full p-2 rounded-lg bg-gray-800 text-white border-gray-600">
-                    </div>
-                    <div>
-                        <label for="filter-status" class="block text-sm font-medium text-gray-300 mb-1">Filtra per Stato</label>
-                        <select id="filter-status" onchange="filterBookings()" class="w-full p-2 rounded-lg bg-gray-800 text-white border-gray-600">
-                            <option value="">Tutti gli Stati</option>
-                            <option value="Confirmed">Confermato</option>
-                            <option value="Canceled">Annullato</option>
-                        </select>
-                    </div>
-                    <button onclick="resetFilters()" class="self-end bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-lg transition duration-300">Reset Filtri</button>
-                </div>
-            </div>
-
-            <!-- Data Table -->
-            <div class="bg-white p-6 rounded-xl shadow-2xl">
-                <h4 class="text-2xl font-bold text-gray-800 mb-4">Dati Dettagliati</h4>
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Codice</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nome</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email/Cell.</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Scuola</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Indirizzo</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data/Ora</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Stato</th>
-                            </tr>
-                        </thead>
-                        <tbody id="bookings-table-body" class="bg-white divide-y divide-gray-200">
-                            <tr><td colspan="7" class="text-center py-4 text-gray-500">Nessuna prenotazione trovata.</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
-
-
-    <!-- Firebase Scripts and Main Logic -->
+    <!-- Librerie Firebase, jsPDF e moment.js -->
     <script type="module">
-        // Global variables provided by the environment
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, addDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, query, where, getDocs, orderBy, writeBatch, runTransaction } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        
+        // Impostazione del livello di log di Firebase su Debug
+        setLogLevel('Debug');
+
+        // Variabili globali per Firebase (MANDATORIE)
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
         const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
         const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
 
-        // Firebase Imports (using CDN paths for single-file HTML)
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, onSnapshot, collection, query, updateDoc, getDoc, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        let app, db, auth;
+        let userId = null;
+        let isAuthReady = false;
 
-        // Configuration and Initialization
-        let app;
-        let db;
-        let auth;
-        let userId = 'anon_user'; // Default user ID
-        let currentBookingData = null; // To hold data for PDF generation
-
-        // Set Firebase Log Level
-        setLogLevel('Debug');
-
-        // Stage Data (Capacity is 4 for every slot)
-        const CURRENT_STAGE_YEAR = '2025'; // Assuming the stage will run in Nov/Dec 2025
-        const MAX_CAPACITY = 4;
-        const STAGE_DATA = [
-            // Amministrazione Finanza e Marketing (AFM) - Used as Indirizzo Generico 1
-            { address: "Amministrazione Finanza e Marketing (AFM)", dates: [{ day: 'lun', time: '11:50-13:50', dates: ['3/11', '10/11', '17/11', '24/11', '1/12', '15/12'] }, { day: 'mer', time: '8:50-10:50', dates: ['5/11', '12/11', '19/11', '26/11', '3/12', '10/12', '17/12'] }, { day: 'mer', time: '11:50-13:50', dates: ['10/12'], special: true }] },
-            
-            // Relazioni Internazionali per il Marketing
-            { address: "Relazioni Internazionali per il Marketing", dates: [{ day: 'lun', time: '12:50-14:40', dates: ['3/11', '10/11', '17/11', '24/11', '1/12', '15/12'] }, { day: 'mer', time: '8:50-10:50', dates: ['5/11', '12/11', '19/11', '26/11', '3/12', '10/12', '17/12'] }, { day: 'mer', time: '13:00-14:40', dates: ['10/12'], special: true }] },
-
-            // Logistica Corso Quadriennale
-            { address: "Logistica Corso Quadriennale", dates: [{ day: 'mer', time: '8:50-10:50', dates: ['5/11', '12/11', '19/11', '26/11', '3/12', '10/12', '17/12'] }, { day: 'lun', time: '12:50-14:40', dates: ['3/11', '10/11', '17/11', '24/11', '1/12', '15/12'], special: true }] },
-
-            // Costruzione Ambiente e Territorio
-            { address: "Costruzione Ambiente e Territorio", dates: [{ day: 'lun', time: '12:50-14:40', dates: ['3/11', '10/11', '17/11', '24/11', '1/12', '15/12'] }, { day: 'mer', time: '8:50-10:50', dates: ['5/11', '12/11', '19/11', '26/11', '3/12', '10/12', '17/12'] }, { day: 'mer', time: '13:00-14:40', dates: ['10/12'], special: true }] },
-
-            // Sistema Moda
-            { address: "Sistema Moda", dates: [{ day: 'lun', time: '12:50-14:40', dates: ['3/11', '10/11', '17/11', '24/11', '1/12', '15/12'] }, { day: 'mer', time: '8:50-10:50', dates: ['5/11', '12/11', '19/11', '26/11', '3/12', '10/12', '17/12'] }, { day: 'mer', time: '13:00-14:40', dates: ['10/12'], special: true }] }
-        ];
-        
-        // Collection paths
-        const BOOKINGS_PATH = `artifacts/${appId}/public/data/mini_stage_bookings`;
-
-        // UI Utility Functions
-        window.showModal = (id) => { document.getElementById(id).style.display = 'flex'; };
-        window.hideModal = (id) => { document.getElementById(id).style.display = 'none'; };
-
-        window.showCancellationModal = () => { hideModal('dashboard-modal'); showModal('cancellation-modal'); };
-        window.showLoginModal = () => { hideModal('dashboard-modal'); showModal('login-modal'); };
-
-        // --- 1. FIREBASE INITIALIZATION AND AUTHENTICATION ---
-        window.onload = async () => {
-            if (Object.keys(firebaseConfig).length === 0) {
-                console.error("Firebase config is missing.");
-                document.getElementById('firebase-status').textContent = "ERRORE: Config Manca";
-                document.getElementById('firebase-status').className = 'text-sm font-semibold px-3 py-1 rounded-full bg-red-500 text-white';
-                return;
-            }
-
+        // Inizializza Firebase e gestisce l'autenticazione
+        window.initFirebase = async () => {
             try {
+                if (Object.keys(firebaseConfig).length === 0) {
+                    console.error("Firebase Config non disponibile. Impossibile inizializzare.");
+                    document.getElementById('db-status').textContent = '❌ Offline (Configurazione mancante)';
+                    document.getElementById('db-status').classList.remove('bg-secondary');
+                    document.getElementById('db-status').classList.add('bg-red-500');
+                    return;
+                }
+                
                 app = initializeApp(firebaseConfig);
                 db = getFirestore(app);
                 auth = getAuth(app);
 
-                // Initial authentication attempt
+                // Tentativo di autenticazione con Custom Token o Anonima
                 onAuthStateChanged(auth, async (user) => {
                     if (user) {
                         userId = user.uid;
-                        console.log("Authenticated with UID:", userId);
+                        document.getElementById('db-status').textContent = '✅ Connesso (Utente: ' + userId.substring(0, 8) + '...)';
+                        document.getElementById('db-status').classList.remove('bg-red-500', 'bg-accent');
+                        document.getElementById('db-status').classList.add('bg-secondary');
+                        isAuthReady = true;
+                        // Carica i dati delle prenotazioni solo dopo l'autenticazione
+                        window.loadBookings();
+                        window.loadAdminData();
                     } else {
-                        // Sign in anonymously if no token provided or user is null
+                        // Se non c'è utente, effettua il login
                         if (initialAuthToken) {
-                             await signInWithCustomToken(auth, initialAuthToken).catch(e => {
-                                console.error("Error signing in with custom token:", e);
-                                signInAnonymously(auth);
-                            });
+                             await signInWithCustomToken(auth, initialAuthToken);
                         } else {
                             await signInAnonymously(auth);
                         }
                     }
-                    // Connection status update
-                    document.getElementById('firebase-status').textContent = "Tutto a posto, connesso! ID: " + userId.substring(0, 8) + '...';
-                    document.getElementById('firebase-status').className = 'text-sm font-semibold px-3 py-1 rounded-full bg-green-500 text-white';
-                    
-                    // Start listening for data
-                    setupDataListeners();
                 });
-                
+
             } catch (error) {
-                console.error("Firebase initialization failed:", error);
-                document.getElementById('firebase-status').textContent = "ERRORE: Connessione fallita";
-                document.getElementById('firebase-status').className = 'text-sm font-semibold px-3 py-1 rounded-full bg-red-500 text-white';
+                console.error("Errore nell'inizializzazione o nell'autenticazione Firebase:", error);
+                document.getElementById('db-status').textContent = '❌ Errore di connessione';
+                document.getElementById('db-status').classList.remove('bg-secondary');
+                document.getElementById('db-status').classList.add('bg-red-500');
             }
         };
 
-        // --- 2. DATA LISTENER AND CAPACITY MANAGEMENT ---
-        let allBookings = [];
-        let slotCounts = {}; // {slot_id: count}
-
-        const setupDataListeners = () => {
-            // Listen for all bookings (for teacher dashboard and capacity check)
-            const qBookings = query(collection(db, BOOKINGS_PATH));
-            onSnapshot(qBookings, (snapshot) => {
-                allBookings = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                updateSlotCounts();
-                renderStageTables(); // Update frontend availability
-                if (document.getElementById('dashboard-modal').style.display === 'flex') {
-                    renderDashboard(allBookings); // Update dashboard if open
-                }
-            }, (error) => {
-                console.error("Error fetching bookings:", error);
-                document.getElementById('loading-message').textContent = "ERRORE: Impossibile caricare le disponibilità.";
-                document.getElementById('loading-message').className = 'text-center p-4 bg-red-100 text-red-800 rounded-lg shadow-inner mb-6';
-            });
+        // Dati iniziali degli stage
+        window.initialStageData = {
+            'AFM - Amministrazione, Finanza e Marketing': [
+                { id: 'afm-a1', indirizzo: 'AFM', giorno: 'Lunedì', orario: '11:50-13:50', data: '03/11', posti: 4, postiDisponibili: 4, fullDate: new Date(2025, 10, 3, 11, 50) },
+                { id: 'afm-a2', indirizzo: 'AFM', giorno: 'Lunedì', orario: '11:50-13:50', data: '10/11', posti: 4, postiDisponibili: 4, fullDate: new Date(2025, 10, 10, 11, 50) },
+                { id: 'afm-a3', indirizzo: 'AFM', giorno: 'Lunedì', orario: '11:50-13:50', data: '17/11', posti: 4, postiDisponibili: 4, fullDate: new Date(2025, 10, 17, 11, 50) },
+                { id: 'afm-a4', indirizzo: 'AFM', giorno: 'Lunedì', orario: '11:50-13:50', data: '24/11', posti: 4, postiDisponibili: 4, fullDate: new Date(2025, 10, 24, 11, 50) },
+                { id: 'afm-a5', indirizzo: 'AFM', giorno: 'Lunedì', orario: '11:50-13:50', data: '01/12', posti: 4, postiDisponibili: 4, fullDate: new Date(2025, 11, 1, 11, 50) },
+                { id: 'afm-a6', indirizzo: 'AFM', giorno: 'Lunedì', orario: '11:50-13:50', data: '15/12', posti: 4, postiDisponibili: 4, fullDate: new Date(2025, 11, 15, 11, 50) },
+                { id: 'afm-b1', indirizzo: 'AFM', giorno: 'Mercoledì', orario: '8:50-10:50', data: '05/11', posti: 4, postiDisponibili: 4, fullDate: new Date(2025, 10, 5, 8, 50) },
+                { id: 'afm-b2', indirizzo: 'AFM', giorno: 'Mercoledì', orario: '8:50-10:50', data: '12/11', posti: 4, postiDisponibili: 4, fullDate: new Date(2025, 10, 12, 8, 50) },
+                { id: 'afm-b3', indirizzo: 'AFM', giorno: 'Mercoledì', orario: '8:50-10:50', data: '19/11', posti: 4, postiDisponibili: 4, fullDate: new Date(2025, 10, 19, 8, 50) },
+                { id: 'afm-b4', indirizzo: 'AFM', giorno: 'Mercoledì', orario: '8:50-10:50', data: '26/11', posti: 4, postiDisponibili: 4, fullDate: new Date(2025, 10, 26, 8, 50) },
+                { id: 'afm-b5', indirizzo: 'AFM', giorno: 'Mercoledì', orario: '8:50-10:50', data: '03/12', posti: 4, postiDisponibili: 4, fullDate: new Date(2025, 11, 3, 8, 50) },
+                { id: 'afm-b6', indirizzo: 'AFM', giorno: 'Mercoledì', orario: '8:50-10:50', data: '10/12', posti: 4, postiDisponibili: 4, fullDate: new Date(2025, 11, 10, 8, 50) },
+                { id: 'afm-b7', indirizzo: 'AFM', giorno: 'Mercoledì', orario: '8:50-10:50', data: '17/12', posti: 4, postiDisponibili: 4, fullDate: new Date(2025, 11, 17, 8, 50) },
+                { id: 'afm-special', indirizzo: 'AFM', giorno: 'Mercoledì (Extra)', orario: '11:50-13:50', data: '10/12', posti: 4, postiDisponibili: 4, fullDate: new Date(2025, 11, 10, 11, 50) },
+            ],
+            'RIM - Relazioni Internazionali per il Marketing': [
+                { id: 'rim-a1', indirizzo: 'RIM', giorno: 'Lunedì', orario: '12:50-14:40', data: '03/11', posti: 4, postiDisponibili: 4, fullDate: new Date(2025, 10, 3, 12, 50) },
+                { id: 'rim-a2', indirizzo: 'RIM', giorno: 'Lunedì', orario: '12:50-14:40', data: '10/11', posti: 4, postiDisponibili: 4, fullDate: new Date(2025, 10, 10, 12, 50) },
+                { id: 'rim-a3', indirizzo: 'RIM', giorno: 'Lunedì', orario: '12:50-14:40', data: '17/11', posti: 4, postiDisponibili: 4, fullDate: new Date(2025, 10, 17, 12, 50) },
+                { id: 'rim-a4', indirizzo: 'RIM', giorno: 'Lunedì', orario: '12:50-14:40', data: '24/11', posti: 4, postiDisponibili: 4, fullDate: new Date(2025, 10, 24, 12, 50) },
+                { id: 'rim-a5', indirizzo: 'RIM', giorno: 'Lunedì', orario: '12:50-14:40', data: '01/12', posti: 4, postiDisponibili: 4, fullDate: new Date(2025, 11, 1, 12, 50) },
+                { id: 'rim-a6', indirizzo: 'RIM', giorno: 'Lunedì', orario: '12:50-14:40', data: '15/12', posti: 4, postiDisponibili: 4, fullDate: new Date(2025, 11, 15, 12, 50) },
+                { id: 'rim-b1', indirizzo: 'RIM', giorno: 'Mercoledì', orario: '8:50-10:50', data: '05/11', posti: 4, postiDisponibili: 4, fullDate: new Date(2025, 10, 5, 8, 50) },
+                { id: 'rim-b2', indirizzo: 'RIM', giorno: 'Mercoledì', orario: '8:50-10:50', data: '12/11', posti: 4, postiDisponibili: 4, fullDate: new Date(2025, 10, 12, 8, 50) },
+                { id: 'rim-b3', indirizzo: 'RIM', giorno: 'Mercoledì', orario: '8:50-10:50', data: '19/11', posti: 4, postiDisponibili: 4, fullDate: new Date(2025, 10, 19, 8, 50) },
+                { id: 'rim-b4', indirizzo: 'RIM', giorno: 'Mercoledì', orario: '8:50-10:50', data: '26/11', posti: 4, postiDisponibili: 4, fullDate: new Date(2025, 10, 26, 8, 50) },
+                { id: 'rim-b5', indirizzo: 'RIM', giorno: 'Mercoledì', orario: '8:50-10:50', data: '03/12', posti: 4, postiDisponibili: 4, fullDate: new Date(2025, 11, 3, 8, 50) },
+                { id: 'rim-b6', indirizzo: 'RIM', giorno: 'Mercoledì', orario: '8:50-10:50', data: '10/12', posti: 4, postiDisponibili: 4, fullDate: new Date(2025, 11, 10, 8, 50) },
+                { id: 'rim-b7', indirizzo: 'RIM', giorno: 'Mercoledì', orario: '8:50-10:50', data: '17/12', posti: 4, postiDisponibili: 4, fullDate: new Date(2025, 11, 17, 8, 50) },
+                { id: 'rim-special', indirizzo: 'RIM', giorno: 'Mercoledì (Extra)', orario: '13:00-14:40', data: '10/12', posti: 4, postiDisponibili: 4, fullDate: new Date(2025, 11, 10, 13, 0) },
+            ],
+            'Logistica (Corso Quadriennale)': [
+                { id: 'log-a1', indirizzo: 'LOG', giorno: 'Mercoledì', orario: '8:50-10:50', data: '05/11', posti: 4, postiDisponibili: 4, fullDate: new Date(2025, 10, 5, 8, 50) },
+                { id: 'log-a2', indirizzo: 'LOG', giorno: 'Mercoledì', orario: '8:50-10:50', data: '12/11', posti: 4, postiDisponibili: 4, fullDate: new Date(2025, 10, 12, 8, 50) },
+                { id: 'log-a3', indirizzo: 'LOG', giorno: 'Mercoledì', orario: '8:50-10:50', data: '19/11', posti: 4, postiDisponibili: 4, fullDate: new Date(2025, 10, 19, 8, 50) },
+                { id: 'log-a4', indirizzo: 'LOG', giorno: 'Mercoledì', orario: '8:50-10:50', data: '26/11', posti: 4, postiDisponibili: 4, fullDate: new Date(2025, 10, 26, 8, 50) },
+                { id: 'log-a5', indirizzo: 'LOG', giorno: 'Mercoledì', orario: '8:50-10:50', data: '03/12', posti: 4, postiDisponibili: 4, fullDate: new Date(2025, 11, 3, 8, 50) },
+                { id: 'log-a6', indirizzo: 'LOG', giorno: 'Mercoledì', orario: '8:50-10:50', data: '10/12', posti: 4, postiDisponibili: 4, fullDate: new Date(2025, 11, 10, 8, 50) },
+                { id: 'log-a7', indirizzo: 'LOG', giorno: 'Mercoledì', orario: '8:50-10:50', data: '17/12', posti: 4, postiDisponibili: 4, fullDate: new Date(2025, 11, 17, 8, 50) },
+                { id: 'log-b1', indirizzo: 'LOG', giorno: 'Lunedì', orario: '12:50-14:40', data: '03/11', posti: 4, postiDisponibili: 4, fullDate: new Date(2025, 10, 3, 12, 50) },
+                { id: 'log-b2', indirizzo: 'LOG', giorno: 'Lunedì', orario: '12:50-14:40', data: '10/11', posti: 4, postiDisponibili: 4, fullDate: new Date(2025, 10, 10, 12, 50) },
+                { id: 'log-b3', indirizzo: 'LOG', giorno: 'Lunedì', orario: '12:50-14:40', data: '17/11', posti: 4, postiDisponibili: 4, fullDate: new Date(2025, 10, 17, 12, 50) },
+                { id: 'log-b4', indirizzo: 'LOG', giorno: 'Lunedì', orario: '12:50-14:40', data: '24/11', posti: 4, postiDisponibili: 4, fullDate: new Date(2025, 10, 24, 12, 50) },
+                { id: 'log-b5', indirizzo: 'LOG', giorno: 'Lunedì', orario: '12:50-14:40', data: '01/12', posti: 4, postiDisponibili: 4, fullDate: new Date(2025, 11, 1, 12, 50) },
+                { id: 'log-b6', indirizzo: 'LOG', giorno: 'Lunedì', orario: '12:50-14:40', data: '15/12', posti: 4, postiDisponibili: 4, fullDate: new Date(2025, 11, 15, 12, 50) },
+                // Non ci sono 14 date nella richiesta, ne aggiungo una per completezza (il 08/12)
+                { id: 'log-b7', indirizzo: 'LOG', giorno: 'Lunedì', orario: '12:50-14:40', data: '08/12', posti: 4, postiDisponibili: 4, fullDate: new Date(2025, 11, 8, 12, 50) },
+            ],
+            'CAT - Costruzione, Ambiente e Territorio': [
+                { id: 'cat-a1', indirizzo: 'CAT', giorno: 'Lunedì', orario: '12:50-14:40', data: '03/11', posti: 4, postiDisponibili: 4, fullDate: new Date(2025, 10, 3, 12, 50) },
+                { id: 'cat-a2', indirizzo: 'CAT', giorno: 'Lunedì', orario: '12:50-14:40', data: '10/11', posti: 4, postiDisponibili: 4, fullDate: new Date(2025, 10, 10, 12, 50) },
+                { id: 'cat-a3', indirizzo: 'CAT', giorno: 'Lunedì', orario: '12:50-14:40', data: '17/11', posti: 4, postiDisponibili: 4, fullDate: new Date(2025, 10, 17, 12, 50) },
+                { id: 'cat-a4', indirizzo: 'CAT', giorno: 'Lunedì', orario: '12:50-14:40', data: '24/11', posti: 4, postiDisponibili: 4, fullDate: new Date(2025, 10, 24, 12, 50) },
+                { id: 'cat-a5', indirizzo: 'CAT', giorno: 'Lunedì', orario: '12:50-14:40', data: '01/12', posti: 4, postiDisponibili: 4, fullDate: new Date(2025, 11, 1, 12, 50) },
+                { id: 'cat-a6', indirizzo: 'CAT', giorno: 'Lunedì', orario: '12:50-14:40', data: '15/12', posti: 4, postiDisponibili: 4, fullDate: new Date(2025, 11, 15, 12, 50) },
+                { id: 'cat-b1', indirizzo: 'CAT', giorno: 'Mercoledì', orario: '8:50-10:50', data: '05/11', posti: 4, postiDisponibili: 4, fullDate: new Date(2025, 10, 5, 8, 50) },
+                { id: 'cat-b2', indirizzo: 'CAT', giorno: 'Mercoledì', orario: '8:50-10:50', data: '12/11', posti: 4, postiDisponibili: 4, fullDate: new Date(2025, 10, 12, 8, 50) },
+                { id: 'cat-b3', indirizzo: 'CAT', giorno: 'Mercoledì', orario: '8:50-10:50', data: '19/11', posti: 4, postiDisponibili: 4, fullDate: new Date(2025, 10, 19, 8, 50) },
+                { id: 'cat-b4', indirizzo: 'CAT', giorno: 'Mercoledì', orario: '8:50-10:50', data: '26/11', posti: 4, postiDisponibili: 4, fullDate: new Date(2025, 10, 26, 8, 50) },
+                { id: 'cat-b5', indirizzo: 'CAT', giorno: 'Mercoledì', orario: '8:50-10:50', data: '03/12', posti: 4, postiDisponibili: 4, fullDate: new Date(2025, 11, 3, 8, 50) },
+                { id: 'cat-b6', indirizzo: 'CAT', giorno: 'Mercoledì', orario: '8:50-10:50', data: '10/12', posti: 4, postiDisponibili: 4, fullDate: new Date(2025, 11, 10, 8, 50) },
+                { id: 'cat-b7', indirizzo: 'CAT', giorno: 'Mercoledì', orario: '8:50-10:50', data: '17/12', posti: 4, postiDisponibili: 4, fullDate: new Date(2025, 11, 17, 8, 50) },
+                { id: 'cat-special', indirizzo: 'CAT', giorno: 'Mercoledì (Extra)', orario: '13:00-14:40', data: '10/12', posti: 4, postiDisponibili: 4, fullDate: new Date(2025, 11, 10, 13, 0) },
+            ],
+            'Sistema Moda': [
+                { id: 'sm-a1', indirizzo: 'SM', giorno: 'Lunedì', orario: '12:50-14:40', data: '03/11', posti: 4, postiDisponibili: 4, fullDate: new Date(2025, 10, 3, 12, 50) },
+                { id: 'sm-a2', indirizzo: 'SM', giorno: 'Lunedì', orario: '12:50-14:40', data: '10/11', posti: 4, postiDisponibili: 4, fullDate: new Date(2025, 10, 10, 12, 50) },
+                { id: 'sm-a3', indirizzo: 'SM', giorno: 'Lunedì', orario: '12:50-14:40', data: '17/11', posti: 4, postiDisponibili: 4, fullDate: new Date(2025, 10, 17, 12, 50) },
+                { id: 'sm-a4', indirizzo: 'SM', giorno: 'Lunedì', orario: '12:50-14:40', data: '24/11', posti: 4, postiDisponibili: 4, fullDate: new Date(2025, 10, 24, 12, 50) },
+                { id: 'sm-a5', indirizzo: 'SM', giorno: 'Lunedì', orario: '12:50-14:40', data: '01/12', posti: 4, postiDisponibili: 4, fullDate: new Date(2025, 11, 1, 12, 50) },
+                { id: 'sm-a6', indirizzo: 'SM', giorno: 'Lunedì', orario: '12:50-14:40', data: '15/12', posti: 4, postiDisponibili: 4, fullDate: new Date(2025, 11, 15, 12, 50) },
+                { id: 'sm-b1', indirizzo: 'SM', giorno: 'Mercoledì', orario: '8:50-10:50', data: '05/11', posti: 4, postiDisponibili: 4, fullDate: new Date(2025, 10, 5, 8, 50) },
+                { id: 'sm-b2', indirizzo: 'SM', giorno: 'Mercoledì', orario: '8:50-10:50', data: '12/11', posti: 4, postiDisponibili: 4, fullDate: new Date(2025, 10, 12, 8, 50) },
+                { id: 'sm-b3', indirizzo: 'SM', giorno: 'Mercoledì', orario: '8:50-10:50', data: '19/11', posti: 4, postiDisponibili: 4, fullDate: new Date(2025, 10, 19, 8, 50) },
+                { id: 'sm-b4', indirizzo: 'SM', giorno: 'Mercoledì', orario: '8:50-10:50', data: '26/11', posti: 4, postiDisponibili: 4, fullDate: new Date(2025, 10, 26, 8, 50) },
+                { id: 'sm-b5', indirizzo: 'SM', giorno: 'Mercoledì', orario: '8:50-10:50', data: '03/12', posti: 4, postiDisponibili: 4, fullDate: new Date(2025, 11, 3, 8, 50) },
+                { id: 'sm-b6', indirizzo: 'SM', giorno: 'Mercoledì', orario: '8:50-10:50', data: '10/12', posti: 4, postiDisponibili: 4, fullDate: new Date(2025, 11, 10, 8, 50) },
+                { id: 'sm-b7', indirizzo: 'SM', giorno: 'Mercoledì', orario: '8:50-10:50', data: '17/12', posti: 4, postiDisponibili: 4, fullDate: new Date(2025, 11, 17, 8, 50) },
+                { id: 'sm-special', indirizzo: 'SM', giorno: 'Mercoledì (Extra)', orario: '13:00-14:40', data: '10/12', posti: 4, postiDisponibili: 4, fullDate: new Date(2025, 11, 10, 13, 0) },
+            ]
         };
+        
+        let allStages = {}; // Oggetto unificato per un facile accesso
 
-        const updateSlotCounts = () => {
-            slotCounts = {};
-            allBookings.forEach(booking => {
-                if (booking.status === 'Confirmed') {
-                    slotCounts[booking.slot_id] = (slotCounts[booking.slot_id] || 0) + 1;
-                }
-            });
-        };
-
-        // --- 3. RENDERING FUNCTIONS (USER VIEW) ---
-        const getSlotId = (address, date, time) => {
-            // Generates a unique, URL-safe ID for the slot
-            return `${address.replace(/\s/g, '_')}_${date.replace(/\//g, '-')}_${time.replace(/:/g, '-').replace(/-/g, '_')}`.toLowerCase();
-        };
-
-        const renderStageTables = () => {
-            const container = document.getElementById('stages-list');
+        // Funzione per generare l'HTML degli slot di prenotazione
+        window.renderStageSlots = (stages) => {
+            const container = document.getElementById('stage-slots-container');
+            container.innerHTML = '';
             
-            // Fix for the TypeError: Safely hide the loading message.
-            const loadingMessage = document.getElementById('loading-message');
-            if (loadingMessage) {
-                loadingMessage.style.display = 'none'; 
-            }
+            // Inizializza l'oggetto unificato
+            allStages = {};
             
-            container.innerHTML = ''; // Clear container for fresh render
-
-            STAGE_DATA.forEach(course => {
-                let html = `
-                    <div class="bg-white p-6 rounded-xl shadow-lg border-t-4 border-blue-500">
-                        <h3 class="text-3xl font-bold text-blue-700 mb-4">${course.address}</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            for (const indirizzo in stages) {
+                const titleHtml = `
+                    <h3 class="text-2xl font-bold text-primary mb-4 mt-6 border-b-2 border-primary pb-2">
+                        ${indirizzo}
+                    </h3>
                 `;
-                
-                course.dates.forEach(schedule => {
-                    schedule.dates.forEach(date => {
-                        const slotId = getSlotId(course.address, date, schedule.time);
-                        const booked = slotCounts[slotId] || 0;
-                        const available = MAX_CAPACITY - booked;
-                        const isFull = available <= 0;
-                        const bgColor = isFull ? 'bg-red-100 border-red-400' : (available === MAX_CAPACITY ? 'bg-green-100 border-green-500' : 'bg-yellow-50 border-yellow-500');
-                        const textColor = isFull ? 'text-red-700' : (available === MAX_CAPACITY ? 'text-green-700' : 'text-yellow-700');
-                        const buttonClass = isFull ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700 glow-button';
-                        const buttonText = isFull ? 'COMPLETO' : 'Prenota Ora';
+                container.insertAdjacentHTML('beforeend', titleHtml);
 
-                        html += `
-                            <div class="p-4 rounded-lg shadow-md border ${bgColor}">
-                                <p class="text-lg font-semibold">${date} (${schedule.day})</p>
-                                <p class="text-sm text-gray-600 mb-2">Orario: ${schedule.time}</p>
-                                <p class="${textColor} font-bold mb-3">Posti disponibili: ${Math.max(0, available)} / ${MAX_CAPACITY}</p>
-                                <button
-                                    onclick="openBookingModal('${slotId}', '${course.address}', '${date}', '${schedule.time}', ${isFull})"
-                                    class="w-full text-white font-bold py-2 px-4 rounded-lg transition duration-300 ${buttonClass}"
-                                    ${isFull ? 'disabled' : ''}
-                                >
-                                    ${buttonText}
-                                </button>
-                            </div>
-                        `;
-                    });
+                const indirizzoGroup = document.createElement('div');
+                indirizzoGroup.className = 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-8';
+
+                stages[indirizzo].forEach(slot => {
+                    const isAvailable = slot.postiDisponibili > 0;
+                    const cardClass = isAvailable ? 'bg-white hover:shadow-xl' : 'bg-gray-200 opacity-70';
+                    const buttonClass = isAvailable 
+                        ? 'bg-primary text-white hover:bg-green-700 btn-style' 
+                        : 'bg-gray-400 text-gray-700 cursor-not-allowed';
+                    
+                    // Aggiungi all'oggetto unificato per la ricerca
+                    allStages[slot.id] = slot;
+
+                    const slotHtml = `
+                        <div id="slot-${slot.id}" class="p-4 rounded-xl shadow-lg transition duration-300 ${cardClass}">
+                            <p class="text-lg font-semibold text-gray-800">${slot.giorno}, ${slot.data}</p>
+                            <p class="text-sm text-gray-600 mb-2">${slot.orario}</p>
+                            <p class="text-xs font-medium ${isAvailable ? 'text-green-600' : 'text-red-600'}">
+                                Posti disponibili: ${slot.postiDisponibili} / ${slot.posti}
+                            </p>
+                            <button 
+                                data-slot-id="${slot.id}"
+                                onclick="openBookingModal('${slot.id}', '${indirizzo}', '${slot.giorno}, ${slot.data} - ${slot.orario}')"
+                                ${isAvailable ? '' : 'disabled'}
+                                class="mt-3 w-full py-2 rounded-lg font-bold ${buttonClass}"
+                            >
+                                Prenota
+                            </button>
+                        </div>
+                    `;
+                    indirizzoGroup.insertAdjacentHTML('beforeend', slotHtml);
                 });
-
-                html += `</div></div>`;
-                container.innerHTML += html;
-            });
+                container.appendChild(indirizzoGroup);
+            }
         };
 
-        window.openBookingModal = (slotId, address, date, time, isFull) => {
-            if (isFull) return;
-            document.getElementById('booking-slot-id').value = slotId;
-            document.getElementById('modal-address').textContent = address;
-            document.getElementById('modal-date').textContent = date;
-            document.getElementById('modal-time').textContent = time;
-            showModal('booking-modal');
-        };
-
-
-        // --- 4. BOOKING LOGIC ---
-        document.getElementById('booking-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const slotId = document.getElementById('booking-slot-id').value;
-            const nome = document.getElementById('nome').value;
-            const cellulare = document.getElementById('cellulare').value;
-            const scuola = document.getElementById('scuola').value;
-            const email = document.getElementById('email').value;
+        // Funzione per aggiornare gli slot in base ai dati di Firestore
+        window.loadBookings = () => {
+            if (!isAuthReady || !db) return;
             
-            const address = document.getElementById('modal-address').textContent;
-            const date = document.getElementById('modal-date').textContent;
-            const time = document.getElementById('modal-time').textContent;
+            // Copia profonda dei dati iniziali
+            let currentStages = JSON.parse(JSON.stringify(window.initialStageData));
 
-            const bookingDetails = {
-                code: crypto.randomUUID(),
-                slot_id: slotId,
-                name: nome,
-                phone: cellulare,
-                school: scuola,
-                email: email,
-                address: address,
-                date: date,
-                time: time,
-                status: 'Confirmed',
-                timestamp: new Date().toISOString()
-            };
+            // Percorso della collection per i dati pubblici
+            const stagesRef = collection(db, `artifacts/${appId}/public/data/stages`);
+            const bookingsRef = collection(db, `artifacts/${appId}/public/data/bookings`);
 
-            // Double Capacity Check
-            if ((slotCounts[slotId] || 0) >= MAX_CAPACITY) {
-                 alert("Spiacenti, lo slot è completo. Aggiorna la pagina per vedere le nuove disponibilità.");
-                 hideModal('booking-modal');
-                 return;
-            }
-
-            try {
-                // Attempt to add the booking
-                const bookingsRef = collection(db, BOOKINGS_PATH);
-                await setDoc(doc(bookingsRef, bookingDetails.code), bookingDetails);
-
-                // Update UI state
-                currentBookingData = bookingDetails;
-                document.getElementById('confirmation-code').textContent = bookingDetails.code;
-                document.getElementById('booking-form').reset();
-                hideModal('booking-modal');
-                showModal('confirmation-modal');
-
-            } catch (error) {
-                console.error("Errore durante la prenotazione:", error);
-                alert("Si è verificato un errore durante la prenotazione. Riprova più tardi.");
-            }
-        });
-
-        // --- 5. PDF GENERATION ---
-        window.downloadBookingPDF = () => {
-            if (!currentBookingData) return;
-            
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-            
-            const data = currentBookingData;
-
-            doc.setFontSize(22);
-            doc.setTextColor(59, 130, 246); // Blue-600
-            doc.text("CONFERMA PRENOTAZIONE MINI STAGE", 105, 20, null, null, "center");
-
-            doc.setDrawColor(59, 130, 246);
-            doc.line(20, 25, 190, 25);
-
-            doc.setFontSize(16);
-            doc.setTextColor(31, 41, 55); // Gray-800
-            doc.text("Dettagli Prenotazione", 20, 40);
-
-            doc.setFontSize(12);
-            doc.setTextColor(75, 85, 99); // Gray-600
-            doc.text(`Codice Unico: ${data.code}`, 20, 50);
-            doc.text(`Stato: ${data.status === 'Confirmed' ? 'CONFERMATA' : 'ANNULLATA'}`, 20, 57);
-            doc.text(`Data e Ora: ${data.date} / ${data.time}`, 20, 64);
-            doc.text(`Indirizzo Scelto: ${data.address}`, 20, 71);
-            
-            // Separator
-            doc.line(20, 80, 190, 80);
-
-            doc.setFontSize(16);
-            doc.setTextColor(31, 41, 55);
-            doc.text("Dati Studente", 20, 95);
-
-            doc.setFontSize(12);
-            doc.setTextColor(75, 85, 99);
-            doc.text(`Nome e Cognome: ${data.name}`, 20, 105);
-            doc.text(`E-mail: ${data.email}`, 20, 112);
-            doc.text(`Cellulare: ${data.phone}`, 20, 119);
-            doc.text(`Scuola di Provenienza: ${data.school}`, 20, 126);
-
-            // Important Note
-            doc.setFillColor(254, 226, 226); // Red-100
-            doc.rect(20, 140, 170, 25, 'F');
-            doc.setTextColor(185, 28, 28); // Red-700
-            doc.setFontSize(10);
-            doc.text("ATTENZIONE: Questo documento (o il codice) deve essere mostrato il giorno dello stage per l'accettazione.", 105, 150, null, null, "center");
-
-
-            doc.save(`Prenotazione_Stage_${data.name}.pdf`);
-        };
-
-        window.downloadCancellationPDF = () => {
-            if (!currentBookingData) return;
-
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-            
-            const data = currentBookingData;
-
-            doc.setFontSize(22);
-            doc.setTextColor(220, 38, 38); // Red-600
-            doc.text("CONFERMA CANCELLAZIONE PRENOTAZIONE", 105, 20, null, null, "center");
-
-            doc.setDrawColor(220, 38, 38);
-            doc.line(20, 25, 190, 25);
-
-            doc.setFontSize(16);
-            doc.setTextColor(31, 41, 55); // Gray-800
-            doc.text("Dettagli Cancellazione", 20, 40);
-
-            doc.setFontSize(12);
-            doc.setTextColor(75, 85, 99); // Gray-600
-            doc.text(`Codice Unico Annullato: ${data.code}`, 20, 50);
-            doc.text(`Data e Ora Slot: ${data.date} / ${data.time}`, 20, 57);
-            doc.text(`Indirizzo Annullato: ${data.address}`, 20, 64);
-            doc.text(`Nome: ${data.name}`, 20, 71);
-            doc.text(`Email: ${data.email}`, 20, 78);
-
-            // Important Note
-            doc.setFillColor(243, 244, 246); // Gray-100
-            doc.rect(20, 90, 170, 20, 'F');
-            doc.setTextColor(55, 65, 81); // Gray-700
-            doc.setFontSize(10);
-            doc.text("L'annullamento è stato registrato nel sistema. Lo slot è tornato disponibile per altri studenti.", 105, 100, null, null, "center");
-
-
-            doc.save(`Cancellazione_Stage_${data.name}.pdf`);
-            currentBookingData = null; // Clear data after download
-        };
-
-        // --- 6. CANCELLATION LOGIC ---
-        document.getElementById('cancellation-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const codeToCancel = document.getElementById('cancellation-code-input').value.trim();
-            if (!codeToCancel) return;
-
-            hideModal('cancellation-modal'); 
-
-            try {
-                const docRef = doc(db, BOOKINGS_PATH, codeToCancel);
-                const docSnap = await getDoc(docRef);
-
-                if (!docSnap.exists()) {
-                    alert('Errore: Codice di prenotazione non trovato. Verifica di averlo inserito correttamente.');
-                    showModal('cancellation-modal'); // Re-open modal on error
-                    return;
-                }
-
-                const booking = docSnap.data();
-
-                if (booking.status === 'Canceled') {
-                    alert('Attenzione: Questa prenotazione risulta già annullata.');
-                    return;
-                }
-
-                // Perform the update
-                await updateDoc(docRef, {
-                    status: 'Canceled',
-                    cancellation_timestamp: new Date().toISOString()
-                });
-
-                // Success
-                currentBookingData = { ...booking, status: 'Canceled' }; // Prepare data for PDF
-                document.getElementById('cancellation-confirmed-code').textContent = codeToCancel;
-                document.getElementById('cancellation-form').reset();
-                showModal('cancellation-confirmation-modal');
-                
-            } catch (error) {
-                console.error("Errore durante la cancellazione:", error);
-                alert("Si è verificato un errore tecnico durante la cancellazione. Riprova.");
-            }
-        });
-
-        // --- 7. TEACHER LOGIN & DASHBOARD ---
-        const TEACHER_USER = 'docente';
-        const TEACHER_PASS = 'stage2025';
-        let bookingsChart = null; 
-
-        document.getElementById('login-form').addEventListener('submit', (e) => {
-            e.preventDefault();
-            const username = document.getElementById('login-username').value;
-            const password = document.getElementById('login-password').value;
-            const errorElement = document.getElementById('login-error');
-
-            if (username === TEACHER_USER && password === TEACHER_PASS) {
-                errorElement.classList.add('hidden');
-                hideModal('login-modal');
-                showModal('dashboard-modal');
-                document.getElementById('login-form').reset();
-                renderDashboard(allBookings); // Render initial data
-            } else {
-                errorElement.textContent = "Credenziali non valide. Riprova (docente / stage2025).";
-                errorElement.classList.remove('hidden');
-            }
-        });
-
-        window.logoutTeacher = () => {
-            hideModal('dashboard-modal');
-        };
-
-        let currentFilteredBookings = [];
-
-        const renderDashboard = (bookings) => {
-            // --- 7.1 STATISTICAL CALCULATIONS ---
-            const confirmedBookings = bookings.filter(b => b.status === 'Confirmed');
-            const canceledBookings = bookings.filter(b => b.status === 'Canceled');
-            const totalBookings = bookings.length;
-
-            document.getElementById('stat-total').textContent = totalBookings;
-            document.getElementById('stat-confirmed').textContent = confirmedBookings.length;
-            document.getElementById('stat-canceled').textContent = canceledBookings.length;
-            document.getElementById('stat-occupied').textContent = confirmedBookings.length; 
-
-            // --- 7.2 FILTER SETUP ---
-            const addresses = [...new Set(bookings.map(b => b.address))];
-            const filterAddressSelect = document.getElementById('filter-address');
-            // Check if options are already populated to prevent duplicates on data change
-            if (filterAddressSelect.options.length <= 1) { 
-                addresses.forEach(addr => {
-                    if (addr) filterAddressSelect.innerHTML += `<option value="${addr}">${addr}</option>`;
-                });
-            }
-
-            // --- 7.3 CHART RENDERING ---
-            const bookingMap = confirmedBookings.reduce((acc, b) => {
-                const key = `${b.date} - ${b.time}`;
-                acc[key] = (acc[key] || 0) + 1;
-                return acc;
-            }, {});
-
-            const chartLabels = Object.keys(bookingMap).sort();
-            const chartData = chartLabels.map(label => bookingMap[label]);
-
-            if (bookingsChart) {
-                bookingsChart.destroy();
-            }
-
-            const ctx = document.getElementById('bookingsChart').getContext('2d');
-            bookingsChart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: chartLabels,
-                    datasets: [{
-                        label: 'Prenotazioni Confermate per Slot',
-                        data: chartData,
-                        backgroundColor: 'rgba(59, 130, 246, 0.7)',
-                        borderColor: 'rgba(59, 130, 246, 1)',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            title: { display: true, text: 'Numero Prenotazioni', color: 'white' },
-                            ticks: { precision: 0, color: 'white' },
-                            grid: { color: 'rgba(255, 255, 255, 0.1)' }
-                        },
-                        x: {
-                            title: { display: true, text: 'Data e Ora Slot', color: 'white' },
-                            ticks: { color: 'white' },
-                            grid: { color: 'rgba(255, 255, 255, 0.1)' }
+            // 1. Carica i dati degli stage (se esistono)
+            const stagesQuery = query(stagesRef);
+            onSnapshot(stagesQuery, (snapshot) => {
+                snapshot.docChanges().forEach(change => {
+                    const data = change.doc.data();
+                    const fullIndirizzo = Object.keys(currentStages).find(key => key.startsWith(data.indirizzo));
+                    if (fullIndirizzo) {
+                        const slotIndex = currentStages[fullIndirizzo].findIndex(s => s.id === data.id);
+                        if (slotIndex > -1) {
+                            // Aggiorna solo i posti disponibili
+                            currentStages[fullIndirizzo][slotIndex].postiDisponibili = data.postiDisponibili;
                         }
-                    },
-                    plugins: {
-                        legend: { labels: { color: 'white' } },
-                        title: { display: true, text: 'Distribuzione Prenotazioni', color: 'white' }
                     }
-                }
+                });
+                // 2. Renderizza gli slot dopo averli aggiornati con i posti disponibili
+                window.renderStageSlots(currentStages);
+            }, (error) => {
+                console.error("Errore nel listener stages:", error);
             });
-
-            // Apply filters initially
-            filterBookings();
+            
+            // Inizializza gli slot nel database se è la prima volta
+            getDocs(stagesQuery).then(snapshot => {
+                if (snapshot.empty) {
+                    console.log("Inizializzazione degli slot stage nel database...");
+                    const batch = writeBatch(db);
+                    Object.values(window.initialStageData).flat().forEach(slot => {
+                        const slotDocRef = doc(db, `artifacts/${appId}/public/data/stages`, slot.id);
+                        batch.set(slotDocRef, {
+                            id: slot.id,
+                            indirizzo: slot.indirizzo,
+                            posti: slot.posti,
+                            postiDisponibili: slot.postiDisponibili,
+                            data: slot.data,
+                            orario: slot.orario,
+                            giorno: slot.giorno
+                        });
+                    });
+                    batch.commit().catch(e => console.error("Errore nell'inizializzazione del batch:", e));
+                }
+            }).catch(e => console.error("Errore nel controllo iniziale degli stage:", e));
         };
 
-        window.filterBookings = () => {
-            const address = document.getElementById('filter-address').value;
-            const dateInput = document.getElementById('filter-date').value;
-            const status = document.getElementById('filter-status').value;
-
-            currentFilteredBookings = allBookings.filter(b => {
-                let match = true;
-                
-                // Filter by Address
-                if (address && b.address !== address) {
-                    match = false;
-                }
-
-                // Filter by Date (YYYY-MM-DD vs D/M)
-                if (dateInput) {
-                    // Convert booking date (D/M) to a comparable YYYY-MM-DD format
-                    const [d, m] = b.date.split('/');
-                    const formattedBookingDate = `${CURRENT_STAGE_YEAR}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
-                    if (formattedBookingDate !== dateInput) {
-                        match = false;
-                    }
-                }
-
-                // Filter by Status
-                if (status && b.status !== status) {
-                    match = false;
-                }
-
-                return match;
-            });
-
-            // Sort by Date/Time
-            currentFilteredBookings.sort((a, b) => {
-                // Parse dates assuming the year 2025 for correct chronological sort
-                const parseDate = (dateStr) => {
-                    const [d, m] = dateStr.split('/');
-                    return new Date(`${m}/${d}/${CURRENT_STAGE_YEAR}`);
-                };
-
-                const dateA = parseDate(a.date);
-                const dateB = parseDate(b.date);
-
-                if (dateA < dateB) return -1;
-                if (dateA > dateB) return 1;
-                
-                // Secondary sort by time
-                if (a.time < b.time) return -1;
-                if (a.time > b.time) return 1;
-                
-                return 0;
-            });
-
-            renderBookingsTable(currentFilteredBookings);
+        // Funzione di utilità per generare un codice alfanumerico
+        window.generateBookingCode = () => {
+            return 'STAGE-' + Math.random().toString(36).substring(2, 9).toUpperCase();
         };
 
-        window.resetFilters = () => {
-            document.getElementById('filter-address').value = '';
-            document.getElementById('filter-date').value = '';
-            document.getElementById('filter-status').value = '';
-            filterBookings();
+        let selectedSlotId = null;
+        let selectedSlotDetails = {};
+
+        // Apre il modale di prenotazione
+        window.openBookingModal = (slotId, indirizzo, details) => {
+            selectedSlotId = slotId;
+            selectedSlotDetails = allStages[slotId];
+            document.getElementById('booking-indirizzo').value = indirizzo;
+            document.getElementById('booking-details').textContent = details;
+            document.getElementById('booking-modal').classList.remove('hidden');
         };
 
-        const renderBookingsTable = (bookings) => {
-            const tbody = document.getElementById('bookings-table-body');
-            tbody.innerHTML = '';
+        // Chiude un modale
+        window.closeModal = (id) => {
+            document.getElementById(id).classList.add('hidden');
+        };
+        
+        // Visualizza messaggio
+        window.showMessage = (title, message, isError = false) => {
+            const modal = document.getElementById('message-modal');
+            document.getElementById('message-title').textContent = title;
+            document.getElementById('message-text').textContent = message;
+            
+            if (isError) {
+                document.getElementById('message-title').classList.remove('text-primary');
+                document.getElementById('message-title').classList.add('text-red-600');
+            } else {
+                 document.getElementById('message-title').classList.remove('text-red-600');
+                document.getElementById('message-title').classList.add('text-primary');
+            }
+            
+            modal.classList.remove('hidden');
+        };
 
-            if (bookings.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="7" class="text-center py-4 text-gray-500">Nessuna prenotazione trovata con i filtri attuali.</td></tr>';
+        // Gestisce la prenotazione
+        window.handleBooking = async () => {
+            if (!isAuthReady || !db || !selectedSlotId) {
+                showMessage("Errore", "Connessione al database non pronta. Riprova.", true);
                 return;
             }
 
-            bookings.forEach(b => {
-                const statusColor = b.status === 'Confirmed' ? 'text-green-600 font-bold' : 'text-red-600 font-bold';
-                const row = `
-                    <tr class="hover:bg-gray-100">
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 break-all">${b.code.substring(0, 8)}...</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${b.name}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            ${b.email}<br><span class="text-xs text-gray-500">${b.phone}</span>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${b.school}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${b.address}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${b.date} ${b.time}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm ${statusColor}">${b.status === 'Confirmed' ? 'CONFERMATO' : 'ANNULLATO'}</td>
-                    </tr>
-                `;
-                tbody.innerHTML += row;
-            });
+            const form = document.getElementById('booking-form');
+            const nome = form.nome.value.trim();
+            const cellulare = form.cellulare.value.trim();
+            const scuola = form.scuola.value.trim();
+            const email = form.email.value.trim();
+            const slotData = selectedSlotDetails;
+
+            if (!nome || !cellulare || !scuola || !email) {
+                showMessage("Attenzione", "Per favore, compila tutti i campi richiesti.", true);
+                return;
+            }
+
+            const bookingCode = window.generateBookingCode();
+            const bookingTime = new Date().toISOString();
+
+            document.getElementById('confirm-booking-btn').disabled = true;
+            document.getElementById('confirm-booking-btn').textContent = 'In corso...';
+
+            const bookingData = {
+                code: bookingCode,
+                nome: nome,
+                cellulare: cellulare,
+                scuola: scuola,
+                email: email,
+                indirizzo: slotData.indirizzo,
+                dataStage: `${slotData.giorno}, ${slotData.data}`,
+                orarioStage: slotData.orario,
+                slotId: slotData.id,
+                timestamp: bookingTime,
+                userId: userId // L'ID utente anonimo/autenticato
+            };
+
+            try {
+                // Esegui la prenotazione e la riduzione dei posti in una transazione
+                await runTransaction(db, async (transaction) => {
+                    const slotDocRef = doc(db, `artifacts/${appId}/public/data/stages`, slotData.id);
+                    const slotDoc = await transaction.get(slotDocRef);
+
+                    if (!slotDoc.exists()) {
+                        throw "Slot non trovato.";
+                    }
+
+                    const currentPosti = slotDoc.data().postiDisponibili;
+                    if (currentPosti <= 0) {
+                        throw "Spiacenti, i posti sono esauriti per questo slot.";
+                    }
+
+                    // 1. Aggiungi la prenotazione
+                    const newBookingRef = doc(collection(db, `artifacts/${appId}/public/data/bookings`));
+                    transaction.set(newBookingRef, bookingData);
+                    
+                    // 2. Riduci il contatore dei posti
+                    transaction.update(slotDocRef, { postiDisponibili: currentPosti - 1 });
+
+                    // Ritorna i dati per l'utilizzo esterno alla transazione
+                    return { bookingId: newBookingRef.id, bookingData: bookingData };
+                });
+                
+                closeModal('booking-modal');
+                // Mostra la conferma e il PDF
+                showConfirmationScreen(bookingData);
+
+            } catch (error) {
+                console.error("Errore nella transazione di prenotazione:", error);
+                const errorMessage = typeof error === 'string' ? error : "Si è verificato un errore durante la prenotazione. Riprova più tardi.";
+                showMessage("Errore Prenotazione", errorMessage, true);
+            } finally {
+                document.getElementById('confirm-booking-btn').disabled = false;
+                document.getElementById('confirm-booking-btn').textContent = 'Conferma Prenotazione';
+            }
         };
 
-        // --- 8. EXPORT TO CSV (EXCEL) ---
-        window.exportToCSV = () => {
-            let csv = "Codice,Nome,Email,Cellulare,Scuola,Indirizzo,Data,Ora,Stato,Timestamp\n";
-            currentFilteredBookings.forEach(b => {
-                // Ensure no commas break CSV structure inside fields
-                const sanitize = (str) => `"${str.replace(/"/g, '""')}"`;
+        // Mostra la schermata di conferma e genera il PDF
+        window.showConfirmationScreen = (data) => {
+            document.getElementById('confirmation-code').textContent = data.code;
+            document.getElementById('confirmation-info').innerHTML = `
+                <p><strong>Nome:</strong> ${data.nome}</p>
+                <p><strong>Stage:</strong> ${data.indirizzo}</p>
+                <p><strong>Data e Ora:</strong> ${data.dataStage} - ${data.orarioStage}</p>
+                <p><strong>Scuola:</strong> ${data.scuola}</p>
+                <p class="mt-3 font-semibold text-red-600">Porta con te il codice o il PDF per essere accettato allo stage.</p>
+            `;
+            // Memorizza i dati di prenotazione nel dataset del pulsante PDF
+            const pdfBtn = document.getElementById('download-pdf-btn');
+            pdfBtn.dataset.bookingData = JSON.stringify(data);
+            
+            closeModal('booking-modal');
+            document.getElementById('confirmation-modal').classList.remove('hidden');
+        };
+        
+        // Cancella una prenotazione
+        window.handleCancellation = async () => {
+             if (!isAuthReady || !db) {
+                showMessage("Errore", "Connessione al database non pronta. Riprova.", true);
+                return;
+            }
+            
+            const codeInput = document.getElementById('cancellation-code');
+            const code = codeInput.value.trim();
+            if (!code) {
+                 showMessage("Errore", "Inserisci il codice di prenotazione per la cancellazione.", true);
+                return;
+            }
+            
+            document.getElementById('confirm-cancellation-btn').disabled = true;
+            document.getElementById('confirm-cancellation-btn').textContent = 'Verifica...';
 
-                const row = [
-                    sanitize(b.code),
-                    sanitize(b.name),
-                    sanitize(b.email),
-                    sanitize(b.phone),
-                    sanitize(b.school),
-                    sanitize(b.address),
-                    sanitize(b.date),
-                    sanitize(b.time),
-                    sanitize(b.status),
-                    sanitize(b.timestamp)
-                ].join(',');
-                csv += row + '\n';
-            });
+            try {
+                const bookingsRef = collection(db, `artifacts/${appId}/public/data/bookings`);
+                const q = query(bookingsRef, where("code", "==", code));
+                const snapshot = await getDocs(q);
+                
+                if (snapshot.empty) {
+                     throw "Codice di prenotazione non trovato.";
+                }
 
-            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement("a");
-            const url = URL.createObjectURL(blob);
-            link.setAttribute("href", url);
-            link.setAttribute("download", "report_prenotazioni_mini_stage.csv");
-            link.style.visibility = 'hidden';
+                const bookingDoc = snapshot.docs[0];
+                const bookingData = bookingDoc.data();
+                const bookingDocRef = bookingDoc.ref;
+                const slotId = bookingData.slotId;
+                
+                // Esegui la cancellazione e l'incremento dei posti in una transazione
+                await runTransaction(db, async (transaction) => {
+                    const slotDocRef = doc(db, `artifacts/${appId}/public/data/stages`, slotId);
+                    const slotDoc = await transaction.get(slotDocRef);
+                    
+                    if (!slotDoc.exists()) {
+                        throw "Slot associato non trovato.";
+                    }
+                    
+                    const currentPosti = slotDoc.data().postiDisponibili;
+                    
+                    // 1. Cancella la prenotazione
+                    transaction.delete(bookingDocRef);
+                    
+                    // 2. Incrementa il contatore dei posti
+                    transaction.update(slotDocRef, { postiDisponibili: currentPosti + 1 });
+                    
+                    // 3. Registra la cancellazione
+                    const cancellationData = {
+                        ...bookingData,
+                        cancellationTimestamp: new Date().toISOString()
+                    };
+                    delete cancellationData.code; // Il codice di cancellazione è il codice di prenotazione
+                    
+                    const cancellationRef = doc(db, `artifacts/${appId}/public/data/cancellations`, bookingDoc.id);
+                    transaction.set(cancellationRef, cancellationData);
+
+                    return cancellationData;
+                });
+                
+                // Successo: mostra il PDF di cancellazione
+                closeModal('cancellation-modal');
+                showCancellationScreen(bookingData, code);
+
+            } catch (error) {
+                console.error("Errore nella cancellazione:", error);
+                const errorMessage = typeof error === 'string' ? error : "Si è verificato un errore durante la cancellazione.";
+                showMessage("Errore Cancellazione", errorMessage, true);
+            } finally {
+                document.getElementById('confirm-cancellation-btn').disabled = false;
+                document.getElementById('confirm-cancellation-btn').textContent = 'Conferma Cancellazione';
+            }
+        };
+        
+        // Mostra la schermata di cancellazione e il PDF
+        window.showCancellationScreen = (data, code) => {
+            document.getElementById('cancellation-code-display').textContent = code;
+            document.getElementById('cancellation-info-display').innerHTML = `
+                <p>La prenotazione per l'indirizzo <strong>${data.indirizzo}</strong> il giorno <strong>${data.dataStage}</strong> è stata **CANCELLATA** con successo.</p>
+                <p class="mt-3 font-semibold text-red-600">Puoi scaricare il PDF di cancellazione per la tua documentazione.</p>
+            `;
+            const pdfBtn = document.getElementById('download-cancellation-pdf-btn');
+            pdfBtn.dataset.bookingData = JSON.stringify(data);
+            pdfBtn.dataset.cancellationCode = code;
+
+            document.getElementById('cancellation-confirmation-modal').classList.remove('hidden');
+        };
+
+    </script>
+    <!-- Caricamento di jsPDF per la generazione di PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <!-- Logica di generazione PDF (Deve essere dopo jsPDF) -->
+    <script>
+        window.generatePdf = (bookingData, isCancellation = false, cancellationCode = null) => {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            const data = JSON.parse(bookingData);
+            
+            let yPos = 15;
+            const lineHeight = 7;
+            
+            doc.setFontSize(18);
+            doc.setTextColor('#4CAF50');
+            const title = isCancellation ? "CERTIFICATO DI CANCELLAZIONE" : "CONFERMA DI PRENOTAZIONE MINI STAGE";
+            doc.text(title, 105, yPos, null, null, "center");
+            yPos += lineHeight * 2;
+            
+            doc.setLineWidth(0.5);
+            doc.setDrawColor('#4CAF50');
+            doc.line(15, yPos - lineHeight, 195, yPos - lineHeight);
+
+            // Sezione Codice (Sempre visibile)
+            doc.setFontSize(14);
+            doc.setTextColor(0, 0, 0);
+            doc.text(`${isCancellation ? 'CODICE DI CANCELLAZIONE' : 'CODICE DI PRENOTAZIONE'} (da esibire)`, 20, yPos);
+            yPos += lineHeight;
+            
+            doc.setFontSize(24);
+            doc.setTextColor('#E65100'); // Arancione
+            doc.text(data.code, 105, yPos, null, null, "center");
+            yPos += lineHeight * 2;
+
+            // Dettagli Prenotazione
+            doc.setFontSize(14);
+            doc.setTextColor('#4CAF50');
+            doc.text("Dettagli Stage:", 20, yPos);
+            yPos += lineHeight;
+            
+            doc.setFontSize(12);
+            doc.setTextColor(0, 0, 0);
+            doc.text(`Indirizzo: ${data.indirizzo}`, 20, yPos);
+            yPos += lineHeight;
+            doc.text(`Data: ${data.dataStage}`, 20, yPos);
+            yPos += lineHeight;
+            doc.text(`Orario: ${data.orarioStage}`, 20, yPos);
+            yPos += lineHeight * 2;
+            
+            doc.setFontSize(14);
+            doc.setTextColor('#4CAF50');
+            doc.text("Dati Studente:", 20, yPos);
+            yPos += lineHeight;
+            
+            doc.setFontSize(12);
+            doc.setTextColor(0, 0, 0);
+            doc.text(`Nome e Cognome: ${data.nome}`, 20, yPos);
+            yPos += lineHeight;
+            doc.text(`E-mail: ${data.email}`, 20, yPos);
+            yPos += lineHeight;
+            doc.text(`Telefono: ${data.cellulare}`, 20, yPos);
+            yPos += lineHeight;
+            doc.text(`Scuola di Provenienza: ${data.scuola}`, 20, yPos);
+            yPos += lineHeight * 2;
+            
+            // Note
+            doc.setFontSize(10);
+            doc.setTextColor('#757575');
+            doc.text("NOTE IMPORTANTI:", 20, yPos);
+            yPos += lineHeight;
+
+            const warningText = isCancellation 
+                ? "Questo documento conferma l'avvenuta cancellazione. I posti sono stati liberati. Non presentarsi allo stage." 
+                : "Questo documento deve essere OBBLIGATORIAMENTE portato il giorno dello Stage per l'accettazione. Arrivare 10 minuti in anticipo.";
+                
+            doc.text(warningText, 20, yPos);
+            
+            const filename = isCancellation 
+                ? `CANCELLAZIONE_${data.indirizzo}_${data.dataStage.replace(/\//g, '-')}.pdf` 
+                : `PRENOTAZIONE_${data.indirizzo}_${data.dataStage.replace(/\//g, '-')}.pdf`;
+                
+            doc.save(filename);
+        };
+        
+        // Funzione per il download di dati in formato CSV (Excel)
+        window.exportToCsv = (data, filename) => {
+            const csvRows = [];
+            // Ottieni le chiavi (intestazioni)
+            const headers = Object.keys(data[0]);
+            csvRows.push(headers.join(';')); // Usa il punto e virgola come delimitatore
+
+            // Aggiungi i dati
+            for (const row of data) {
+                const values = headers.map(header => {
+                    const value = row[header];
+                    // Sanitizza i dati: rimuovi i ritorni a capo e racchiudi tra virgolette se contiene virgole o punto e virgola
+                    const sanitized = ('' + value).replace(/"/g, '""');
+                    return sanitized.includes(';') || sanitized.includes('\n') ? `"${sanitized}"` : sanitized;
+                });
+                csvRows.push(values.join(';'));
+            }
+
+            // Unisci le righe e crea un Blob
+            const csvString = csvRows.join('\n');
+            const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+
+            // Crea un link di download
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = filename;
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
         };
+    </script>
 
+</head>
+<body class="bg-background-soft font-sans min-h-screen">
+
+    <!-- Indicatore di Stato Firebase -->
+    <div id="db-status" class="fixed top-0 right-0 m-4 px-3 py-1 text-sm font-semibold rounded-full shadow-md bg-accent text-white">
+        Caricamento connessione...
+    </div>
+    
+    <!-- Pulsante Floating Chatbot (Simulato) -->
+    <a href="#chatbot-page" onclick="showMessage('Chatbot AI', 'Hai cliccato sul pulsante Chatbot. Qui verrebbe caricata l\'altra pagina HTML per l\'assistente virtuale.', false)" class="fixed bottom-6 left-6 z-50 group">
+        <div class="chatbot-logo-circle shadow-xl">
+            <!-- Icona AI / Chat -->
+            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 4v-4z"></path></svg>
+        </div>
+        <span class="absolute left-full ml-3 top-1/2 transform -translate-y-1/2 px-3 py-1 bg-gray-800 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
+            Chatbot AI
+        </span>
+    </a>
+
+    <div class="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
+
+        <!-- Header e Logo -->
+        <header class="text-center py-8 bg-white shadow-lg rounded-xl mb-8">
+            <div class="flex items-center justify-center space-x-4">
+                <img src="https://placehold.co/80x80/4CAF50/ffffff?text=LOGO" alt="Logo Scuola" class="rounded-full">
+                <h1 class="text-4xl sm:text-5xl font-extrabold text-primary">
+                    Mini Stage Orientamento
+                </h1>
+            </div>
+            <p class="mt-2 text-xl text-gray-600">
+                La tua scelta, il nostro futuro. Prenota la tua esperienza immersiva!
+            </p>
+        </header>
+
+        <!-- Sezione Informativa Principale -->
+        <section id="info" class="bg-white p-6 sm:p-10 rounded-xl shadow-lg mb-8">
+            <h2 class="text-3xl font-bold text-gray-800 mb-4 border-b-2 border-accent pb-2">Informazioni sul Mini Stage</h2>
+            <div class="prose max-w-none text-gray-700">
+                <p class="font-bold text-red-600">DATE IN VIA DI DEFINIZIONE. A BREVE POTRETE PRENOTARE TRAMITE LINK CARICATO SU QUESTA PAGINA</p>
+                <p>Per supportare al meglio l'importante scelta della scuola superiore, il nostro Istituto organizza dei **Ministage di Orientamento**, che permetteranno agli studenti di terza media di vivere un'esperienza diretta all'interno delle nostre aule.</p>
+                
+                <h3 class="text-xl font-semibold text-primary mt-6">Cos'è un Ministage?</h3>
+                <p>Il ministage è un'opportunità per gli studenti di terza media di trascorrere alcune ore presso la nostra scuola, inseriti direttamente in una classe. Lo scopo è far sperimentare in modo immersivo l'ambiente scolastico, i metodi di insegnamento e le materie di studio, facilitando così una scelta più consapevole.</p>
+                
+                <h3 class="text-xl font-semibold text-primary mt-6">Come si svolge il Ministage</h3>
+                <p>Ogni studente partecipante sarà assegnato a una classe del nostro Istituto e prenderà parte a due ore di lezione consecutive. L'organizzazione prevede:</p>
+                <ul class="list-disc list-inside ml-4 space-y-2">
+                    <li><strong>Inserimento in Classe:</strong> Lo studente sarà accolto da un docente o un tutor e accompagnato nella classe che frequenterà per la durata del ministage.</li>
+                    <li><strong>Partecipazione alle Lezioni:</strong> Lo studente assisterà come uditore attivo a due lezioni curricolari (per esempio, una di Matematica e una di Italiano, o Fisica e Storia, a seconda dell’indirizzo scelto). Questo permetterà di comprendere l'approccio didattico e il ritmo delle lezioni.</li>
+                    <li><strong>Durata:</strong> L'esperienza complessiva durerà circa due ore.</li>
+                    <li><strong>Tutoraggio:</strong> Sarà sempre presente un docente o uno studente tutor per rispondere a domande e garantire che l'esperienza si svolga nel modo più sereno e proficuo possibile.</li>
+                </ul>
+                
+                <h3 class="text-xl font-semibold text-primary mt-6">Obiettivi</h3>
+                <p>L'obiettivo principale del ministage è fornire una visione realistica della vita scolastica superiore, permettendo agli studenti di:</p>
+                <ul class="list-disc list-inside ml-4 space-y-2">
+                    <li><strong>Valutare l'ambiente:</strong> Sperimentare l'atmosfera della scuola e interagire con i nostri studenti.</li>
+                    <li><strong>Comprendere le materie:</strong> Avere esperienza diretta di come vengono trattate le materie e il livello richiesto.</li>
+                    <li><strong>Sciogliere i dubbi:</strong> Porre domande specifiche e superare eventuali incertezze sulla scelta del percorso di studi.</li>
+                </ul>
+                
+                <h3 class="text-xl font-semibold text-primary mt-6">Modalità di Iscrizione</h3>
+                <p>Le date disponibili e le modalità di prenotazione saranno comunicate in dettaglio a breve. Le iscrizioni si effettueranno tramite un modulo online per permettere la migliore organizzazione logistica. **<span class="text-primary font-bold">Trovi subito sotto il calendario per prenotare!</span>**</p>
+                
+                <div class="mt-8 text-center">
+                    <img src="https://placehold.co/400x150/81C784/ffffff?text=Foto+Istituto+Scolastico" alt="Foto dell'Istituto Scolastico" class="mx-auto rounded-lg shadow-md max-w-full h-auto">
+                </div>
+            </div>
+        </section>
+
+        <!-- Sezione Prenotazioni -->
+        <section id="prenotazioni" class="bg-white p-6 sm:p-10 rounded-xl shadow-lg mb-8">
+            <h2 class="text-3xl font-bold text-gray-800 mb-6 text-center">Calendario e Prenotazione</h2>
+            
+            <div id="stage-slots-container" class="space-y-6">
+                <!-- Qui verranno iniettati gli slot di prenotazione tramite JavaScript -->
+                <div class="text-center p-4 text-gray-500">
+                    <p>Caricamento delle date disponibili dal database...</p>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Sezione Amministrazione e Servizi -->
+        <section class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            
+            <!-- Pulsante Accesso Docenti -->
+            <button id="docenti-access-btn" onclick="document.getElementById('admin-login-modal').classList.remove('hidden')"
+                    class="md:col-span-2 flex items-center justify-center p-4 text-white font-bold rounded-xl bg-indigo-600 hover:bg-indigo-700 transition duration-300 shadow-lg btn-style"
+                    style="box-shadow: 0 4px #4f46e5;">
+                <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-7 0V5a2 2 0 012-2h4a2 2 0 012 2v1m-7 0h7"></path></svg>
+                ACCESSO RISERVATO DOCENTI
+            </button>
+            
+            <!-- Pulsante Cancella Prenotazione -->
+            <button id="cancel-booking-btn" onclick="document.getElementById('cancellation-modal').classList.remove('hidden')"
+                    class="flex items-center justify-center p-4 text-white font-bold rounded-xl bg-red-500 hover:bg-red-600 transition duration-300 shadow-lg btn-style"
+                    style="box-shadow: 0 4px #c82828;">
+                <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                ANNULLA PRENOTAZIONE
+            </button>
+        </section>
+
+
+        <!-- Footer -->
+        <footer class="text-center py-6 text-gray-500 text-sm">
+            &copy; 2025 Istituto Tecnico. Tutti i diritti riservati.
+        </footer>
+        
+    </div>
+
+    <!-- Modale Generale Messaggi/Errori -->
+    <div id="message-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-[1001]">
+        <div class="bg-white p-8 rounded-xl shadow-2xl max-w-sm w-full transform transition-all">
+            <h3 id="message-title" class="text-2xl font-bold text-primary mb-4">Titolo</h3>
+            <p id="message-text" class="text-gray-700 mb-6">Messaggio.</p>
+            <button onclick="closeModal('message-modal')" class="w-full py-2 bg-accent text-gray-800 font-bold rounded-lg hover:bg-yellow-400 transition">
+                Chiudi
+            </button>
+        </div>
+    </div>
+
+
+    <!-- Modale di Prenotazione -->
+    <div id="booking-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-70 flex items-center justify-center z-50">
+        <div class="bg-white p-6 rounded-xl shadow-2xl max-w-lg w-full transform transition-all">
+            <h2 class="text-2xl font-bold text-primary mb-2">Conferma Prenotazione</h2>
+            <p class="text-gray-600 mb-4">Stai prenotando lo slot:</p>
+            <p id="booking-details" class="font-semibold text-lg text-gray-800 mb-4 p-2 bg-background-soft rounded-lg"></p>
+
+            <form id="booking-form" onsubmit="event.preventDefault(); handleBooking()">
+                <input type="hidden" id="booking-indirizzo">
+                
+                <div class="space-y-4">
+                    <input type="text" name="nome" placeholder="Nome e Cognome" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary">
+                    <input type="tel" name="cellulare" placeholder="Cellulare" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary">
+                    <input type="text" name="scuola" placeholder="Scuola di Provenienza" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary">
+                    <input type="email" name="email" placeholder="E-mail" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary">
+                </div>
+
+                <div class="flex justify-between mt-6 space-x-4">
+                    <button type="button" onclick="closeModal('booking-modal')" class="w-1/2 py-3 text-gray-600 font-bold rounded-lg border-2 border-gray-300 hover:bg-gray-100 transition">
+                        Annulla
+                    </button>
+                    <button type="submit" id="confirm-booking-btn" class="w-1/2 py-3 bg-primary text-white font-bold rounded-lg hover:bg-green-700 transition btn-style">
+                        Conferma Prenotazione
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modale di Conferma Prenotazione + PDF -->
+    <div id="confirmation-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-70 flex items-center justify-center z-50">
+        <div class="bg-white p-6 rounded-xl shadow-2xl max-w-lg w-full text-center transform transition-all">
+            <svg class="w-12 h-12 text-primary mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            <h2 class="text-2xl font-bold text-primary mb-4">Prenotazione Confermata!</h2>
+            <p class="text-gray-700 mb-2">Il tuo codice univoco è:</p>
+            <p id="confirmation-code" class="text-3xl font-extrabold text-accent bg-background-soft p-3 rounded-lg inline-block tracking-wider mb-4"></p>
+            
+            <div id="confirmation-info" class="text-left bg-gray-100 p-4 rounded-lg mb-6 text-gray-700"></div>
+
+            <button id="download-pdf-btn" onclick="generatePdf(this.dataset.bookingData)" 
+                    class="w-full py-3 bg-red-600 text-white font-bold rounded-lg hover:bg-red-700 transition btn-style"
+                    style="box-shadow: 0 4px #991b1b;">
+                <svg class="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                Scarica PDF Conferma
+            </button>
+            <button onclick="closeModal('confirmation-modal')" class="w-full mt-3 py-3 text-gray-600 font-bold rounded-lg border-2 border-gray-300 hover:bg-gray-100 transition">
+                Chiudi
+            </button>
+        </div>
+    </div>
+    
+    <!-- Modale di Cancellazione (Input Codice) -->
+    <div id="cancellation-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-70 flex items-center justify-center z-50">
+        <div class="bg-white p-6 rounded-xl shadow-2xl max-w-sm w-full transform transition-all">
+            <h2 class="text-2xl font-bold text-red-500 mb-4">Annulla Prenotazione</h2>
+            <p class="text-gray-600 mb-4">Inserisci il codice di prenotazione univoco che trovi nel PDF di conferma:</p>
+
+            <form onsubmit="event.preventDefault(); handleCancellation()">
+                <input type="text" id="cancellation-code" placeholder="Esempio: STAGE-ABC1234" required 
+                       class="w-full p-3 border border-red-300 rounded-lg focus:ring-red-500 focus:border-red-500 uppercase mb-4">
+                
+                <div class="flex justify-between space-x-4">
+                    <button type="button" onclick="closeModal('cancellation-modal')" class="w-1/2 py-3 text-gray-600 font-bold rounded-lg border-2 border-gray-300 hover:bg-gray-100 transition">
+                        Annulla
+                    </button>
+                    <button type="submit" id="confirm-cancellation-btn" class="w-1/2 py-3 bg-red-500 text-white font-bold rounded-lg hover:bg-red-600 transition btn-style" style="box-shadow: 0 4px #c82828;">
+                        Conferma Cancellazione
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Modale di Conferma Cancellazione + PDF -->
+    <div id="cancellation-confirmation-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-70 flex items-center justify-center z-50">
+        <div class="bg-white p-6 rounded-xl shadow-2xl max-w-lg w-full text-center transform transition-all">
+            <svg class="w-12 h-12 text-red-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            <h2 class="text-2xl font-bold text-red-500 mb-4">Cancellazione Eseguita!</h2>
+            <p class="text-gray-700 mb-2">Il codice annullato è:</p>
+            <p id="cancellation-code-display" class="text-3xl font-extrabold text-gray-800 bg-gray-200 p-3 rounded-lg inline-block tracking-wider mb-4"></p>
+            
+            <div id="cancellation-info-display" class="text-left bg-gray-100 p-4 rounded-lg mb-6 text-gray-700"></div>
+
+            <button id="download-cancellation-pdf-btn" onclick="generatePdf(this.dataset.bookingData, true, this.dataset.cancellationCode)" 
+                    class="w-full py-3 bg-red-600 text-white font-bold rounded-lg hover:bg-red-700 transition btn-style"
+                    style="box-shadow: 0 4px #991b1b;">
+                <svg class="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                Scarica PDF Cancellazione
+            </button>
+            <button onclick="closeModal('cancellation-confirmation-modal')" class="w-full mt-3 py-3 text-gray-600 font-bold rounded-lg border-2 border-gray-300 hover:bg-gray-100 transition">
+                Chiudi
+            </button>
+        </div>
+    </div>
+
+
+    <!-- Modale Accesso Docenti -->
+    <div id="admin-login-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-70 flex items-center justify-center z-50">
+        <div class="bg-white p-8 rounded-xl shadow-2xl max-w-sm w-full transform transition-all">
+            <h3 class="text-2xl font-bold text-indigo-600 mb-4 text-center">Area Riservata Docenti</h3>
+            <form onsubmit="event.preventDefault(); window.handleAdminLogin()">
+                <div class="space-y-4">
+                    <!-- Solo un campo Password è richiesto come da istruzioni -->
+                    <input type="password" id="admin-password" placeholder="Password" required 
+                           class="w-full p-3 border border-gray-300 rounded-lg focus:ring-indigo-600 focus:border-indigo-600">
+                    <p class="text-xs text-red-500" id="login-error-message"></p>
+                </div>
+
+                <div class="flex justify-between mt-6 space-x-4">
+                    <button type="button" onclick="closeModal('admin-login-modal')" class="w-1/2 py-3 text-gray-600 font-bold rounded-lg border-2 border-gray-300 hover:bg-gray-100 transition">
+                        Annulla
+                    </button>
+                    <button type="submit" class="w-1/2 py-3 bg-indigo-600 text-white font-bold rounded-lg hover:bg-indigo-700 transition btn-style" style="box-shadow: 0 4px #4f46e5;">
+                        Accedi
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Area Docenti (Dashboard) -->
+    <div id="admin-dashboard-modal" class="hidden fixed inset-0 bg-background-soft overflow-y-auto flex justify-center z-50">
+        <div class="w-full p-4 sm:p-8">
+            <div class="bg-white p-6 sm:p-10 rounded-xl shadow-2xl mb-8">
+                <h2 class="text-3xl font-bold text-indigo-600 mb-4 border-b-2 border-indigo-600 pb-2 flex justify-between items-center">
+                    Dashboard Amministrazione Mini Stage
+                    <button onclick="window.closeAdminDashboard()" class="text-gray-500 hover:text-red-600 transition">
+                         <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+                </h2>
+
+                <!-- Statistiche Sintetiche -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+                    <div class="admin-stat-card border-l-4 border-primary">
+                        <p class="text-sm text-gray-500">Prenotazioni Totali</p>
+                        <p id="stat-total-bookings" class="text-3xl font-bold text-primary mt-1">0</p>
+                    </div>
+                    <div class="admin-stat-card border-l-4 border-red-500">
+                        <p class="text-sm text-gray-500">Cancellazioni Totali</p>
+                        <p id="stat-total-cancellations" class="text-3xl font-bold text-red-500 mt-1">0</p>
+                    </div>
+                    <div class="admin-stat-card border-l-4 border-accent">
+                        <p class="text-sm text-gray-500">Posti Liberi Rimanenti</p>
+                        <p id="stat-available-slots" class="text-3xl font-bold text-accent mt-1">0</p>
+                    </div>
+                    <div class="admin-stat-card border-l-4 border-indigo-600">
+                        <p class="text-sm text-gray-500">Slot Stage Gestiti</p>
+                        <p id="stat-total-slots" class="text-3xl font-bold text-indigo-600 mt-1">0</p>
+                    </div>
+                </div>
+
+                <!-- Filtri e Azioni -->
+                <div class="bg-gray-100 p-4 rounded-lg mb-6 shadow-inner flex flex-wrap gap-4 items-end">
+                    <div class="flex-grow">
+                        <label for="filter-indirizzo" class="block text-sm font-medium text-gray-700">Filtra per Indirizzo</label>
+                        <select id="filter-indirizzo" onchange="window.filterAdminData()" class="mt-1 block w-full p-2 border border-gray-300 rounded-lg">
+                            <option value="">Tutti gli Indirizzi</option>
+                            <!-- Opzioni generate da JS -->
+                        </select>
+                    </div>
+                    <div>
+                        <label for="filter-type" class="block text-sm font-medium text-gray-700">Tipo di Dati</label>
+                        <select id="filter-type" onchange="window.filterAdminData()" class="mt-1 block w-full p-2 border border-gray-300 rounded-lg">
+                            <option value="all">Tutte le Operazioni</option>
+                            <option value="bookings">Solo Prenotazioni</option>
+                            <option value="cancellations">Solo Cancellazioni</option>
+                        </select>
+                    </div>
+                    
+                    <button onclick="window.exportAdminData()" 
+                            class="py-2 px-4 bg-green-600 text-white font-bold rounded-lg hover:bg-green-700 transition btn-style"
+                            style="box-shadow: 0 4px #16a34a;">
+                        <svg class="w-5 h-5 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                        Scarica Excel (CSV)
+                    </button>
+                </div>
+                
+                <!-- Grafico (Semplice Rappresentazione a Barre/Torta) -->
+                <h3 class="text-xl font-bold text-gray-700 mb-4">Statistiche Grafiche per Indirizzo</h3>
+                <div id="chart-container" class="bg-white p-4 rounded-lg shadow-md mb-8">
+                    <!-- Verrà disegnato un grafico a barre semplice con HTML/CSS -->
+                    <div id="booking-chart" class="h-64 flex flex-col justify-end items-start p-2 relative">
+                         <p class="absolute top-0 left-0 text-sm text-gray-500">Prenotazioni per Indirizzo</p>
+                         <p id="chart-placeholder" class="text-gray-400">Dati prenotazioni non disponibili o filtrati.</p>
+                    </div>
+                </div>
+
+                <!-- Tabella Dati Dettagliati -->
+                <h3 class="text-xl font-bold text-gray-700 mb-4">Dettaglio Operazioni Filtrate</h3>
+                <div class="overflow-x-auto bg-white rounded-lg shadow-md">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipo</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Codice/ID</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Indirizzo</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data Stage</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nome Studente</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Scuola</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data Operazione</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-data-table" class="bg-white divide-y divide-gray-200">
+                            <!-- Qui verranno iniettati i dati filtrati -->
+                        </tbody>
+                    </table>
+                </div>
+                <p id="no-data-message" class="text-center text-gray-500 py-4 hidden">Nessun dato trovato per i filtri selezionati.</p>
+            </div>
+        </div>
+    </div>
+
+
+    <script type="module">
+        // Importa le funzioni di Firebase dal modulo
+        import { getFirestore, doc, addDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, query, where, getDocs, orderBy, writeBatch, runTransaction } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        
+        let allBookings = [];
+        let allCancellations = [];
+        let currentAdminData = [];
+
+        // Funzione per l'accesso Docenti (mock login)
+        window.handleAdminLogin = () => {
+            const password = document.getElementById('admin-password').value;
+            const errorMessage = document.getElementById('login-error-message');
+            
+            // Password fittizia (NON CRIPTA, SOLO PER DIMOSTRAZIONE CLIENT-SIDE)
+            const ADMIN_PASSWORD = 'admin123'; 
+
+            if (password === ADMIN_PASSWORD) {
+                closeModal('admin-login-modal');
+                document.getElementById('admin-dashboard-modal').classList.remove('hidden');
+                loadAdminData();
+            } else {
+                errorMessage.textContent = 'Password errata. Riprova.';
+            }
+        };
+        
+        // Chiude la dashboard
+        window.closeAdminDashboard = () => {
+             document.getElementById('admin-dashboard-modal').classList.add('hidden');
+        };
+
+        // Carica i dati per l'area Docenti
+        window.loadAdminData = () => {
+            if (!isAuthReady || !db) return;
+            
+            const bookingsRef = collection(db, `artifacts/${appId}/public/data/bookings`);
+            const cancellationsRef = collection(db, `artifacts/${appId}/public/data/cancellations`);
+            const stagesRef = collection(db, `artifacts/${appId}/public/data/stages`);
+
+            // Listener per Prenotazioni
+            onSnapshot(bookingsRef, (snapshot) => {
+                allBookings = snapshot.docs.map(doc => ({ 
+                    id: doc.id,
+                    type: 'Prenotazione',
+                    codeOrId: doc.data().code,
+                    timestampOp: doc.data().timestamp,
+                    ...doc.data()
+                }));
+                window.filterAdminData();
+            }, (error) => console.error("Errore nel listener bookings admin:", error));
+            
+            // Listener per Cancellazioni
+            onSnapshot(cancellationsRef, (snapshot) => {
+                allCancellations = snapshot.docs.map(doc => ({ 
+                    id: doc.id,
+                    type: 'Cancellazione',
+                    codeOrId: doc.data().code, // Il codice di prenotazione originale viene riutilizzato
+                    timestampOp: doc.data().cancellationTimestamp,
+                    ...doc.data()
+                }));
+                window.filterAdminData();
+            }, (error) => console.error("Errore nel listener cancellations admin:", error));
+            
+             // Listener per Stages (per le statistiche dei posti)
+            onSnapshot(stagesRef, (snapshot) => {
+                const totalSlots = snapshot.docs.length;
+                let availableSlots = 0;
+                let totalBookingsFromStages = 0;
+                
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    availableSlots += data.postiDisponibili;
+                    totalBookingsFromStages += (data.posti - data.postiDisponibili);
+                });
+                
+                document.getElementById('stat-available-slots').textContent = availableSlots;
+                document.getElementById('stat-total-slots').textContent = totalSlots;
+                // La statistica delle prenotazioni totali è calcolata dagli slot occupati, più preciso.
+                document.getElementById('stat-total-bookings').textContent = totalBookingsFromStages; 
+                
+            }, (error) => console.error("Errore nel listener stages stats:", error));
+            
+            // Popola il filtro indirizzi
+            const indirizzoFilter = document.getElementById('filter-indirizzo');
+            if (indirizzoFilter.options.length <= 1) { // Popola solo se è vuoto
+                Object.keys(window.initialStageData).forEach(indirizzo => {
+                    const option = document.createElement('option');
+                    option.value = indirizzo;
+                    option.textContent = indirizzo;
+                    indirizzoFilter.appendChild(option);
+                });
+            }
+        };
+        
+        // Funzione per filtrare e renderizzare i dati
+        window.filterAdminData = () => {
+            const indirizzoFilterValue = document.getElementById('filter-indirizzo').value;
+            const typeFilterValue = document.getElementById('filter-type').value;
+            const tableBody = document.getElementById('admin-data-table');
+            const noDataMessage = document.getElementById('no-data-message');
+            
+            let combinedData = [];
+
+            if (typeFilterValue === 'all' || typeFilterValue === 'bookings') {
+                combinedData.push(...allBookings);
+            }
+            if (typeFilterValue === 'all' || typeFilterValue === 'cancellations') {
+                combinedData.push(...allCancellations);
+            }
+            
+            // Filtro intelligente
+            const filteredData = combinedData.filter(item => {
+                const matchesIndirizzo = indirizzoFilterValue === '' || item.indirizzo === indirizzoFilterValue.substring(0, 3);
+                // Puoi aggiungere altri filtri qui (data, nome, scuola, ecc.)
+                return matchesIndirizzo;
+            });
+            
+            // Ordina per data operazione (più recente in alto)
+            filteredData.sort((a, b) => new Date(b.timestampOp) - new Date(a.timestampOp));
+
+            currentAdminData = filteredData;
+
+            // Aggiorna le statistiche grafiche
+            updateAdminStats(filteredData);
+
+            // Renderizza la tabella
+            tableBody.innerHTML = '';
+            if (filteredData.length === 0) {
+                noDataMessage.classList.remove('hidden');
+            } else {
+                noDataMessage.classList.add('hidden');
+                filteredData.forEach(item => {
+                    const isCancellation = item.type === 'Cancellazione';
+                    const row = tableBody.insertRow();
+                    row.className = isCancellation ? 'bg-red-50 hover:bg-red-100' : 'hover:bg-gray-50';
+                    
+                    const typeCell = row.insertCell();
+                    typeCell.className = 'px-4 py-3 whitespace-nowrap text-sm font-medium';
+                    typeCell.innerHTML = `<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${isCancellation ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'}">${item.type}</span>`;
+                    
+                    row.insertCell().textContent = item.codeOrId || item.id;
+                    row.insertCell().textContent = item.indirizzo;
+                    row.insertCell().textContent = `${item.dataStage} - ${item.orarioStage}`;
+                    row.insertCell().textContent = item.nome;
+                    row.insertCell().textContent = item.scuola;
+                    row.insertCell().textContent = new Date(item.timestampOp).toLocaleString('it-IT');
+                });
+            }
+        };
+        
+        // Funzione per aggiornare le statistiche e il grafico
+        window.updateAdminStats = (data) => {
+            const bookings = data.filter(d => d.type === 'Prenotazione');
+            const cancellations = data.filter(d => d.type === 'Cancellazione');
+            
+            document.getElementById('stat-total-bookings').textContent = allBookings.length;
+            document.getElementById('stat-total-cancellations').textContent = allCancellations.length;
+            
+            const chartContainer = document.getElementById('booking-chart');
+            chartContainer.innerHTML = '';
+            
+            if (bookings.length === 0) {
+                 chartContainer.innerHTML = '<p id="chart-placeholder" class="text-gray-400">Nessuna prenotazione da visualizzare nel grafico con i filtri attuali.</p>';
+                 return;
+            }
+
+            // Calcolo delle prenotazioni per indirizzo (solo dalle prenotazioni attive)
+            const bookingCounts = allBookings.reduce((acc, booking) => {
+                acc[booking.indirizzo] = (acc[booking.indirizzo] || 0) + 1;
+                return acc;
+            }, {});
+            
+            const maxCount = Math.max(...Object.values(bookingCounts));
+            
+            // Renderizzazione del grafico a barre semplice
+            Object.entries(bookingCounts).forEach(([indirizzo, count]) => {
+                const heightPercentage = (count / maxCount) * 100;
+                const bar = document.createElement('div');
+                bar.className = 'flex items-center w-full mt-2';
+                bar.innerHTML = `
+                    <span class="w-20 text-xs font-semibold text-gray-700">${indirizzo}</span>
+                    <div class="flex-grow h-6 bg-secondary rounded-r-lg transition-all duration-500" 
+                         style="width: ${heightPercentage}%; max-width: 80%;">
+                        <span class="ml-2 text-xs font-bold text-white leading-6">${count}</span>
+                    </div>
+                `;
+                chartContainer.appendChild(bar);
+            });
+        };
+
+        // Funzione per esportare i dati in Excel (CSV)
+        window.exportAdminData = () => {
+            if (currentAdminData.length === 0) {
+                showMessage("Attenzione", "Nessun dato da esportare. Filtra o attendi il caricamento dei dati.", true);
+                return;
+            }
+            
+            const exportableData = currentAdminData.map(item => ({
+                Tipo_Operazione: item.type,
+                Codice_ID: item.codeOrId || item.id,
+                Indirizzo: item.indirizzo,
+                Data_Stage: item.dataStage,
+                Orario_Stage: item.orarioStage,
+                Nome_Studente: item.nome,
+                Cellulare: item.cellulare,
+                Email: item.email,
+                Scuola: item.scuola,
+                Data_Operazione: new Date(item.timestampOp).toLocaleString('it-IT')
+            }));
+            
+            window.exportToCsv(exportableData, 'Report_Stage_Docenti.csv');
+        };
+
+        // Avvia l'inizializzazione di Firebase all'onload della finestra
+        window.onload = () => {
+            window.initFirebase();
+        };
 
     </script>
 </body>
