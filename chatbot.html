@@ -3,17 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Assistente ITSCG Primo Levi - Gemini</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <title>Assistente ITSCG Primo Levi - Gemini Proxy</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <style>
-        /* CSS Rivisto con stile moderno e colori istituzionali (esempio) */
+        /* CSS RIVISTO E RIORGANIZZATO */
         :root {
             --primary-color: #4285F4; /* Blu Google */
             --secondary-color: #34A853; /* Verde */
             --background-light: #f5f5f5;
-            --background-chat: #e8eaf6; /* Sfondo chat leggermente azzurro */
+            --background-chat: #e8eaf6; 
             --text-dark: #202124;
             --text-light: #ffffff;
+            --sidebar-width: 300px;
         }
 
         body {
@@ -22,39 +23,85 @@
             padding: 0;
             background-color: var(--background-light);
             display: flex;
-            justify-content: center;
-            align-items: center;
             min-height: 100vh;
         }
-        .chat-container {
+
+        /* Container principale che contiene Sidebar e Chat */
+        .main-container {
+            display: flex;
             width: 100%;
-            max-width: 700px;
-            background-color: var(--text-light);
+            max-width: 1200px; /* Aumentato per accogliere la sidebar */
+            margin: 40px auto;
             box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
             border-radius: 12px;
             overflow: hidden;
+            background-color: var(--text-light);
+            height: 90vh;
+        }
+        
+        /* Sidebar con le informazioni fisse della scuola */
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: var(--text-light);
+            padding: 20px;
+            border-right: 1px solid #ddd;
             display: flex;
             flex-direction: column;
-            height: 90vh; /* Altezza maggiore */
+            overflow-y: auto;
+        }
+        .sidebar-header {
+            color: var(--primary-color);
+            font-size: 1.5em;
+            font-weight: 700;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+            text-align: center;
+        }
+        .info-card {
+            margin-bottom: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            background-color: var(--background-light);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        .info-card h4 {
+            margin-top: 0;
+            color: var(--secondary-color);
+            font-size: 1.1em;
+            font-weight: 500;
+        }
+        .info-card p, .info-card a {
+            font-size: 0.9em;
+            color: var(--text-dark);
+            margin: 5px 0;
+            line-height: 1.4;
+            display: block;
+        }
+
+        /* Chat Container (Occupa lo spazio rimanente) */
+        .chat-container {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
         }
         .chat-header {
             background-color: var(--primary-color);
             color: var(--text-light);
             padding: 15px 20px;
-            display: flex; /* <-- USA FLEXBOX PER AFFIANCARE GLI ELEMENTI */
+            display: flex; 
             align-items: center;
             font-size: 1.4em;
             border-bottom: 4px solid var(--secondary-color);
         }
         .logo-img {
-            /* STILE PER LA TUA FOTO/LOGO */
             height: 40px; 
             width: 40px; 
-            border-radius: 50%; /* Rende l'immagine circolare */
-            object-fit: cover; /* Assicura che l'immagine copra l'area */
+            border-radius: 50%; 
+            object-fit: cover; 
             margin-right: 15px;
             border: 2px solid var(--text-light);
-            flex-shrink: 0; /* Impedisce all'immagine di restringersi */
+            flex-shrink: 0;
         }
         .header-info {
             display: flex;
@@ -86,7 +133,7 @@
             box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
         }
         .user-message {
-            background-color: #c5e1a5; /* Verde chiaro */
+            background-color: #c5e1a5; 
             margin-left: auto;
             text-align: right;
         }
@@ -96,6 +143,33 @@
             text-align: left;
             border: 1px solid #e0e0e0;
         }
+        
+        /* Stili per le Domande Preimpostate */
+        .quick-replies {
+            padding: 10px 20px;
+            border-top: 1px solid #ddd;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px; 
+            background-color: var(--background-light);
+        }
+        .quick-reply-btn {
+            background-color: #e0e0e0;
+            color: var(--text-dark);
+            border: 1px solid #ccc;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: background-color 0.2s, box-shadow 0.2s;
+            white-space: nowrap;
+        }
+        .quick-reply-btn:hover {
+            background-color: #d1d1d1;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Stili per l'Input */
         .chat-input {
             display: flex;
             padding: 15px;
@@ -111,9 +185,6 @@
             outline: none;
             transition: border-color 0.3s;
         }
-        .chat-input input[type="text"]:focus {
-            border-color: var(--primary-color);
-        }
         .chat-input button {
             background-color: var(--primary-color);
             color: white;
@@ -121,11 +192,6 @@
             padding: 12px 25px;
             border-radius: 25px;
             cursor: pointer;
-            font-weight: 500;
-            transition: background-color 0.3s;
-        }
-        .chat-input button:hover {
-            background-color: #3367d6; /* Blu più scuro */
         }
         .loading-indicator {
             text-align: center;
@@ -138,35 +204,62 @@
 </head>
 <body>
 
-    <div class="chat-container">
-        <div class="chat-header">
-            <img src="foto_chatbot.png" alt="Logo Primo Levi" class="logo-img"> 
+    <div class="main-container">
+        
+        <div class="sidebar">
+            <div class="sidebar-header">
+                Informazioni Essenziali
+            </div>
+
+            <div class="info-card">
+                <h4>Descrizione</h4>
+                <p>Istituto Tecnico Superiore Commerciale e per Geometri "Primo Levi" di Seregno, impegnato nell'istruzione tecnica e professionale.</p>
+            </div>
+
+            <div class="info-card">
+                <h4>Contatti</h4>
+                <p><strong>Indirizzo:</strong> Via Briantina, 62 - 20831 Seregno (MB)</p>
+                <p><strong>Telefono:</strong> 0362 231572</p>
+                <p><strong>Email:</strong> mbtc01000b@istruzione.it</p>
+            </div>
             
-            <div class="header-info">
-                <span class="header-title">ITSCG Primo Levi</span>
-                <span class="header-subtitle">Assistente Virtuale - Gemini Proxy</span>
+            <div class="info-card">
+                <h4>Link Utili</h4>
+                <p><a href="https://www.leviseregno.edu.it/" target="_blank">Sito Web Ufficiale</a></p>
+                <p><a href="https://www.leviseregno.edu.it/pagina/albo-pretorio" target="_blank">Albo Pretorio</a></p>
             </div>
         </div>
-        
-        <div class="chat-box" id="chatBox">
-            <div class="message bot-message">
-                Benvenuto! Sono l'assistente virtuale dell'ITSCG Primo Levi. Chiedimi informazioni su orari, corsi o eventi.
+
+        <div class="chat-container">
+            <div class="chat-header">
+                <img src="foto_chatbot.png" alt="Logo Primo Levi" class="logo-img"> 
+                <div class="header-info">
+                    <span class="header-title">ITSCG Primo Levi</span>
+                    <span class="header-subtitle">Assistente Virtuale - Chatbot</span>
+                </div>
             </div>
-        </div>
-        
-        <div class="loading-indicator" id="loadingIndicator">
-            Il bot sta rispondendo...
-        </div>
-        
-        <div class="chat-input">
-            <input type="text" id="userInput" placeholder="Scrivi un messaggio..." autofocus>
-            <button onclick="sendMessage()" id="sendButton">Invia</button>
+            
+            <div class="chat-box" id="chatBox">
+                <div class="message bot-message">
+                    Benvenuto! Sono l'assistente virtuale dell'ITSCG Primo Levi. Inizia scegliendo una domanda qui sotto o scrivendone una.
+                </div>
+            </div>
+            
+            <div class="quick-replies" id="quickReplies">
+                </div>
+            
+            <div class="loading-indicator" id="loadingIndicator">
+                Il bot sta rispondendo...
+            </div>
+            
+            <div class="chat-input">
+                <input type="text" id="userInput" placeholder="Scrivi un messaggio..." autofocus>
+                <button onclick="sendMessage()" id="sendButton">Invia</button>
+            </div>
         </div>
     </div>
 
     <script>
-        // =========================================================
-        // ✅ URL DEL PROXY SERVER SU RENDER
         // =========================================================
         const PROXY_URL = 'https://stage-levi.onrender.com/api/chat'; 
         // =========================================================
@@ -175,6 +268,15 @@
         const userInput = document.getElementById('userInput');
         const sendButton = document.getElementById('sendButton');
         const loadingIndicator = document.getElementById('loadingIndicator');
+        const quickRepliesContainer = document.getElementById('quickReplies');
+        
+        // Array delle domande fisse
+        const PRESET_QUESTIONS = [
+            "Quali corsi di studio offre la scuola?",
+            "Qual è l'orario della segreteria?",
+            "Ci sono eventi in programma questa settimana?",
+            "Dove trovo il calendario scolastico?"
+        ];
 
         function scrollToBottom() {
             chatBox.scrollTop = chatBox.scrollHeight;
@@ -183,25 +285,24 @@
         function appendMessage(text, sender) {
             const messageDiv = document.createElement('div');
             messageDiv.classList.add('message', sender === 'user' ? 'user-message' : 'bot-message');
-            // Gestione dei ritorni a capo
             messageDiv.innerHTML = text.replace(/\n/g, '<br>'); 
             chatBox.appendChild(messageDiv);
             scrollToBottom();
         }
 
-        async function sendMessage() {
-            const message = userInput.value.trim();
+        async function sendMessage(messageText = userInput.value.trim()) {
+            const message = messageText;
             if (message === '') return;
+
+            if (messageText === userInput.value.trim()) {
+                 userInput.value = '';
+            }
 
             // 1. Aggiungi il messaggio dell'utente
             appendMessage(message, 'user');
-            userInput.value = '';
 
-            // 2. Disabilita input e mostra indicatore di caricamento
-            sendButton.disabled = true;
-            userInput.disabled = true;
-            loadingIndicator.style.display = 'block';
-            scrollToBottom();
+            // 2. Disabilita input, bottoni e mostra indicatore di caricamento
+            disableInput(true);
             
             try {
                 // 3. Invia la richiesta al proxy server
@@ -219,34 +320,48 @@
                     // 4. Aggiungi la risposta del bot
                     appendMessage(data.response, 'bot');
                 } else if (data.error) {
-                    // Gestione errori lato server (es. API key mancante)
                     appendMessage(`ERRORE SERVER: ${data.error}`, 'bot');
                 } else {
-                    // Errore generico
-                    appendMessage('ERRORE: La risposta dal server è vuota o non valida.', 'bot');
+                    appendMessage('ERRORE: La risposta dal server è vuota o non valida. Controlla i log di Render.', 'bot');
                 }
 
             } catch (error) {
                 console.error('Errore di connessione al proxy:', error);
-                appendMessage('ERRORE DI CONNESSIONE: Impossibile raggiungere il proxy server su Render. Controlla la console del browser.', 'bot');
+                appendMessage('ERRORE DI CONNESSIONE: Impossibile raggiungere il proxy server su Render.', 'bot');
             } finally {
                 // 5. Riabilita input e nascondi indicatore
-                sendButton.disabled = false;
-                userInput.disabled = false;
-                loadingIndicator.style.display = 'none';
+                disableInput(false);
                 userInput.focus();
             }
         }
         
-        // Permetti l'invio premendo Invio
+        function disableInput(state) {
+            sendButton.disabled = state;
+            userInput.disabled = state;
+            quickRepliesContainer.querySelectorAll('button').forEach(btn => btn.disabled = state);
+            loadingIndicator.style.display = state ? 'block' : 'none';
+        }
+
+        function setupQuickReplies() {
+            PRESET_QUESTIONS.forEach(question => {
+                const btn = document.createElement('button');
+                btn.classList.add('quick-reply-btn');
+                btn.textContent = question;
+                btn.onclick = () => sendMessage(question); 
+                quickRepliesContainer.appendChild(btn);
+            });
+        }
+
+        // Permetti l'invio premendo Invio nel campo di testo
         userInput.addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
-                e.preventDefault(); // Impedisce il default (nuova linea)
+                e.preventDefault(); 
                 sendMessage();
             }
         });
 
-        // Focus iniziale
+        // Inizializzazione
+        setupQuickReplies();
         userInput.focus();
 
     </script>
