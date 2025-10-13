@@ -1149,10 +1149,155 @@ doc.text(warningText, 10, 125, {
     maxWidth: 190 
 });
             
-            doc.setFontSize(9);
-            const noteText = "N.B. Conservare questo documento. Per annullare la prenotazione, devi rientrare nello stesso link dell'applicazione, cliccare il pulsante 'Annulla la mia Prenotazione' (in alto) e inserire il codice riportato qui sopra.";
-            doc.setTextColor(239, 68, 68); // Red-500
-            doc.text(noteText, 10, 135, { maxWidth: 190 });
+/**
+ * Dati consolidati delle lezioni per tutti gli indirizzi.
+ * Le date sono state impostate al 2025.
+ * Il primo blocco di dati è etichettato come "Liceo Scientifico (Presunto)".
+ */
+const datiLezioni = [
+    // LICEO SCIENTIFICO (PRESUNTO)
+    { Indirizzo: "Liceo Scientifico Opz. Scienze Applicate", Data: "3/11/2025", Giorno: "Lunedì", Ingresso: "11:50", Uscita: "13:50", Note: "" },
+    { Indirizzo: "Liceo Scientifico Opz. Scienze Applicate", Data: "5/11/2025", Giorno: "Mercoledì", Ingresso: "8:50", Uscita: "10:50", Note: "" },
+    { Indirizzo: "Liceo Scientifico Opz. Scienze Applicate", Data: "10/11/2025", Giorno: "Lunedì", Ingresso: "11:50", Uscita: "13:50", Note: "" },
+    { Indirizzo: "Liceo Scientifico Opz. Scienze Applicate", Data: "12/11/2025", Giorno: "Mercoledì", Ingresso: "8:50", Uscita: "10:50", Note: "" },
+    { Indirizzo: "Liceo Scientifico Opz. Scienze Applicate", Data: "17/11/2025", Giorno: "Lunedì", Ingresso: "11:50", Uscita: "13:50", Note: "" },
+    { Indirizzo: "Liceo Scientifico Opz. Scienze Applicate", Data: "19/11/2025", Giorno: "Mercoledì", Ingresso: "8:50", Uscita: "10:50", Note: "" },
+    { Indirizzo: "Liceo Scientifico Opz. Scienze Applicate", Data: "24/11/2025", Giorno: "Lunedì", Ingresso: "11:50", Uscita: "13:50", Note: "" },
+    { Indirizzo: "Liceo Scientifico Opz. Scienze Applicate", Data: "26/11/2025", Giorno: "Mercoledì", Ingresso: "8:50", Uscita: "10:50", Note: "" },
+    { Indirizzo: "Liceo Scientifico Opz. Scienze Applicate", Data: "1/12/2025", Giorno: "Lunedì", Ingresso: "11:50", Uscita: "13:50", Note: "" },
+    { Indirizzo: "Liceo Scientifico Opz. Scienze Applicate", Data: "3/12/2025", Giorno: "Mercoledì", Ingresso: "8:50", Uscita: "10:50", Note: "" },
+    { Indirizzo: "Liceo Scientifico Opz. Scienze Applicate", Data: "10/12/2025", Giorno: "Mercoledì", Ingresso: "8:50", Uscita: "10:50", Note: "" },
+    { Indirizzo: "Liceo Scientifico Opz. Scienze Applicate", Data: "10/12/2025", Giorno: "Mercoledì", Ingresso: "11:50", Uscita: "13:50", Note: "Lezione Speciale" },
+    { Indirizzo: "Liceo Scientifico Opz. Scienze Applicate", Data: "15/12/2025", Giorno: "Lunedì", Ingresso: "11:50", Uscita: "13:50", Note: "" },
+    { Indirizzo: "Liceo Scientifico Opz. Scienze Applicate", Data: "17/12/2025", Giorno: "Mercoledì", Ingresso: "8:50", Uscita: "10:50", Note: "" },
+
+    // RELAZIONI INTERNAZIONALI PER IL MARKETING
+    { Indirizzo: "Relazioni Internazionali per il Marketing", Data: "3/11/2025", Giorno: "Lunedì", Ingresso: "12:50", Uscita: "14:40", Note: "" },
+    { Indirizzo: "Relazioni Internazionali per il Marketing", Data: "5/11/2025", Giorno: "Mercoledì", Ingresso: "8:50", Uscita: "10:50", Note: "" },
+    { Indirizzo: "Relazioni Internazionali per il Marketing", Data: "10/11/2025", Giorno: "Lunedì", Ingresso: "12:50", Uscita: "14:40", Note: "" },
+    { Indirizzo: "Relazioni Internazionali per il Marketing", Data: "12/11/2025", Giorno: "Mercoledì", Ingresso: "8:50", Uscita: "10:50", Note: "" },
+    { Indirizzo: "Relazioni Internazionali per il Marketing", Data: "17/11/2025", Giorno: "Lunedì", Ingresso: "12:50", Uscita: "14:40", Note: "" },
+    { Indirizzo: "Relazioni Internazionali per il Marketing", Data: "19/11/2025", Giorno: "Mercoledì", Ingresso: "8:50", Uscita: "10:50", Note: "" },
+    { Indirizzo: "Relazioni Internazionali per il Marketing", Data: "24/11/2025", Giorno: "Lunedì", Ingresso: "12:50", Uscita: "14:40", Note: "" },
+    { Indirizzo: "Relazioni Internazionali per il Marketing", Data: "26/11/2025", Giorno: "Mercoledì", Ingresso: "8:50", Uscita: "10:50", Note: "" },
+    { Indirizzo: "Relazioni Internazionali per il Marketing", Data: "1/12/2025", Giorno: "Lunedì", Ingresso: "12:50", Uscita: "14:40", Note: "" },
+    { Indirizzo: "Relazioni Internazionali per il Marketing", Data: "3/12/2025", Giorno: "Mercoledì", Ingresso: "8:50", Uscita: "10:50", Note: "" },
+    { Indirizzo: "Relazioni Internazionali per il Marketing", Data: "10/12/2025", Giorno: "Mercoledì", Ingresso: "8:50", Uscita: "10:50", Note: "" },
+    { Indirizzo: "Relazioni Internazionali per il Marketing", Data: "10/12/2025", Giorno: "Mercoledì", Ingresso: "13:00", Uscita: "14:40", Note: "Lezione Speciale" },
+    { Indirizzo: "Relazioni Internazionali per il Marketing", Data: "15/12/2025", Giorno: "Lunedì", Ingresso: "12:50", Uscita: "14:40", Note: "" },
+    { Indirizzo: "Relazioni Internazionali per il Marketing", Data: "17/12/2025", Giorno: "Mercoledì", Ingresso: "8:50", Uscita: "10:50", Note: "" },
+
+    // LOGISTICA CORSO QUADRIENNALE
+    // NOTA: Ho assunto che le date 3/11, 10/11, ecc. si riferiscano al Lunedì per coerenza.
+    { Indirizzo: "Logistica (Corso Quadriennale)", Data: "3/11/2025", Giorno: "Lunedì", Ingresso: "12:50", Uscita: "14:40", Note: "" },
+    { Indirizzo: "Logistica (Corso Quadriennale)", Data: "5/11/2025", Giorno: "Mercoledì", Ingresso: "8:50", Uscita: "10:50", Note: "" },
+    { Indirizzo: "Logistica (Corso Quadriennale)", Data: "10/11/2025", Giorno: "Lunedì", Ingresso: "12:50", Uscita: "14:40", Note: "" },
+    { Indirizzo: "Logistica (Corso Quadriennale)", Data: "12/11/2025", Giorno: "Mercoledì", Ingresso: "8:50", Uscita: "10:50", Note: "" },
+    { Indirizzo: "Logistica (Corso Quadriennale)", Data: "17/11/2025", Giorno: "Lunedì", Ingresso: "12:50", Uscita: "14:40", Note: "" },
+    { Indirizzo: "Logistica (Corso Quadriennale)", Data: "19/11/2025", Giorno: "Mercoledì", Ingresso: "8:50", Uscita: "10:50", Note: "" },
+    { Indirizzo: "Logistica (Corso Quadriennale)", Data: "24/11/2025", Giorno: "Lunedì", Ingresso: "12:50", Uscita: "14:40", Note: "" },
+    { Indirizzo: "Logistica (Corso Quadriennale)", Data: "26/11/2025", Giorno: "Mercoledì", Ingresso: "8:50", Uscita: "10:50", Note: "" },
+    { Indirizzo: "Logistica (Corso Quadriennale)", Data: "1/12/2025", Giorno: "Lunedì", Ingresso: "12:50", Uscita: "14:40", Note: "" },
+    { Indirizzo: "Logistica (Corso Quadriennale)", Data: "3/12/2025", Giorno: "Mercoledì", Ingresso: "8:50", Uscita: "10:50", Note: "" },
+    { Indirizzo: "Logistica (Corso Quadriennale)", Data: "10/12/2025", Giorno: "Mercoledì", Ingresso: "8:50", Uscita: "10:50", Note: "" },
+    { Indirizzo: "Logistica (Corso Quadriennale)", Data: "15/12/2025", Giorno: "Lunedì", Ingresso: "12:50", Uscita: "14:40", Note: "" },
+    { Indirizzo: "Logistica (Corso Quadriennale)", Data: "17/12/2025", Giorno: "Mercoledì", Ingresso: "8:50", Uscita: "10:50", Note: "" },
+
+    // COSTRUZIONE AMBIENTE E TERRITORIO
+    { Indirizzo: "Costruzione Ambiente e Territorio", Data: "3/11/2025", Giorno: "Lunedì", Ingresso: "12:50", Uscita: "14:40", Note: "" },
+    { Indirizzo: "Costruzione Ambiente e Territorio", Data: "5/11/2025", Giorno: "Mercoledì", Ingresso: "8:50", Uscita: "10:50", Note: "" },
+    { Indirizzo: "Costruzione Ambiente e Territorio", Data: "10/11/2025", Giorno: "Lunedì", Ingresso: "12:50", Uscita: "14:40", Note: "" },
+    { Indirizzo: "Costruzione Ambiente e Territorio", Data: "12/11/2025", Giorno: "Mercoledì", Ingresso: "8:50", Uscita: "10:50", Note: "" },
+    { Indirizzo: "Costruzione Ambiente e Territorio", Data: "17/11/2025", Giorno: "Lunedì", Ingresso: "12:50", Uscita: "14:40", Note: "" },
+    { Indirizzo: "Costruzione Ambiente e Territorio", Data: "19/11/2025", Giorno: "Mercoledì", Ingresso: "8:50", Uscita: "10:50", Note: "" },
+    { Indirizzo: "Costruzione Ambiente e Territorio", Data: "24/11/2025", Giorno: "Lunedì", Ingresso: "12:50", Uscita: "14:40", Note: "" },
+    { Indirizzo: "Costruzione Ambiente e Territorio", Data: "26/11/2025", Giorno: "Mercoledì", Ingresso: "8:50", Uscita: "10:50", Note: "" },
+    { Indirizzo: "Costruzione Ambiente e Territorio", Data: "1/12/2025", Giorno: "Lunedì", Ingresso: "12:50", Uscita: "14:40", Note: "" },
+    { Indirizzo: "Costruzione Ambiente e Territorio", Data: "3/12/2025", Giorno: "Mercoledì", Ingresso: "8:50", Uscita: "10:50", Note: "" },
+    { Indirizzo: "Costruzione Ambiente e Territorio", Data: "10/12/2025", Giorno: "Mercoledì", Ingresso: "8:50", Uscita: "10:50", Note: "" },
+    { Indirizzo: "Costruzione Ambiente e Territorio", Data: "10/12/2025", Giorno: "Mercoledì", Ingresso: "13:00", Uscita: "14:40", Note: "Lezione Speciale" },
+    { Indirizzo: "Costruzione Ambiente e Territorio", Data: "15/12/2025", Giorno: "Lunedì", Ingresso: "12:50", Uscita: "14:40", Note: "" },
+    { Indirizzo: "Costruzione Ambiente e Territorio", Data: "17/12/2025", Giorno: "Mercoledì", Ingresso: "8:50", Uscita: "10:50", Note: "" },
+
+    // SISTEMA MODA
+    { Indirizzo: "Sistema Moda", Data: "3/11/2025", Giorno: "Lunedì", Ingresso: "12:50", Uscita: "14:40", Note: "" },
+    { Indirizzo: "Sistema Moda", Data: "5/11/2025", Giorno: "Mercoledì", Ingresso: "8:50", Uscita: "10:50", Note: "" },
+    { Indirizzo: "Sistema Moda", Data: "10/11/2025", Giorno: "Lunedì", Ingresso: "12:50", Uscita: "14:40", Note: "" },
+    { Indirizzo: "Sistema Moda", Data: "12/11/2025", Giorno: "Mercoledì", Ingresso: "8:50", Uscita: "10:50", Note: "" },
+    { Indirizzo: "Sistema Moda", Data: "17/11/2025", Giorno: "Lunedì", Ingresso: "12:50", Uscita: "14:40", Note: "" },
+    { Indirizzo: "Sistema Moda", Data: "19/11/2025", Giorno: "Mercoledì", Ingresso: "8:50", Uscita: "10:50", Note: "" },
+    { Indirizzo: "Sistema Moda", Data: "24/11/2025", Giorno: "Lunedì", Ingresso: "12:50", Uscita: "14:40", Note: "" },
+    { Indirizzo: "Sistema Moda", Data: "26/11/2025", Giorno: "Mercoledì", Ingresso: "8:50", Uscita: "10:50", Note: "" },
+    { Indirizzo: "Sistema Moda", Data: "1/12/2025", Giorno: "Lunedì", Ingresso: "12:50", Uscita: "14:40", Note: "" },
+    { Indirizzo: "Sistema Moda", Data: "3/12/2025", Giorno: "Mercoledì", Ingresso: "8:50", Uscita: "10:50", Note: "" },
+    { Indirizzo: "Sistema Moda", Data: "10/12/2025", Giorno: "Mercoledì", Ingresso: "8:50", Uscita: "10:50", Note: "" },
+    { Indirizzo: "Sistema Moda", Data: "10/12/2025", Giorno: "Mercoledì", Ingresso: "13:00", Uscita: "14:40", Note: "Lezione Speciale" },
+    { Indirizzo: "Sistema Moda", Data: "15/12/2025", Giorno: "Lunedì", Ingresso: "12:50", Uscita: "14:40", Note: "" },
+    { Indirizzo: "Sistema Moda", Data: "17/12/2025", Giorno: "Mercoledì", Ingresso: "8:50", Uscita: "10:50", Note: "" }
+];
+
+// Funzione per generare il PDF
+function generaPlanningLezioniPDF() {
+    // 1. Inizializza jsPDF
+    const doc = new jspdf.jsPDF(); 
+
+    // 2. Prepara i dati per la tabella
+    const headers = [
+        ['Indirizzo', 'Data', 'Giorno', 'Ingresso', 'Uscita', 'Note']
+    ];
+    // Mappa l'array di oggetti nei valori che jsPDF-autotable richiede
+    const body = datiLezioni.map(item => [
+        item.Indirizzo,
+        item.Data,
+        item.Giorno,
+        item.Ingresso,
+        item.Uscita,
+        item.Note
+    ]);
+
+    // 3. Genera il titolo
+    doc.setFontSize(14);
+    doc.text("Planning Lezioni Consolidato", 10, 10);
+
+    // 4. Genera la tabella con jsPDF-autotable
+    doc.autoTable({
+        startY: 15,
+        head: headers,
+        body: body,
+        theme: 'striped',
+        styles: { fontSize: 8 },
+        headStyles: { fillColor: [52, 73, 94] },
+        columnStyles: {
+            0: { cellWidth: 40 }, // Indirizzo
+            1: { cellWidth: 20 }, // Data
+            2: { cellWidth: 20 }, // Giorno
+            3: { cellWidth: 15 }, // Ingresso
+            4: { cellWidth: 15 }, // Uscita
+            5: { cellWidth: 30 }  // Note
+        }
+    });
+
+    // 5. Aggiungi la nota a piè di pagina (come da tuo esempio)
+    const finalY = doc.autoTable.previous.finalY; // Ottiene l'altezza dopo la tabella
+    
+    doc.setFontSize(9);
+    const noteText = "N.B. Conservare questo documento. Per annullare la prenotazione, devi rientrare nello stesso link dell'applicazione, cliccare il pulsante 'Annulla la mia Prenotazione' (in alto) e inserire il codice riportato qui sopra.";
+    
+    // Controlla se è necessario creare una nuova pagina per la nota
+    if (finalY + 15 > doc.internal.pageSize.height) {
+        doc.addPage();
+    }
+    
+    doc.setTextColor(239, 68, 68); // Red-500
+    // Usiamo 'finalY + 5' se non c'è cambio pagina, altrimenti 10 se c'è
+    doc.text(noteText, 10, finalY + 5 > doc.internal.pageSize.height ? 10 : finalY + 5, { maxWidth: 190 });
+
+    // 6. Scarica il file (decommentare per l'esecuzione reale)
+    // doc.save('Planning_Lezioni.pdf');
+}
+
+// Chiama la funzione per generare il PDF (da eseguire nel tuo ambiente)
+// generaPlanningLezioniPDF();
 
             doc.setFontSize(8);
             doc.setTextColor(156, 163, 175); // Gray-400
