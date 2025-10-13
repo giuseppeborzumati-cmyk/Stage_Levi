@@ -1,0 +1,572 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Ministage - Prenotazioni</title>
+  <link rel="icon" href="data:;base64,iVBORw0KGgo=" />
+  <style>
+    :root{
+      --bg:#fff7fb;
+      --card:#ffffff;
+      --accent:#ff7ab6;
+      --accent-2:#ffd6e8;
+      --muted:#6b6b6b;
+      --round:14px;
+      font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+    }
+    body{background:linear-gradient(180deg,#fff 0%,var(--bg) 100%);margin:0;color:#222}
+    header{padding:28px 20px;display:flex;align-items:center;gap:20px}
+    .logo{display:flex;align-items:center;gap:12px}
+    .logo img{width:64px;height:64px;border-radius:12px;object-fit:cover}
+    h1{margin:0;font-size:22px}
+    p.lead{margin:4px 0 0;color:var(--muted)}
+    .container{max-width:1100px;margin:20px auto;padding:18px}
+    .grid{display:grid;grid-template-columns:1fr 360px;gap:18px}
+    .card{background:var(--card);border-radius:var(--round);padding:16px;box-shadow:0 6px 20px rgba(78,63,86,0.06)}
+    .indirizzi{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+    .indirizzo{border-radius:12px;padding:12px;background:linear-gradient(180deg,var(--accent-2),#fff);}
+    .indirizzo h3{margin:0 0 6px}
+    .slot{display:flex;align-items:center;justify-content:space-between;padding:8px;background:white;border-radius:10px;margin-top:8px}
+    .slot small{color:var(--muted)}
+    .btn{background:var(--accent);color:white;border:none;padding:8px 12px;border-radius:10px;cursor:pointer}
+    .btn.ghost{background:transparent;color:var(--accent);border:1px solid var(--accent)}
+    .right{position:relative}
+    .chatbot-btn{position:fixed;right:22px;bottom:22px;background:linear-gradient(135deg,var(--accent),#ff9fcf);border:none;color:white;padding:14px 18px;border-radius:999px;box-shadow:0 10px 30px rgba(255,122,182,0.18);cursor:pointer}
+    .small{font-size:13px}
+    .muted{color:var(--muted)}
+    .search{display:flex;gap:8px;margin-bottom:12px}
+    input,select,textarea{padding:10px;border-radius:10px;border:1px solid #eee;width:100%;box-sizing:border-box}
+    label{font-weight:600;font-size:14px}
+    .footer{margin-top:18px;padding:12px;text-align:center;color:var(--muted)}
+    table{width:100%;border-collapse:collapse}
+    th,td{padding:8px;text-align:left;border-bottom:1px dashed #eee}
+    .stat-card{display:flex;gap:10px;align-items:center}
+    .stat-card .big{font-size:22px;font-weight:700}
+    /* modal */
+    .modal-back{position:fixed;inset:0;background:rgba(0,0,0,0.45);display:none;align-items:center;justify-content:center}
+    .modal{width:520px;max-width:95%;background:white;border-radius:12px;padding:18px}
+    .row{display:flex;gap:10px}
+    @media(max-width:880px){.grid{grid-template-columns:1fr} .right{order:2}}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">
+      <img src="https://images.unsplash.com/photo-1503676260728-1c00da094a0b?q=80&w=400&auto=format&fit=crop&ixlib=rb-4.0.3&s=placeholder" alt="logo">
+      <div>
+        <h1>Istituto - Ministage di Orientamento</h1>
+        <p class="lead">Prenota il tuo ministage e scopri la scuola. Date e posti limitati: 4 posti per sessione.</p>
+      </div>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="grid">
+      <main>
+        <div class="card">
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <div>
+              <h2 style="margin:0">Prenota il tuo Ministage</h2>
+              <p class="small muted">Scegli indirizzo e data — inserisci i dati e conferma.</p>
+            </div>
+            <div>
+              <button id="connTest" class="btn ghost small">Controlla connessione Firebase</button>
+            </div>
+          </div>
+
+          <div style="margin-top:12px" class="search">
+            <select id="filterIndirizzo"><option value="">Tutti gli indirizzi</option></select>
+            <select id="filterDate"><option value="">Tutte le date</option></select>
+            <button id="clearFilters" class="btn ghost small">Pulisci</button>
+          </div>
+
+          <div class="indirizzi" id="indirizziList"></div>
+        </div>
+
+        <div style="margin-top:12px" class="card">
+          <h3>Informazioni generali</h3>
+          <p>ATE IN VIA DI DEFINIZIONE. A BREVE POTRETE PRENOTARE TRAMITE LINK CARICATO SU QUESTA PAGINA</p>
+          <div style="white-space:pre-wrap;margin-top:8px;color:var(--muted)">
+            Per supportare al meglio l'importante scelta della scuola superiore, il nostro Istituto organizza dei Ministage di Orientamento, che permetteranno agli studenti di terza media di vivere un'esperienza diretta all'interno delle nostre aule.
+
+Cos'è un Ministage?
+
+Il ministage è un'opportunità per gli studenti di terza media di trascorrere alcune ore presso la nostra scuola, inseriti direttamente in una classe. Lo scopo è far sperimentare in modo immersivo l'ambiente scolastico, i metodi di insegnamento e le materie di studio, facilitando così una scelta più consapevole.
+
+Come si svolge il Ministage
+
+Ogni studente partecipante sarà assegnato a una classe del nostro Istituto e prenderà parte a due ore di lezione consecutive. L'organizzazione prevede:
+
+Inserimento in Classe: Lo studente sarà accolto da un docente o un tutor e accompagnato nella classe che frequenterà per la durata del ministage.
+
+Partecipazione alle Lezioni: Lo studente assisterà come uditore attivo a due lezioni curricolari. Durata: circa due ore. Tutoraggio: sempre presente un docente o uno studente tutor.
+
+Modalità di Iscrizione
+
+Le date e le modalità di prenotazione saranno comunicate in dettaglio. Le iscrizioni si effettueranno tramite un modulo online.
+          </div>
+        </div>
+
+      </main>
+
+      <aside class="right">
+        <div class="card">
+          <h3>Area Docente</h3>
+          <p class="small muted">Pulsante accesso docenti (protetto da password). Non inserire le credenziali nel sito pubblico.</p>
+          <button id="accessoDocenti" class="btn" style="width:100%;margin-top:8px">Accesso Docenti</button>
+
+          <hr style="margin:12px 0">
+
+          <h4>Stato Sistema</h4>
+          <p id="connStatus" class="muted">Non verificato</p>
+
+          <hr style="margin:12px 0">
+
+          <h4>Scarica dati</h4>
+          <button id="downloadAllExcel" class="btn ghost small" style="width:100%;margin-bottom:6px">Scarica Excel (tutte le prenotazioni)</button>
+          <button id="openReport" class="btn small" style="width:100%">Apri report analitico</button>
+        </div>
+
+        <div style="margin-top:12px" class="card">
+          <h4>Statistiche rapide</h4>
+          <div class="stat-card"><div class="big" id="totalBookings">0</div><div class="small muted">Prenotazioni totali</div></div>
+          <div style="height:180px;margin-top:8px"><canvas id="chartBookings" width="400" height="200"></canvas></div>
+        </div>
+
+        <div style="margin-top:12px" class="card">
+          <h4>Info utili</h4>
+          <p class="small muted">Per pubblcare il sito usa GitHub Pages o un semplice server (es. live-server). Se apri direttamente il file HTML alcuni servizi CDN e l'accesso a Firestore potrebbero non funzionare a causa di CORS.</p>
+        </div>
+      </aside>
+    </div>
+
+    <div style="margin-top:14px" class="card">
+      <h3 style="margin-top:0">Cancella prenotazione</h3>
+      <p class="muted small">Inserisci il codice prenotazione per procedere con la cancellazione e scaricare il PDF di annullamento.</p>
+      <div style="display:flex;gap:8px;max-width:700px;margin-top:8px">
+        <input id="cancelCode" placeholder="Codice prenotazione">
+        <input id="cancelEmail" placeholder="Email usata in prenotazione">
+        <button id="doCancel" class="btn">Cancella</button>
+      </div>
+      <div id="cancelResult" style="margin-top:8px"></div>
+    </div>
+
+    <div class="footer">Made with care — Interfaccia pensata per una scuola, colori gioiosi e layout pulito.</div>
+  </div>
+
+  <button class="chatbot-btn" id="goChat">Chatbot</button>
+
+  <!-- Modal: Booking -->
+  <div id="modalBack" class="modal-back">
+    <div class="modal card" id="modal">
+      <h3 id="modalTitle">Prenota</h3>
+      <div id="modalBody">
+        <label>Nome studente</label>
+        <input id="inputName">
+        <label>Cellulare</label>
+        <input id="inputPhone">
+        <label>Email</label>
+        <input id="inputEmail">
+        <label>Scuola di provenienza</label>
+        <input id="inputSchool">
+        <div style="display:flex;gap:8px;margin-top:10px">
+          <button id="confirmBook" class="btn">Conferma e genera PDF</button>
+          <button id="closeModal" class="btn ghost">Annulla</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Docenti -->
+  <div id="modalDocentiBack" class="modal-back">
+    <div class="modal card" style="max-width:95%">
+      <h3>Area Docenti - Report</h3>
+      <div style="margin-top:8px;display:flex;gap:8px;align-items:center">
+        <label style="width:110px">Filtro indirizzo</label>
+        <select id="teacherFilterIndirizzo"><option value="">Tutti</option></select>
+        <label style="width:80px">Da</label>
+        <input type="date" id="teacherFrom">
+        <label style="width:30px">A</label>
+        <input type="date" id="teacherTo">
+        <button id="applyFilter" class="btn ghost">Applica</button>
+      </div>
+
+      <div style="margin-top:12px;max-height:360px;overflow:auto">
+        <table id="teacherTable"><thead><tr><th>Codice</th><th>Nome</th><th>Email</th><th>Indirizzo</th><th>Data</th><th>Orario</th><th>Stato</th></tr></thead><tbody></tbody></table>
+      </div>
+
+      <div style="margin-top:10px;display:flex;gap:8px;justify-content:flex-end">
+        <button id="teacherDownloadExcel" class="btn">Scarica Excel (filtrato)</button>
+        <button id="closeTeacher" class="btn ghost">Chiudi</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    // ---------- CONFIGURAZIONE FIREBASE fornita dall'utente ----------
+    const firebaseConfig = {
+      apiKey: "AIzaSyAP-Bmf02SZp4o6K2z2B1GgIlUJ3Wuc8Zk",
+      authDomain: "progetto-63fb3.firebaseapp.com",
+      projectId: "progetto-63fb3",
+      storageBucket: "progetto-63fb3.firebasestorage.app",
+      messagingSenderId: "883088850197",
+      appId: "1:883088850197:web:29b8573ea43555041b3d1c",
+      measurementId: "G-2PNR8PQHDR"
+    };
+
+    // ---------- IMPORT BOTTLENECK: usiamo i CDN modulari ----------
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js';
+    import { getFirestore, collection, doc, getDoc, setDoc, addDoc, updateDoc, getDocs, query, where, onSnapshot } from 'https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js';
+
+    // Librerie CDN (non modular) usate via globali
+    // jsPDF
+    const jsPDFScript = document.createElement('script'); jsPDFScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js'; document.head.appendChild(jsPDFScript);
+    // XLSX (SheetJS)
+    const xlsxScript = document.createElement('script'); xlsxScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js'; document.head.appendChild(xlsxScript);
+    // Chart.js
+    const chartScript = document.createElement('script'); chartScript.src = 'https://cdn.jsdelivr.net/npm/chart.js'; document.head.appendChild(chartScript);
+
+    // Initialize firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // ---------- DATI: indirizzi e slot (come da richieste dell'utente) ----------
+    const SLOTS_TEMPLATE = {
+      "Informatica e Telecomunicazioni": [
+        {time:'11:50-13:50', day:'lunedì', dates:['2025-11-03','2025-11-10','2025-11-17','2025-11-24','2025-12-01','2025-12-15'], note:''},
+        {time:'08:50-10:50', day:'mercoledì', dates:['2025-11-05','2025-11-12','2025-11-19','2025-11-26','2025-12-03','2025-12-10','2025-12-17'], note:'il 10/12 dalle 11:50 alle 13:50'}
+      ],
+      "Relazioni Internazionali per il Marketing": [
+        {time:'12:50-14:40', day:'lunedì', dates:['2025-11-03','2025-11-10','2025-11-17','2025-11-24','2025-12-01','2025-12-15'], note:''},
+        {time:'08:50-10:50', day:'mercoledì', dates:['2025-11-05','2025-11-12','2025-11-19','2025-11-26','2025-12-03','2025-12-10','2025-12-17'], note:'il 10/12 dalle 13:00 alle 14:40'}
+      ],
+      "Logistica corso quadriennale": [
+        {time:'08:50-10:50', day:'mercoledì', dates:['2025-11-05','2025-11-12','2025-11-19','2025-11-26','2025-12-03','2025-12-10','2025-12-17'], note:''},
+        {time:'12:50-14:40', day:'mercoledì', dates:['2025-11-03','2025-11-10','2025-11-17','2025-11-24','2025-12-01','2025-12-15'], note:''}
+      ],
+      "Costruzione Ambiente e Territorio": [
+        {time:'12:50-14:40', day:'lunedì', dates:['2025-11-03','2025-11-10','2025-11-17','2025-11-24','2025-12-01','2025-12-15'], note:''},
+        {time:'08:50-10:50', day:'mercoledì', dates:['2025-11-05','2025-11-12','2025-11-19','2025-11-26','2025-12-03','2025-12-10','2025-12-17'], note:'10/12 dalle 13:00 alle 14:40'}
+      ],
+      "Sistema Moda": [
+        {time:'12:50-14:40', day:'lunedì', dates:['2025-11-03','2025-11-10','2025-11-17','2025-11-24','2025-12-01','2025-12-15'], note:''},
+        {time:'08:50-10:50', day:'mercoledì', dates:['2025-11-05','2025-11-12','2025-11-19','2025-11-26','2025-12-03','2025-12-10','2025-12-17'], note:'10/12 dalle 13:00 alle 14:40'}
+      ]
+    };
+
+    // by default every slot has 4 posti
+    const DEFAULT_SEATS = 4;
+
+    // ---------- HELPER: utilità per il sistema ----------
+    function formatDateISOToDisplay(iso){
+      try{const d=new Date(iso);return d.toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit',year:'numeric'})}catch(e){return iso}
+    }
+
+    function genBookingCode(len=8){
+      const chars='ABCDEFGHJKMNPQRSTUVWXYZ23456789'; let s=''; for(let i=0;i<len;i++) s+=chars[Math.floor(Math.random()*chars.length)]; return s;
+    }
+
+    // ---------- UI: popolamento indirizzi e slot ----------
+    const indirizziList = document.getElementById('indirizziList');
+    const filterIndirizzo = document.getElementById('filterIndirizzo');
+    const filterDate = document.getElementById('filterDate');
+
+    function buildSlotsUI(){
+      indirizziList.innerHTML=''; filterIndirizzo.innerHTML='<option value="">Tutti gli indirizzi</option>';
+      let allDatesSet = new Set();
+      for(const indirizzo of Object.keys(SLOTS_TEMPLATE)){
+        filterIndirizzo.innerHTML += `<option value="${indirizzo}">${indirizzo}</option>`;
+        const wrap = document.createElement('div'); wrap.className='indirizzo card';
+        wrap.innerHTML=`<h3>${indirizzo}</h3><div id='slots-${btoa(indirizzo).slice(0,8)}'></div>`;
+        indirizziList.appendChild(wrap);
+        const inner = wrap.querySelector('div');
+        SLOTS_TEMPLATE[indirizzo].forEach(block=>{
+          block.dates.forEach(dt=>{
+            allDatesSet.add(dt);
+            const slotEl = document.createElement('div'); slotEl.className='slot';
+            slotEl.innerHTML = `<div><strong>${formatDateISOToDisplay(dt)}</strong><div class='small muted'>${block.day} • ${block.time} ${block.note?(' • '+block.note):''}</div></div><div style='text-align:right'><div class='small muted'>Posti: <span data-seats='${indirizzo}||${dt}||${block.time}'>-</span></div><div style='margin-top:6px'><button class='btn small' data-indirizzo='${indirizzo}' data-date='${dt}' data-time='${block.time}'>Prenota</button></div></div>`;
+            inner.appendChild(slotEl);
+          })
+        })
+      }
+      // fill date filter
+      const allDates = Array.from(allDatesSet).sort(); filterDate.innerHTML='<option value="">Tutte le date</option>';
+      allDates.forEach(d=> filterDate.innerHTML += `<option value='${d}'>${formatDateISOToDisplay(d)}</option>`);
+
+      // attach click handlers
+      document.querySelectorAll('button[data-indirizzo]').forEach(b=>b.addEventListener('click',openBookingModal));
+    }
+
+    // ---------- Modal logic ----------
+    const modalBack = document.getElementById('modalBack');
+    const inputName = document.getElementById('inputName');
+    const inputPhone = document.getElementById('inputPhone');
+    const inputEmail = document.getElementById('inputEmail');
+    const inputSchool = document.getElementById('inputSchool');
+    const modalTitle = document.getElementById('modalTitle');
+    let activeSlot = null; // {indirizzo,date,time}
+
+    function openBookingModal(e){
+      const btn = e.currentTarget;
+      activeSlot = {indirizzo:btn.dataset.indirizzo,date:btn.dataset.date,time:btn.dataset.time};
+      modalTitle.textContent = `Prenota: ${activeSlot.indirizzo} — ${formatDateISOToDisplay(activeSlot.date)} • ${activeSlot.time}`;
+      inputName.value=''; inputPhone.value=''; inputEmail.value=''; inputSchool.value='';
+      modalBack.style.display='flex';
+    }
+    document.getElementById('closeModal').addEventListener('click',()=> modalBack.style.display='none');
+
+    // ---------- Firebase: slot management and bookings ----------
+    const slotsCollection = collection(db,'slots');
+    const bookingsCollection = collection(db,'bookings');
+
+    // initialize slots if not exist
+    async function ensureSlotsInitialized(){
+      // For each indirizzo/date/time ensure a doc exists with seats left
+      for(const indirizzo of Object.keys(SLOTS_TEMPLATE)){
+        for(const block of SLOTS_TEMPLATE[indirizzo]){
+          for(const dt of block.dates){
+            const id = `${indirizzo}||${dt}||${block.time}`;
+            const dref = doc(db,'slots',btoa(id));
+            const snap = await getDoc(dref);
+            if(!snap.exists()){
+              await setDoc(dref,{indirizzo, date:dt, time:block.time, seats:DEFAULT_SEATS});
+            }
+          }
+        }
+      }
+      await refreshSeatDisplays();
+    }
+
+    async function refreshSeatDisplays(){
+      // query all slots and update UI
+      const snaps = await getDocs(slotsCollection);
+      snaps.forEach(snap=>{
+        const data=snap.data();
+        const id = `${data.indirizzo}||${data.date}||${data.time}`;
+        const el = document.querySelector(`span[data-seats='${id}']`);
+        if(el) el.textContent = data.seats;
+      });
+      // update stats
+      const bookings = await getDocs(bookingsCollection);
+      document.getElementById('totalBookings').textContent = bookings.size;
+      buildChart(await computeBookingsByIndirizzo());
+    }
+
+    async function computeBookingsByIndirizzo(){
+      const snaps = await getDocs(bookingsCollection);
+      const map = {};
+      snaps.forEach(s=>{const d=s.data(); if(d.status!=='cancelled'){ map[d.indirizzo]=(map[d.indirizzo]||0)+1 }})
+      return map;
+    }
+
+    // ---------- Confirm booking: save and generate PDF ----------
+    document.getElementById('confirmBook').addEventListener('click', async ()=>{
+      if(!activeSlot) return alert('Seleziona prima uno slot');
+      const name = inputName.value.trim(); const phone = inputPhone.value.trim(); const email = inputEmail.value.trim(); const school = inputSchool.value.trim();
+      if(!name||!phone||!email){ return alert('Compila almeno nome, cellulare e email'); }
+
+      // check seat availability
+      const slotId = btoa(`${activeSlot.indirizzo}||${activeSlot.date}||${activeSlot.time}`);
+      const slotRef = doc(db,'slots',slotId);
+      const slotSnap = await getDoc(slotRef);
+      if(!slotSnap.exists()){ alert('Slot non trovato'); return }
+      const slotData = slotSnap.data();
+      if(slotData.seats<=0){ alert('Mi dispiace, posti esauriti per questo slot'); refreshSeatDisplays(); return }
+
+      // create booking
+      const code = genBookingCode(8);
+      const booking = {
+        code, nome:name, telefono:phone, email, scuola:school, indirizzo:activeSlot.indirizzo, date:activeSlot.date, time:activeSlot.time, createdAt:new Date().toISOString(), status:'confirmed'
+      };
+      await addDoc(bookingsCollection, booking);
+      // decrement seats
+      await updateDoc(slotRef,{seats:slotData.seats-1});
+
+      // generate PDF using jsPDF
+      const waitFor = () => new Promise(r=>{ if(window.jspdf) return r(); setTimeout(()=>r(),300) });
+      await waitFor();
+      const { jsPDF } = window.jspdf;
+      const docPDF = new jsPDF();
+      docPDF.setFontSize(14); docPDF.text('Conferma Prenotazione Ministage',14,20);
+      docPDF.setFontSize(11);
+      docPDF.text(`Codice prenotazione: ${code}`,14,34);
+      docPDF.text(`Nome: ${name}`,14,42);
+      docPDF.text(`Telefono: ${phone}`,14,50);
+      docPDF.text(`Email: ${email}`,14,58);
+      docPDF.text(`Scuola: ${school}`,14,66);
+      docPDF.text(`Indirizzo: ${activeSlot.indirizzo}`,14,74);
+      docPDF.text(`Data: ${formatDateISOToDisplay(activeSlot.date)}  Orario: ${activeSlot.time}`,14,82);
+      docPDF.text('Portare questo documento stampato o in digitale il giorno dello stage.',14,100);
+      const pdfBlob = docPDF.output('blob');
+      const url = URL.createObjectURL(pdfBlob);
+
+      // show confirmation
+      modalBack.style.display='none';
+      alert('La prenotazione è confermata. Codice: '+code);
+
+      // show download button area
+      const resultArea = document.createElement('div');
+      resultArea.innerHTML = `<div style='margin-top:8px;padding:10px;background:#f8f5fb;border-radius:10px;display:flex;gap:8px;align-items:center'><div><strong>Codice: ${code}</strong><div class='small muted'>Conserva questo codice per cancellazioni</div></div><div style='margin-left:auto'><a class='btn' href='${url}' download='prenotazione_${code}.pdf'>Scarica PDF</a></div></div>`;
+      document.querySelector('.container').insertBefore(resultArea, document.querySelector('.footer'));
+
+      // refresh UI
+      await refreshSeatDisplays();
+    });
+
+    // ---------- Cancellation ----------
+    document.getElementById('doCancel').addEventListener('click', async ()=>{
+      const code = document.getElementById('cancelCode').value.trim(); const email = document.getElementById('cancelEmail').value.trim();
+      if(!code||!email) return alert('Inserisci codice e email');
+      // find booking
+      const snaps = await getDocs(bookingsCollection);
+      let foundDoc=null; snaps.forEach(s=>{ const d=s.data(); if(d.code===code && d.email===email){ foundDoc={id:s.id,data:d} } });
+      if(!foundDoc){ document.getElementById('cancelResult').innerHTML=`<div class='muted'>Prenotazione non trovata</div>`; return }
+      if(foundDoc.data.status==='cancelled'){ document.getElementById('cancelResult').innerHTML=`<div class='muted'>Prenotazione già cancellata</div>`; return }
+      // mark cancelled
+      await updateDoc(doc(db,'bookings',foundDoc.id),{status:'cancelled', cancelledAt:new Date().toISOString()});
+      // increment seats of slot
+      const slotRef = doc(db,'slots',btoa(`${foundDoc.data.indirizzo}||${foundDoc.data.date}||${foundDoc.data.time}`));
+      const slotSnap = await getDoc(slotRef);
+      if(slotSnap.exists()){ await updateDoc(slotRef,{seats:slotSnap.data().seats+1}); }
+
+      // generate cancellation PDF
+      const waitFor = () => new Promise(r=>{ if(window.jspdf) return r(); setTimeout(()=>r(),300) });
+      await waitFor(); const { jsPDF } = window.jspdf;
+      const docPDF = new jsPDF();
+      docPDF.setFontSize(14); docPDF.text('Conferma Cancellazione Prenotazione',14,20);
+      docPDF.setFontSize(11);
+      docPDF.text(`Codice prenotazione: ${code}`,14,34);
+      docPDF.text(`Nome: ${foundDoc.data.nome}`,14,42);
+      docPDF.text(`Indirizzo: ${foundDoc.data.indirizzo}`,14,50);
+      docPDF.text(`Data cancellazione: ${new Date().toLocaleString('it-IT')}`,14,58);
+      const pdfBlob = docPDF.output('blob'); const url = URL.createObjectURL(pdfBlob);
+      document.getElementById('cancelResult').innerHTML = `<div style='margin-top:8px;padding:10px;background:#fff6f9;border-radius:10px;display:flex;gap:8px;align-items:center'><div><strong>Cancellazione effettuata</strong></div><div style='margin-left:auto'><a class='btn' href='${url}' download='cancellazione_${code}.pdf'>Scarica PDF cancellazione</a></div></div>`;
+      await refreshSeatDisplays();
+    });
+
+    // ---------- Docenti area: password protected ----------
+    const modalDocentiBack = document.getElementById('modalDocentiBack');
+    document.getElementById('accessoDocenti').addEventListener('click',async ()=>{
+      // ask for password (in this implementation we will compare with a secret provided to you separately)
+      const p = prompt('Inserisci la password docenti:');
+      if(!p){ return }
+      // The real password is not stored in the code; replace this check with the real password we will give you.
+      const EXPECTED = 'REPLACE_WITH_SECRET_PASSWORD';
+      if(p !== EXPECTED){ alert('Password errata'); return }
+      // open modal
+      modalDocentiBack.style.display='flex';
+      await loadTeacherData();
+    });
+
+    document.getElementById('closeTeacher').addEventListener('click',()=> modalDocentiBack.style.display='none');
+
+    async function loadTeacherData(filters={}){
+      // load bookings
+      const snaps = await getDocs(bookingsCollection);
+      const tbody = document.querySelector('#teacherTable tbody'); tbody.innerHTML='';
+      const rows = [];
+      snaps.forEach(s=>{ const d=s.data(); d._id = s.id; rows.push(d); });
+      const filtered = rows.filter(r=>{
+        if(filters.indirizzo && r.indirizzo!==filters.indirizzo) return false;
+        if(filters.from && new Date(r.date) < new Date(filters.from)) return false;
+        if(filters.to && new Date(r.date) > new Date(filters.to)) return false;
+        return true;
+      });
+      filtered.forEach(r=>{
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${r.code}</td><td>${r.nome}</td><td>${r.email}</td><td>${r.indirizzo}</td><td>${formatDateISOToDisplay(r.date)}</td><td>${r.time}</td><td>${r.status}</td>`;
+        tbody.appendChild(tr);
+      });
+    }
+
+    document.getElementById('applyFilter').addEventListener('click',()=>{
+      const fil = { indirizzo: document.getElementById('teacherFilterIndirizzo').value, from: document.getElementById('teacherFrom').value || null, to: document.getElementById('teacherTo').value || null };
+      loadTeacherData(fil);
+    });
+
+    // ---------- Excel export (SheetJS) ----------
+    document.getElementById('teacherDownloadExcel').addEventListener('click', async ()=>{
+      // gather visible table rows
+      const rows = [];
+      document.querySelectorAll('#teacherTable tbody tr').forEach(tr=>{
+        const cols = Array.from(tr.children).map(td=>td.textContent);
+        rows.push(cols);
+      });
+      if(rows.length===0) return alert('Nessuna riga da esportare');
+      /* build workbook */
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.aoa_to_sheet([['Codice','Nome','Email','Indirizzo','Data','Orario','Stato'],...rows]);
+      XLSX.utils.book_append_sheet(wb,ws,'Prenotazioni');
+      const wbout = XLSX.write(wb,{bookType:'xlsx',type:'array'});
+      const blob = new Blob([wbout],{type:'application/octet-stream'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href=url; a.download='prenotazioni_filtrate.xlsx'; a.click();
+    });
+
+    // full excel download
+    document.getElementById('downloadAllExcel').addEventListener('click', async ()=>{
+      const snaps = await getDocs(bookingsCollection);
+      const rows = [['Codice','Nome','Email','Scuola','Indirizzo','Data','Orario','Stato','Creazione']];
+      snaps.forEach(s=>{ const d=s.data(); rows.push([d.code,d.nome,d.email,d.scuola,d.indirizzo,formatDateISOToDisplay(d.date),d.time,d.status,d.createdAt]); });
+      const wb = XLSX.utils.book_new(); const ws = XLSX.utils.aoa_to_sheet(rows); XLSX.utils.book_append_sheet(wb,ws,'Tutte le prenotazioni'); const wbout = XLSX.write(wb,{bookType:'xlsx',type:'array'});
+      const blob = new Blob([wbout],{type:'application/octet-stream'}); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href=url; a.download='tutte_prenotazioni.xlsx'; a.click();
+    });
+
+    // open report (same as teacher modal)
+    document.getElementById('openReport').addEventListener('click', async ()=>{
+      const p = prompt('Inserisci la password docenti:'); if(!p) return; const EXPECTED = 'REPLACE_WITH_SECRET_PASSWORD'; if(p!==EXPECTED) return alert('Password errata'); modalDocentiBack.style.display='flex'; await loadTeacherData();
+    });
+
+    // ---------- Charts ----------
+    let chartInstance=null;
+    function buildChart(map){
+      const ctx = document.getElementById('chartBookings').getContext('2d');
+      const labels = Object.keys(map); const data = Object.values(map);
+      if(chartInstance) chartInstance.destroy();
+      chartInstance = new Chart(ctx,{type:'bar',data:{labels, datasets:[{label:'Prenotazioni', data}]}, options:{responsive:true,plugins:{legend:{display:false}}}});
+    }
+
+    // ---------- Connessione test ----------
+    document.getElementById('connTest').addEventListener('click', async ()=>{
+      try{ await ensureSlotsInitialized(); document.getElementById('connStatus').textContent = 'Connesso a Firestore (slots inizializzati)'; }catch(e){ document.getElementById('connStatus').textContent = 'Errore connessione'; alert('Errore: '+e.message) }
+    });
+
+    // ---------- small helpers ----------
+    document.getElementById('goChat').addEventListener('click', ()=>{ window.location.href='chatbot.html'; });
+    document.getElementById('clearFilters').addEventListener('click', ()=>{ filterIndirizzo.value=''; filterDate.value=''; applyUIFilters(); });
+    filterIndirizzo.addEventListener('change', applyUIFilters); filterDate.addEventListener('change', applyUIFilters);
+
+    function applyUIFilters(){
+      const indir = filterIndirizzo.value; const date = filterDate.value;
+      document.querySelectorAll('.indirizzo').forEach(card=>{
+        const title = card.querySelector('h3').textContent;
+        let show=true;
+        if(indir && indir!==title) show=false;
+        if(date){ // hide slots that don't match date
+          const slots = card.querySelectorAll('.slot'); let any=false;
+          slots.forEach(s=>{ if(s.querySelector('strong').textContent === formatDateISOToDisplay(date)) any=true; });
+          if(!any) show=false;
+        }
+        card.style.display = show?'block':'none';
+      });
+    }
+
+    // ---------- Initialize UI and slots ----------
+    buildSlotsUI();
+    // fill teachers select
+    const teacherSelect = document.getElementById('teacherFilterIndirizzo'); Object.keys(SLOTS_TEMPLATE).forEach(k=> teacherSelect.innerHTML += `<option value="${k}">${k}</option>`);
+
+    // attempt to initialize slots on load (but only when user clicks connTest or uses features)
+    // Ensure seat displays update periodically
+    setTimeout(()=>{ refreshSeatDisplays().catch(()=>{}); },1200);
+
+    // expose some functions to window for debugging convenience
+    window._ensureSlotsInitialized = ensureSlotsInitialized;
+    window._refreshSeatDisplays = refreshSeatDisplays;
+
+    // run a first try to init slots in background
+    ensureSlotsInitialized().catch((e)=>console.log('Init slots failed until conn test',e));
+  </script>
+</body>
+</html>
