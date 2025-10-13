@@ -1,36 +1,30 @@
 // =================================================================
 // 1. Configurazione Iniziale e Import di CommonJS
 // =================================================================
-// Usiamo require() perché abbiamo impostato "type": "commonjs" in package.json
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
 
-// Configura variabili d'ambiente (per GEMINI_API_KEY)
 dotenv.config();
 
-// Inizializza l'applicazione Express
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Variabili globali per l'istanza di Gemini (saranno inizializzate dopo l'import dinamico)
+// Variabili globali per l'istanza di Gemini 
 let GoogleGenAI;
 let gemini;
-let chat; // Variabile per la sessione di chat
+let chat; 
 
 // =================================================================
 // 2. Middleware e Configurazione CORS
 // =================================================================
 
-// Configurazione CORS (Cruciale per i proxy tra il tuo frontend e Render)
 app.use(cors({
-    // L'origine '*' permette a qualsiasi dominio (incluso GitHub Pages) di chiamare il proxy.
     origin: '*',
     methods: ['GET', 'POST', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
-// Middleware per analizzare le richieste JSON
 app.use(express.json());
 
 // =================================================================
@@ -57,13 +51,13 @@ async function initializeAndStartServer() {
         
         gemini = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
         
-        // Inizializza la sessione di chat (necessaria per la memoria della conversazione)
-        // Usa un modello supportato per la chat (es. gemini-2.5-flash)
+        // Inizializza la sessione di chat con GROUNDING WEB
         chat = gemini.chats.create({ 
              model: "gemini-2.5-flash",
              config: {
-                // Aggiungi qui eventuali istruzioni di sistema (System Instruction) per il tuo RAG
-                systemInstruction: "Sei un assistente per l'ITSCG Primo Levi. Rispondi in modo conciso e amichevole, fornendo informazioni utili legate alla scuola."
+                systemInstruction: "Sei un assistente per l'ITSCG Primo Levi. Se le tue conoscenze interne sono insufficienti, puoi effettuare una ricerca web per rispondere. Rispondi in modo conciso e amichevole, fornendo informazioni utili legate alla scuola. Il sito web ufficiale è: https://www.leviseregno.edu.it/",
+                // ✅ AGGIUNGE LO STRUMENTO DI RICERCA GOOGLE (GROUNDING)
+                tools: [{ googleSearch: {} }] 
              }
         });
 
@@ -103,16 +97,15 @@ async function initializeAndStartServer() {
         // Avvia l'ascolto del server DOPO l'inizializzazione di Gemini
         app.listen(PORT, () => {
             console.log(`[SERVER] Proxy server in ascolto sulla porta ${PORT}`);
-            console.log(`[SERVER] API Gemini inizializzata con successo.`);
+            console.log(`[SERVER] API Gemini inizializzata con successo, con Grounding Web attivo.`);
         });
 
 
     } catch (error) {
         console.error("Errore fatale durante l'inizializzazione del server:", error.message);
-        // Uscita per forzare Render a fallire e mostrare l'errore
         process.exit(1); 
     }
 }
 
-// Avvia l'intero processo di inizializzazione
+// Avvia l'intero processo
 initializeAndStartServer();
