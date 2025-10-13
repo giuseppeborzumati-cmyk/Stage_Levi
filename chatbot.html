@@ -272,7 +272,7 @@
             
             <div class="chat-box" id="chatBox">
                 <div class="message-row bot">
-                    <img src="foto_chatbot.png" alt="Bot" class="avatar">
+                    <img src="images/bot_avatar.png" alt="Bot" class="avatar">
                     <div class="message bot-message">
                          Ciao! Sono l'assistente virtuale dell'ITSCG Primo Levi. Sono qui per aiutarti! Inizia scegliendo una domanda qui sotto.
                     </div>
@@ -326,7 +326,7 @@
             const avatar = document.createElement('img');
             avatar.classList.add('avatar');
             // Assicurati che i percorsi delle immagini siano corretti!
-            avatar.src = sender === 'user' ? 'avatar.jpg : 'foto_chatbot.png'; 
+            avatar.src = sender === 'user' ? 'images/user_avatar.png' : 'images/bot_avatar.png'; 
             avatar.alt = sender === 'user' ? 'Utente' : 'Bot';
 
             const messageDiv = document.createElement('div');
@@ -360,7 +360,7 @@
             
             const avatar = document.createElement('img');
             avatar.classList.add('avatar');
-            avatar.src = 'foto_chatbot.png';
+            avatar.src = 'images/bot_avatar.png';
             avatar.alt = 'Bot';
             messageRow.appendChild(avatar);
             
