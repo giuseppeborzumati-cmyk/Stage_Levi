@@ -1,42 +1,122 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Prenotazione Stage ITSCG</title>
-    <!-- Caricamento Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Importazione librerie Firebase (Firestore e Auth) -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged, setPersistence, browserSessionPersistence } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, query, where, addDoc, getDocs, runTransaction, serverTimestamp, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        
-        // Imposta il livello di log per vedere i messaggi di debug di Firebase
-        setLogLevel('debug');
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prenotazione Stage ITSCG</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center">
 
-        // --- Variabili globali fornite dall'ambiente Canvas (OBBLIGATORIE) ---
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
-        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+  <div class="p-6 bg-white shadow-lg rounded-2xl w-full max-w-md">
+    <h1 class="text-2xl font-bold mb-4 text-center text-blue-700">Prenotazione Stage ITSCG</h1>
 
-        let app, db, auth;
-        let userId = null;
-        let isAuthReady = false;
-        let unsubscribeBookings = null;
-        let unsubscribeCancellations = null;
-        let globalBookings = [];
-        let globalCancellations = [];
-        let dateCapacities = {}; // Mappa per tenere traccia della disponibilità
+    <!-- Login docente -->
+    <div id="loginSection" class="mb-6">
+      <input type="text" id="username" placeholder="Username docente" class="w-full p-2 border rounded mb-2">
+      <input type="password" id="password" placeholder="Password docente" class="w-full p-2 border rounded mb-2">
+      <button id="loginBtn" class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700">
+        Accedi come docente
+      </button>
+    </div>
 
-        // Percorsi Firestore (Dati Pubblici per l'app multi-utente)
-        const BOOKINGS_COLLECTION_PATH = `artifacts/${appId}/public/data/itscg-stage-bookings`;
-        const CANCELLATIONS_COLLECTION_PATH = `artifacts/${appId}/public/data/itscg-stage-cancellations`;
-        
-        // Codice Docente di MOCK (solo per simulazione, non sicuro)
-        const DOCENTE_USERNAME = "docente";
-        const DOCENTE_PASSWORD = "12345";
-        let isDocente = false;
+    <!-- Form prenotazione -->
+    <form id="bookingForm" class="space-y-4 hidden">
+      <input type="text" id="nomeStudente" placeholder="Nome Studente" class="w-full p-2 border rounded">
+      <input type="date" id="dataStage" class="w-full p-2 border rounded">
+      <button type="submit" class="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700">
+        Prenota Stage
+      </button>
+    </form>
+
+    <div id="result" class="mt-4 text-center font-semibold"></div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, collection, addDoc, serverTimestamp, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+    // --- Configurazione Firebase ---
+    const firebaseConfig = {
+      apiKey: "AIzaSyAP-Bmf02SZp4o6K2z2B1GgIlUJ3Wuc8Zk",
+      authDomain: "progetto-63fb3.firebaseapp.com",
+      projectId: "progetto-63fb3",
+      storageBucket: "progetto-63fb3.firebasestorage.app",
+      messagingSenderId: "883088850197",
+      appId: "1:883088850197:web:29b8573ea43555041b3d1c",
+      measurementId: "G-2PNR8PQHDR"
+    };
+
+    // --- Inizializzazione Firebase ---
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+
+    // --- Accesso anonimo Firebase ---
+    signInAnonymously(auth)
+      .then(() => console.log("Accesso anonimo effettuato"))
+      .catch((error) => console.error("Errore autenticazione:", error));
+
+    // --- Costanti e variabili globali ---
+    const DOCENTE_USERNAME = "docente";
+    const DOCENTE_PASSWORD = "12345";
+    let isDocente = false;
+
+    const loginSection = document.getElementById("loginSection");
+    const bookingForm = document.getElementById("bookingForm");
+    const loginBtn = document.getElementById("loginBtn");
+    const resultDiv = document.getElementById("result");
+
+    // --- Login docente (mock) ---
+    loginBtn.addEventListener("click", () => {
+      const username = document.getElementById("username").value.trim();
+      const password = document.getElementById("password").value.trim();
+
+      if (username === DOCENTE_USERNAME && password === DOCENTE_PASSWORD) {
+        isDocente = true;
+        loginSection.classList.add("hidden");
+        bookingForm.classList.remove("hidden");
+        resultDiv.textContent = "Accesso docente riuscito.";
+        resultDiv.className = "mt-4 text-green-600 font-semibold text-center";
+      } else {
+        resultDiv.textContent = "Credenziali errate.";
+        resultDiv.className = "mt-4 text-red-600 font-semibold text-center";
+      }
+    });
+
+    // --- Gestione prenotazioni ---
+    bookingForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      if (!isDocente) return;
+
+      const nomeStudente = document.getElementById("nomeStudente").value.trim();
+      const dataStage = document.getElementById("dataStage").value;
+
+      if (!nomeStudente || !dataStage) {
+        resultDiv.textContent = "Compila tutti i campi.";
+        resultDiv.className = "mt-4 text-red-600 font-semibold text-center";
+        return;
+      }
+
+      try {
+        await addDoc(collection(db, "prenotazioni"), {
+          nome: nomeStudente,
+          data: dataStage,
+          timestamp: serverTimestamp()
+        });
+
+        resultDiv.textContent = "Prenotazione salvata con successo!";
+        resultDiv.className = "mt-4 text-green-600 font-semibold text-center";
+        bookingForm.reset();
+      } catch (err) {
+        console.error("Errore durante il salvataggio:", err);
+        resultDiv.textContent = "Errore durante la prenotazione.";
+        resultDiv.className = "mt-4 text-red-600 font-semibold text-center";
+      }
+    });
+  </script>
 
         // --- Modello Dati Corsi ---
         // Ho utilizzato l'anno 2024 per rendere le date concrete.
