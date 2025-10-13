@@ -351,32 +351,39 @@
     </div>
 </main>
 
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import {
-        getFirestore, collection, query, where, addDoc,
-        onSnapshot, serverTimestamp, deleteDoc, getDocs, doc, setLogLevel
-    } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    <!-- Importazioni JavaScript e Logica di Applicazione Firebase -->
+    <script type="module">
+        // Importazioni Firebase necessarie per Auth, Firestore, e Query
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { 
+            getFirestore, collection, query, where, addDoc, 
+            onSnapshot, serverTimestamp, deleteDoc, getDocs, doc, setLogLevel 
+        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-    // CONFIG (puoi sovrascriverla dall'ambiente)
-    const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-    const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+        // --- Variabili Globali del Canvas per Firebase (Obbligatorie) ---
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
 
-    let firebaseConfig = {};
-    if (typeof __firebase_config !== 'undefined' && __firebase_config !== '{}') {
-        try { firebaseConfig = JSON.parse(__firebase_config); } catch(e) { firebaseConfig = {}; }
-    } else {
-        console.warn("Configurazione Firebase non fornita dall'ambiente. Utilizzo placeholder (modifica per produzione).");
-        firebaseConfig = {
-            apiKey: "AIzaSyAP-Bmf02SZp4o6K2z2B1GgIlUJ3Wuc8Zk",
-            authDomain: "progetto-63fb3.firebaseapp.com",
-            projectId: "progetto-63fb3",
-            storageBucket: "progetto-63fb3.firebasestorage.app",
-            messagingSenderId: "883088850197",
-            appId: "1:883088850197:web:29b8573ea43555041b3d1c",
-        };
-    }
+        let firebaseConfig = {};
+
+        if (typeof __firebase_config !== 'undefined' && __firebase_config !== '{}') {
+            firebaseConfig = JSON.parse(__firebase_config);
+        } else {
+            console.warn("Configurazione Firebase non fornita dall'ambiente. Utilizzo della configurazione specifica dell'utente.");
+            
+            // ====================================================================================
+            // CONFIGURAZIONE FIREBASE SPECIFICA (Configurazione fittizia/placeholder)
+            // ====================================================================================
+            firebaseConfig = {
+                apiKey: "AIzaSyAP-Bmf02SZp4o6K2z2B1GgIlUJ3Wuc8Zk",
+                authDomain: "progetto-63fb3.firebaseapp.com",
+                projectId: "progetto-63fb3", 
+                storageBucket: "progetto-63fb3.firebasestorage.app",
+                messagingSenderId: "883088850197",
+                appId: "1:883088850197:web:29b8573ea43555041b3d1c",
+            };
+        }
 
     // Stato e costanti
     let db = null;
