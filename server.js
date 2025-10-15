@@ -35,7 +35,7 @@ async function initializeAndStartServer() {
     try {
         console.log("[SERVER] Inizializzazione...");
 
-        // FIX ESM/CJS: Import dinamico della libreria moderna
+        // Import dinamico della libreria moderna per Gemini
         const genaiModule = await import('@google/genai');
         GoogleGenAI = genaiModule.GoogleGenAI;
 
@@ -43,7 +43,7 @@ async function initializeAndStartServer() {
             throw new Error("Impossibile trovare GoogleGenAI nel modulo importato.");
         }
 
-        // Inizializza l'istanza di Gemini
+        // Utilizza la chiave d'ambiente GEMINI_API_KEY
         const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
         if (!GEMINI_API_KEY) {
             throw new Error("Variabile d'ambiente GEMINI_API_KEY non trovata. Controlla il file .env su Render.");
@@ -51,12 +51,12 @@ async function initializeAndStartServer() {
         
         gemini = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
         
-        // Inizializza la sessione di chat con GROUNDING WEB e ISTRUZIONE DI PULIZIA
+        // Inizializza la sessione di chat con GROUNDING WEB e ISTRUZIONE DI VERIFICA MASSIMA
         chat = gemini.chats.create({ 
-             model: "gemini-2.5-flash",
+             model: "gemini-2.5-flash", // Modello veloce, ma istruito a ragionare
              config: {
-                // ✅ ISTRUZIONE FONDAMENTALE: FORZA L'USO ESCLUSIVO DEL SITO UFFICIALE E PROIBISCE MARKDOWN
-                systemInstruction: "Sei un assistente virtuale informativo per l'ITSCG Primo Levi. Rispondi esclusivamente in italiano e solo con informazioni che puoi verificare sul sito ufficiale https://www.leviseregno.edu.it/. NON usare altre fonti. NON includere formattazione Markdown, asterischi (*), grassetti o punti elenco. Rispondi in modo conciso, amichevole e basato solo sui dati scolastici trovati nel grounding.",
+                // ISTRUZIONE MASSIMA: Forza il ragionamento, la tripla verifica e risposte dettagliate
+                systemInstruction: "Sei un Revisore Analitico Ufficiale per l'ITSCG Primo Levi. La tua missione è eliminare ogni errore, specialmente riguardo a date, orari, numeri e scadenze. Rispondi esclusivamente in italiano e solo con informazioni che puoi verificare sul sito ufficiale https://www.leviseregno.edu.it/. Ogni risposta deve essere il risultato di un rigoroso processo di analisi interna in tre fasi: 1. **Analisi Iniziale:** Identifica il dato principale e la fonte primaria. 2. **Verifica Incrociata:** Esegui una o più ricerche aggiuntive per confermare il dato, cercando eventuali eccezioni, aggiornamenti o note. 3. **Sintesi Ragionata:** Formuli un testo discorsivo, esauriente e analitico che presenta solo il risultato finale e verificato. NON usare altre fonti esterne al sito ufficiale. NON includere formattazione Markdown, asterischi (*), grassetti o punti elenco. La completezza e l'accuratezza sono i tuoi unici obiettivi.",
                 // AGGIUNGE LO STRUMENTO DI RICERCA GOOGLE (GROUNDING)
                 tools: [{ googleSearch: {} }] 
              }
@@ -81,7 +81,7 @@ async function initializeAndStartServer() {
             }
 
             try {
-                // Invia il messaggio alla sessione di chat
+                // Chiamata all'API Gemini
                 const result = await chat.sendMessage({ message: message });
                 
                 // Estrai e invia la risposta
