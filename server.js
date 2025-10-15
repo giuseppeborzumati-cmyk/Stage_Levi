@@ -55,8 +55,8 @@ async function initializeAndStartServer() {
         chat = gemini.chats.create({ 
              model: "gemini-2.5-flash",
              config: {
-                // ✅ ISTRUZIONE PER NON USARE MARKDOWN/ASTERISCHI
-                systemInstruction: "Sei un assistente per l'ITSCG Primo Levi. Rispondi usando esclusivamente testo semplice, evita grassetti, punti elenco o qualsiasi altra formattazione come gli asterischi (*). Se le tue conoscenze interne sono insufficienti, puoi effettuare una ricerca web per rispondere. Rispondi in modo conciso e amichevole, fornendo informazioni utili legate alla scuola. Il sito web ufficiale è: https://www.leviseregno.edu.it/",
+                // ✅ ISTRUZIONE FONDAMENTALE: FORZA L'USO ESCLUSIVO DEL SITO UFFICIALE E PROIBISCE MARKDOWN
+                systemInstruction: "Sei un assistente virtuale informativo per l'ITSCG Primo Levi. Rispondi esclusivamente in italiano e solo con informazioni che puoi verificare sul sito ufficiale https://www.leviseregno.edu.it/. NON usare altre fonti. NON includere formattazione Markdown, asterischi (*), grassetti o punti elenco. Rispondi in modo conciso, amichevole e basato solo sui dati scolastici trovati nel grounding.",
                 // AGGIUNGE LO STRUMENTO DI RICERCA GOOGLE (GROUNDING)
                 tools: [{ googleSearch: {} }] 
              }
