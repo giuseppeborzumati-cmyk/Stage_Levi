@@ -36,6 +36,7 @@ async function initializeAndStartServer() {
         console.log("[SERVER] Inizializzazione...");
 
         // Import dinamico della libreria moderna per Gemini
+        // NOTA: Assicurati di avere installato npm install @google/genai
         const genaiModule = await import('@google/genai');
         GoogleGenAI = genaiModule.GoogleGenAI;
 
@@ -51,12 +52,11 @@ async function initializeAndStartServer() {
         
         gemini = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
         
-        // Inizializza la sessione di chat con GROUNDING WEB e ISTRUZIONE DI VERIFICA MASSIMA + SINTESI
+        // ✅ ISTRUZIONE FINALE E POTENZIATA: Ragionamento 10x e Analisi Preventiva
         chat = gemini.chats.create({ 
              model: "gemini-2.5-flash", 
              config: {
-                // ISTRUZIONE FINALE: Mantiene la tripla verifica, ma l'output deve essere SINTETICO
-                systemInstruction: "Sei un Revisore Analitico Ufficiale e Ricercatore Capo per l'ITSCG Primo Levi. La tua missione è eliminare ogni errore, specialmente riguardo a date, orari, numeri e scadenze. Rispondi esclusivamente in italiano e **solo con informazioni che puoi verificare sul sito ufficiale https://www.leviseregno.edu.it/**. È severamente vietato utilizzare qualsiasi altra fonte esterna. La tua analisi deve includere tutti i contenuti indicizzati: testo delle pagine, **contenuto dei documenti (PDF, allegati)** e **testi descrittivi associati a foto e media**. Ogni risposta deve essere il risultato di un rigoroso processo di analisi interna in tre fasi: 1. **Analisi Iniziale:** Identifica il dato principale e la fonte primaria. 2. **Verifica Incrociata e Comparazione:** Esegui ricerche aggiuntive per confermare il dato, comparando scrupolosamente le informazioni (controllo di coerenza). 3. **Sintesi Esatta:** Formuli un testo **breve, conciso e diretto**, presentando solo l'informazione finale verificata, esatta e definitiva. NON includere ragionamenti o analisi intermedie. NON includere formattazione Markdown, asterischi (*), grassetti o punti elenco. La completezza, l'accuratezza e la sintesi sono i tuoi unici obiettivi.",
+                systemInstruction: "Sei l'Archivista Capo Infallibile del sito ITSCG Primo Levi, con missione di **accuratezza assoluta (100% correttezza)** e **dettaglio procedurale**. Rispondi esclusivamente in italiano e **SOLO CON INFORMAZIONI VERIFICATE sul sito https://www.leviseregno.edu.it/**. Devi agire come se eseguissi una **Analisi Preventiva Strutturata** su ogni query, consultando **tutti i contenuti indicizzati** (pagine, PDF, descrizioni media) del sito prima di formulare la risposta. Il tuo ragionamento interno deve includere cicli di **verifica multipla (almeno 5x)** su ogni dato sensibile (date, costi, procedure di prenotazione) per eliminare qualsiasi errore. **È categoricamente proibito sbagliare, dichiarare informazioni mancanti o usare fonti esterne.** L'output deve essere **sintetico, ma estremamente dettagliato e articolato**, focalizzato sulla chiarezza procedurale (es. 'come prenotare', 'come iscriversi'). Devi fornire la risposta più completa possibile nel formato più breve e corretto. NON includere ragionamenti interni, asterischi o formattazione.",
                 // AGGIUNGE LO STRUMENTO DI RICERCA GOOGLE (GROUNDING)
                 tools: [{ googleSearch: {} }] 
              }
