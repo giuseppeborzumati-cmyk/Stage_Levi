@@ -237,6 +237,7 @@
 
     <div class="main-container">
         
+        <!-- === INFORMAZIONI FISSE SULLA SCUOLA (SIDEBAR) === -->
         <div class="sidebar">
             <div class="sidebar-header">
                 Informazioni Essenziali
@@ -261,9 +262,11 @@
             </div>
         </div>
 
+        <!-- === CHATBOT INTERFACE === -->
         <div class="chat-container">
             <div class="chat-header">
-                <img src="foto_chatbot.png" alt="Logo Primo Levi" class="logo-img"> 
+                <!-- LOGO/FOTO SCUOLA: Usa Avatar.jpeg come logo principale nell'header -->
+                <img src="images/Avatar.jpeg" alt="Logo Primo Levi" class="logo-img"> 
                 <div class="header-info">
                     <span class="header-title">ITSCG Primo Levi</span>
                     <span class="header-subtitle">Assistente Virtuale - Chatbot</span>
@@ -272,16 +275,20 @@
             
             <div class="chat-box" id="chatBox">
                 <div class="message-row bot">
-                    <img src="foto_chatbot.png" alt="Bot" class="avatar">
+                    <!-- Avatar Bot: Usa Avatar.jpeg -->
+                    <img src="images/Avatar.jpeg" alt="Bot" class="avatar">
                     <div class="message bot-message">
                          Ciao! Sono l'assistente virtuale dell'ITSCG Primo Levi. Sono qui per aiutarti! Inizia scegliendo una domanda qui sotto.
                     </div>
                 </div>
             </div>
             
+            <!-- Domande Preimpostate -->
             <div class="quick-replies" id="quickReplies">
-                </div>
+                <!-- Bottoni generati qui dal JS -->
+            </div>
             
+            <!-- Input -->
             <div class="chat-input">
                 <input type="text" id="userInput" placeholder="Scrivi un messaggio..." autofocus>
                 <button onclick="sendMessage()" id="sendButton">Invia</button>
@@ -315,24 +322,22 @@
 
         // Funzione per aggiungere un messaggio con avatar
         function appendMessage(text, sender) {
-            // ✅ PULIZIA DEGLI ASTERISCHI
-            let cleanText = text;
-            // Rimuove ** (grassetto) e * (punti elenco/grassetto) da tutte le risposte (anche quick replies cliccate)
-            cleanText = text.replace(/\*\*/g, '').replace(/\*/g, '');
+            // ✅ PULIZIA DEGLI ASTERISCHI: Rimuove ** (grassetto) e * (punti elenco/grassetto)
+            let cleanText = text.replace(/\*\*/g, '').replace(/\*/g, '');
 
             const messageRow = document.createElement('div');
             messageRow.classList.add('message-row', sender);
             
             const avatar = document.createElement('img');
             avatar.classList.add('avatar');
-            // Assicurati che i percorsi delle immagini siano corretti!
-            avatar.src = sender === 'user' ? 'avatar.jpg' : 'foto_chatbot.png'; 
+            // ✅ AGGIORNAMENTO PERCORSI AVATAR
+            avatar.src = sender === 'user' ? 'images/foto_chatbot.prg' : 'images/Avatar.jpeg'; 
             avatar.alt = sender === 'user' ? 'Utente' : 'Bot';
 
             const messageDiv = document.createElement('div');
             messageDiv.classList.add('message', `${sender}-message`);
             
-            // Usa cleanText per la visualizzazione
+            // Usa cleanText per la visualizzazione e converte i ritorni a capo in <br>
             messageDiv.innerHTML = cleanText.replace(/\n/g, '<br>'); 
 
             if (sender === 'bot') {
@@ -360,7 +365,8 @@
             
             const avatar = document.createElement('img');
             avatar.classList.add('avatar');
-            avatar.src = 'foto_chatbot.png';
+            // ✅ Avatar Bot: Usa Avatar.jpeg
+            avatar.src = 'images/Avatar.jpeg';
             avatar.alt = 'Bot';
             messageRow.appendChild(avatar);
             
@@ -404,7 +410,7 @@
                 }
 
                 if (response.ok && data.response) {
-                    // 5. Aggiungi la risposta del bot
+                    // 5. Aggiungi la risposta del bot (appendMessage gestisce la pulizia degli asterischi)
                     appendMessage(data.response, 'bot');
                 } else if (data.error) {
                     appendMessage(`ERRORE SERVER: ${data.error}`, 'bot');
