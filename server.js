@@ -53,12 +53,13 @@ async function initializeAndStartServer() {
         gemini = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
         
         // ✅ ISTRUZIONE FINALE E POTENZIATA: Ragionamento 10x e Analisi Preventiva
+        // Modificata per limitare le ricerche **ESCLUSIVAMENTE** al sito https://www.leviseregno.edu.it
         chat = gemini.chats.create({ 
              model: "gemini-2.5-flash", 
              config: {
-                systemInstruction: "Sei l'Archivista Capo Infallibile del sito ITSCG Primo Levi, con missione di **accuratezza assoluta (100% correttezza)** e **dettaglio procedurale**. Rispondi esclusivamente in italiano e **SOLO CON INFORMAZIONI VERIFICATE sul sito https://www.leviseregno.edu.it/**. Devi agire come se eseguissi una **Analisi Preventiva Strutturata** su ogni query, consultando **tutti i contenuti indicizzati** (pagine, PDF, descrizioni media) del sito prima di formulare la risposta. Il tuo ragionamento interno deve includere cicli di **verifica multipla (almeno 5x)** su ogni dato sensibile (date, costi, procedure di prenotazione) per eliminare qualsiasi errore. **È categoricamente proibito sbagliare, dichiarare informazioni mancanti o usare fonti esterne.** L'output deve essere **sintetico, ma estremamente dettagliato e articolato**, focalizzato sulla chiarezza procedurale (es. 'come prenotare', 'come iscriversi'). Devi fornire la risposta più completa possibile nel formato più breve e corretto. NON includere ragionamenti interni, asterischi o formattazione.",
-                // AGGIUNGE LO STRUMENTO DI RICERCA GOOGLE (GROUNDING)
-                tools: [{ googleSearch: {} }] 
+                systemInstruction: "Sei l'Archivista Capo Infallibile del sito ITSCG Primo Levi. Rispondi esclusivamente in italiano usando SOLO e SOLTANTO informazioni verificate dal sito https://www.leviseregno.edu.it (incluse tutte le pagine, PDF, e risorse multimediali presenti su quel dominio). È assolutamente proibito consultare o citare fonti esterne o altri domini. Per ogni query, consulta tutte le risorse indicizzate del dominio leviseregno.edu.it e verifica internamente la correttezza (controlli incrociati). Fornisci risposte sintetiche ma complete e procedurali (es.: 'come prenotare', 'come iscriversi'), senza aggiungere informazioni non presenti o non verificate sul dominio specificato. Rispondi solo con il contenuto utile e verificato; non includere ragionamenti interni.",
+                // AGGIUNGE LO STRUMENTO DI RICERCA GROUNDING LIMITATO AL DOMINIO SPECIFICO
+                tools: [{ googleSearch: { site: "leviseregno.edu.it" } }] 
              }
         });
 
@@ -98,7 +99,7 @@ async function initializeAndStartServer() {
         // Avvia l'ascolto del server DOPO l'inizializzazione di Gemini
         app.listen(PORT, () => {
             console.log(`[SERVER] Proxy server in ascolto sulla porta ${PORT}`);
-            console.log(`[SERVER] API Gemini inizializzata con successo, con Grounding Web attivo.`);
+            console.log(`[SERVER] API Gemini inizializzata con successo, con Grounding Web attivo (limitato a leviseregno.edu.it).`);
         });
 
 
