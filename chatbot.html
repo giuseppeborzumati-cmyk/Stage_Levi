@@ -24,19 +24,21 @@
             padding: 0;
             background-color: var(--background-light);
             display: flex;
+            justify-content: center; /* Centra orizzontalmente */
+            align-items: center; /* Centra verticalmente */
             min-height: 100vh;
         }
 
         .main-container {
             display: flex;
-            width: 100%;
+            width: 95%; /* Leggermente più grande */
             max-width: 1200px;
-            margin: 40px auto;
+            margin: 20px auto;
             box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
             border-radius: 12px;
             overflow: hidden;
             background-color: var(--text-light);
-            height: 90vh;
+            height: 90vh; /* Altezza fissa per un buon scroll */
         }
         
         /* Sidebar con le informazioni fisse della scuola */
@@ -48,6 +50,7 @@
             display: flex;
             flex-direction: column;
             overflow-y: auto;
+            flex-shrink: 0;
         }
         .sidebar-header {
             color: var(--primary-color);
@@ -95,12 +98,12 @@
             border-bottom: 4px solid var(--secondary-color);
         }
         .logo-img {
-            height: 40px; 
-            width: 40px; 
+            height: 60px; /* ✅ GRANDEZZA MIGLIORATA per il logo/scuola */
+            width: 60px; 
             border-radius: 50%; 
             object-fit: cover; 
             margin-right: 15px;
-            border: 2px solid var(--text-light);
+            border: 3px solid var(--text-light);
             flex-shrink: 0;
         }
         .header-info {
@@ -110,12 +113,12 @@
         }
         .header-title {
             font-weight: 700;
-            font-size: 1.1em;
+            font-size: 1.2em;
         }
         .header-subtitle {
             font-weight: 400;
-            font-size: 0.8em;
-            opacity: 0.8;
+            font-size: 0.85em;
+            opacity: 0.9;
         }
 
         /* BOX MESSAGGI con avatar */
@@ -128,7 +131,7 @@
         .message-row {
             display: flex;
             margin-bottom: 15px;
-            align-items: flex-end;
+            align-items: flex-start; /* Allinea in alto */
         }
         .message-row.user {
             justify-content: flex-end;
@@ -136,11 +139,13 @@
         .message-row.bot {
             justify-content: flex-start;
         }
+        /* ✅ CORREZIONE: Avatar ridimensionato a 30px */
         .avatar {
             height: 30px;
             width: 30px;
             border-radius: 50%;
             object-fit: cover;
+            flex-shrink: 0; /* Impedisce che si rimpicciolisca */
         }
         .message-row.bot .avatar {
             margin-right: 10px;
@@ -155,15 +160,17 @@
             word-wrap: break-word;
             line-height: 1.4;
             box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+            /* Assicura che il testo non vada fuori dai limiti */
+            min-width: 50px; 
         }
         .user-message {
             background-color: #c5e1a5; 
-            text-align: right;
+            border-bottom-right-radius: 0; /* Rendi il bordo piatto verso l'avatar */
         }
         .bot-message {
             background-color: var(--text-light);
-            text-align: left;
             border: 1px solid #e0e0e0;
+            border-bottom-left-radius: 0; /* Rendi il bordo piatto verso l'avatar */
         }
         
         /* Animazione per l'indicatore di scrittura */
@@ -206,6 +213,30 @@
             padding: 12px 25px;
             border-radius: 25px;
             cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .chat-input button:hover:not(:disabled) {
+            background-color: #3b74e8;
+        }
+        .chat-input button:disabled {
+            background-color: #90a4ae;
+            cursor: not-allowed;
+        }
+        
+        /* Media Query per Mobile: Nasconde Sidebar su schermi stretti */
+        @media (max-width: 768px) {
+            .main-container {
+                margin: 0;
+                width: 100%;
+                height: 100vh;
+                border-radius: 0;
+            }
+            .sidebar {
+                display: none; /* Nasconde le info fisse su mobile */
+            }
+            .chat-header {
+                font-size: 1.2em;
+            }
         }
     </style>
 </head>
@@ -221,7 +252,7 @@
 
             <div class="info-card">
                 <h4>Descrizione</h4>
-                <p>Assistente Virtuale ibrido dell'ITSCG Primo Levi. Fornisce risposte certificate (Gemini) e, se necessario, usa la conoscenza generale (ChatGPT).</p>
+                <p>Assistente Virtuale basato su Gemini. Fornisce risposte certificate e infallibili, analizzando tutti i contenuti del sito ITSCG Primo Levi.</p>
             </div>
 
             <div class="info-card">
@@ -241,25 +272,23 @@
         <!-- === CHATBOT INTERFACE === -->
         <div class="chat-container">
             <div class="chat-header">
-                <!-- LOGO/FOTO SCUOLA: Avatar.jpeg -->
+                <!-- LOGO/FOTO SCUOLA: Levi.png -->
                 <img src="Levi.png" alt="Logo Primo Levi" class="logo-img"> 
                 <div class="header-info">
                     <span class="header-title">ITSCG Primo Levi</span>
-                    <span class="header-subtitle">Assistente Virtuale ITSCG Primo Levi</span>
+                    <span class="header-subtitle">Archivista Capo Infallibile (Gemini)</span>
                 </div>
             </div>
             
             <div class="chat-box" id="chatBox">
                 <div class="message-row bot">
-                    <!-- Avatar Bot: Avatar.jpeg -->
-                    <img src="foto_chatbot.png" alt="Bot" class="avatar.jpg">
+                    <!-- Avatar Bot Iniziale: avatar.jpg -->
+                    <img src="avatar.jpg" alt="Bot" class="avatar">
                     <div class="message bot-message">
-                         Benvenuto! Sono l'assistente ufficiale. Faccio sempre il possibile per fornirti risposte certificate e accurate (Gemini).
+                         Benvenuto! Sono l'Archivista Capo Infallibile. Eseguo una verifica incrociata sui tutti i documenti ufficiali del sito ITSCG Primo Levi prima di risponderti. Chiedi pure.
                     </div>
                 </div>
             </div>
-            
-            <!-- NON CI SONO RISPOSTE PREFISSATE, L'AREA QUICK-REPLIES È STATA RIMOSSA -->
             
             <!-- Input -->
             <div class="chat-input">
@@ -287,24 +316,31 @@
 
         // Funzione per aggiungere un messaggio con avatar
         function appendMessage(text, sender) {
-            // ✅ CORRETTORE DEGLI ASTERISCHI: Rimuove ** (grassetto) e * (punti elenco/grassetto)
-            let cleanText = text.replace(/\*\*/g, '').replace(/\*/g, '');
+            // ✅ CORRETTORE DEGLI ASTERISCHI: Rimuove ** e * (poiché l'istruzione di sistema nel backend proibisce l'uso di formattazione)
+            // Sostituisce i ritorni a capo con <br> per la visualizzazione corretta
+            let cleanText = text.replace(/\*\*/g, '').replace(/\*/g, '').replace(/\n/g, '<br>');
 
             const messageRow = document.createElement('div');
             messageRow.classList.add('message-row', sender);
             
             const avatar = document.createElement('img');
+            // ✅ CORREZIONE: Usa la classe CSS 'avatar' (30px)
             avatar.classList.add('avatar');
             
-            // ✅ PERCORSI FOTO CORRETTI
-            avatar.src = sender === 'user' ? 'foto_chatbot.png' : 'avatar.jpg'; 
-            avatar.alt = sender === 'user' ? 'Utente' : 'Bot';
+            // ✅ PERCORSI FOTO CORRETTI: Differenzia l'avatar Utente e Bot
+            if (sender === 'user') {
+                 // Utente: foto_chatbot.png (Usato come avatar utente)
+                avatar.src = 'foto_chatbot.png'; 
+                avatar.alt = 'Utente';
+            } else {
+                // Bot: avatar.jpg (Usato come avatar bot)
+                avatar.src = 'avatar.jpg'; 
+                avatar.alt = 'Bot';
+            }
 
             const messageDiv = document.createElement('div');
             messageDiv.classList.add('message', `${sender}-message`);
-            
-            // Usa cleanText per la visualizzazione e converte i ritorni a capo in <br>
-            messageDiv.innerHTML = cleanText.replace(/\n/g, '<br>'); 
+            messageDiv.innerHTML = cleanText; 
 
             if (sender === 'bot') {
                 messageRow.appendChild(avatar);
@@ -323,7 +359,7 @@
         function showTypingIndicator() {
             const indicatorHTML = `
                 <div class="message bot-message typing-indicator" style="width: fit-content; padding: 12px 20px;">
-                    Sto analizzando i documenti ITSCG... <span></span>
+                    Sto eseguendo la verifica incrociata su tutti i documenti... <span></span><span></span><span></span>
                 </div>`;
             
             const messageRow = document.createElement('div');
@@ -332,11 +368,15 @@
             const avatar = document.createElement('img');
             avatar.classList.add('avatar');
             // Avatar Bot: avatar.jpg
-            avatar.src = 'foto_chatbot.png';
+            avatar.src = 'avatar.jpg';
             avatar.alt = 'Bot';
+            
+            // Inserisce prima l'avatar
             messageRow.appendChild(avatar);
             
-            messageRow.innerHTML += indicatorHTML;
+            // Poi inserisce l'indicatore
+            messageRow.insertAdjacentHTML('beforeend', indicatorHTML);
+            
             chatBox.appendChild(messageRow);
             
             loadingMessageElement = messageRow;
@@ -347,8 +387,9 @@
             const message = messageText;
             if (message === '') return;
 
+            // Pulisce l'input solo se l'utente ha premuto Invio o il tasto Invia
             if (messageText === userInput.value.trim()) {
-                 userInput.value = '';
+                userInput.value = '';
             }
 
             // 1. Aggiungi il messaggio dell'utente
@@ -359,7 +400,7 @@
             showTypingIndicator(); 
 
             try {
-                // 3. Invia la richiesta al proxy server (che si occupa del fallback Gemini/ChatGPT)
+                // 3. Invia la richiesta al proxy server
                 const response = await fetch(PROXY_URL, {
                     method: 'POST',
                     headers: {
@@ -376,12 +417,12 @@
                 }
 
                 if (response.ok && data.response) {
-                    // 5. Aggiungi la risposta del bot (appendMessage gestisce la pulizia degli asterischi)
+                    // 5. Aggiungi la risposta del bot
                     appendMessage(data.response, 'bot');
                 } else if (data.error) {
                     appendMessage(`ERRORE DI INTEGRAZIONE: ${data.error}`, 'bot');
                 } else {
-                    appendMessage('ERRORE: La risposta dal server proxy è vuota o non valida.', 'bot');
+                    appendMessage('ERRORE: La risposta dal server proxy è vuota o non valida. Controlla il log del server proxy.', 'bot');
                 }
 
             } catch (error) {
@@ -389,7 +430,7 @@
                 if (loadingMessageElement) {
                     loadingMessageElement.remove();
                 }
-                appendMessage('ERRORE DI CONNESSIONE: Impossibile raggiungere il proxy server su Render.', 'bot');
+                appendMessage('ERRORE DI CONNESSIONE: Impossibile raggiungere il proxy server. Verifica che sia attivo.', 'bot');
             } finally {
                 // 6. Riabilita input 
                 disableInput(false);
@@ -401,11 +442,12 @@
         function disableInput(state) {
             sendButton.disabled = state;
             userInput.disabled = state;
+            userInput.style.borderColor = state ? '#aaa' : '#ccc';
         }
 
         // Permetti l'invio premendo Invio nel campo di testo
         userInput.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
+            if (e.key === 'Enter' && !sendButton.disabled) {
                 e.preventDefault(); 
                 sendMessage();
             }
@@ -417,4 +459,3 @@
     </script>
 </body>
 </html>
-
