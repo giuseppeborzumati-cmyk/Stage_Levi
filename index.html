@@ -20,6 +20,24 @@
         .modal-button-primary:hover:enabled { background-color: #4338ca; }
         .modal-button-secondary { background-color: #f3f4f6; color: #374151; padding: 0.75rem 1.5rem; border-radius: 0.5rem; font-weight: 600; transition: background-color 0.2s; }
         .modal-button-secondary:hover { background-color: #e5e7eb; }
+        .tab-button {
+            padding: 0.75rem 1.5rem;
+            border-bottom: 4px solid transparent;
+            font-weight: 600;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .tab-button:hover:not(.tab-active) {
+            border-bottom: 4px solid #c7d2fe; /* light indigo */
+        }
+        .date-card {
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+        }
+        .date-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
     </style>
 </head>
 <body class="min-h-screen">
@@ -60,13 +78,13 @@
             <section class="bg-indigo-50 p-6 rounded-xl shadow-md border-l-4 border-indigo-500 space-y-4">
                 <p class="text-lg font-extrabold text-red-600">⚠️ ATTENZIONE: Documento di Conferma Importante!</p>
                 <p class="text-gray-700">Conservare il PDF di conferma e presentarlo all'ingresso il giorno dello Stage. </p>
-                <p class="text-gray-700">Presentarsi almeno 10 minuti prima dell' orario indicato </p>
+                <p class="text-gray-700">Presentarsi almeno 10 minuti prima dell' orario indicato. </p>
                 
                 <p class="text-sm text-gray-500 pt-3">Organizzazione a cura delle Funzioni Orientamento: Prof. ssa Mariagrazia Calabrese e Prof. ssa Laura Corvi. ITSCG PRIMO LEVI DI SEREGNO, VIA BRIANTINA 68.</p>
 
-                <div id="cancellation-section" class="pt-4 border-t border-indigo-200 flex justify-between items-center">
+                <div id="cancellation-section" class="pt-4 border-t border-indigo-200 flex flex-col sm:flex-row justify-between items-center space-y-3 sm:space-y-0">
                     <p class="text-yellow-800 font-medium">Hai già prenotato ma devi annullare? Utilizza il tuo codice prenotazione.</p>
-                    <button id="open-cancellation-modal-btn" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-xl transition duration-200 shadow-lg">
+                    <button id="open-cancellation-modal-btn" class="w-full sm:w-auto bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-xl transition duration-200 shadow-lg">
                         Annulla Prenotazione
                     </button>
                 </div>
@@ -82,22 +100,25 @@
 
             <!-- 2. SELEZIONE DATA (Dopo aver scelto il corso) -->
             <section id="date-selection-view" class="hidden bg-white p-6 rounded-xl shadow-lg">
-                <div class="flex items-center space-x-4 mb-6">
+                <div class="flex items-center space-x-4 mb-6 border-b pb-4">
                     <button id="back-to-courses-btn" class="text-indigo-600 hover:text-indigo-800 font-semibold flex items-center">
                         <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
                         Torna agli Indirizzi
                     </button>
                     <h2 id="selected-course-title" class="text-xl font-bold text-gray-800"></h2>
                 </div>
-                <div id="dates-container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <h3 class="text-lg font-semibold text-gray-700 mb-4">Seleziona una data e un orario disponibile:</h3>
+                <div id="dates-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                     <!-- Le date saranno renderizzate qui -->
                 </div>
             </section>
         </div>
         
-        <!-- VISTA DOCENTE e MODALI (omesse per brevità, sono nel codice JS/HTML) -->
+        <!-- ========================================================================= -->
+        <!-- VISTA DOCENTE -->
+        <!-- ========================================================================= -->
         <div id="docente-view" class="hidden">
-            <div class="bg-white p-6 rounded-xl shadow-lg">
+            <div class="bg-white p-6 rounded-xl shadow-2xl">
                 <div class="flex justify-between items-center mb-6 border-b pb-4">
                     <h2 class="text-2xl font-bold text-indigo-700">Dashboard Docente | Gestione Prenotazioni</h2>
                     <button id="logout-docente-btn" class="bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-4 rounded-xl transition duration-200 shadow-md">
@@ -106,42 +127,43 @@
                 </div>
 
                 <!-- Tabs di Navigazione -->
-                <div class="flex border-b mb-6">
-                    <button id="tab-bookings" class="tab-button px-4 py-2 text-gray-600 hover:text-indigo-700 transition duration-150">Prenotazioni Attive</button>
-                    <button id="tab-cancellations" class="tab-button px-4 py-2 text-gray-600 hover:text-indigo-700 transition duration-150">Log Annullamenti</button>
+                <div class="flex border-b mb-6 overflow-x-auto whitespace-nowrap">
+                    <button id="tab-bookings" class="tab-button tab-active">Prenotazioni Attive</button>
+                    <button id="tab-cancellations" class="tab-button">Log Annullamenti</button>
                 </div>
                 
                 <!-- Contenuto Tab 1: Prenotazioni Attive -->
-                <div id="content-bookings" class="tab-content">
-                    <div class="flex justify-between items-center mb-4">
-                        <div class="flex space-x-4">
+                <div id="content-bookings" class="tab-content space-y-6">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
+                        <div class="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4 w-full sm:w-auto">
                             <label class="flex items-center space-x-2 text-gray-600">
                                 Filtra per Data:
-                                <select id="date-filter" class="p-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500"></select>
+                                <select id="date-filter" class="p-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 w-full"></select>
                             </label>
-                            <button id="export-csv-btn" class="bg-green-500 hover:bg-green-600 text-white font-medium py-2 px-4 rounded-xl transition duration-200">
+                            <button id="export-csv-btn" class="bg-green-500 hover:bg-green-600 text-white font-medium py-2 px-4 rounded-xl transition duration-200 w-full sm:w-auto">
                                 Esporta in CSV
                             </button>
                         </div>
-                        <button id="open-delete-modal-btn" class="bg-red-100 hover:bg-red-200 text-red-700 font-medium py-2 px-4 rounded-xl transition duration-200">
+                        <button id="open-delete-modal-btn" class="bg-red-100 hover:bg-red-200 text-red-700 font-medium py-2 px-4 rounded-xl transition duration-200 w-full sm:w-auto">
                             Cancella tutti i dati
                         </button>
                     </div>
 
-                    <div class="overflow-x-auto shadow-md rounded-lg">
+                    <div class="overflow-x-auto shadow-md rounded-lg border border-gray-200">
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-indigo-50">
                                 <tr>
-                                    <th class="px-2 py-3 text-left text-xs font-medium text-indigo-700 uppercase tracking-wider">Codice</th>
-                                    <th class="px-2 py-3 text-left text-xs font-medium text-indigo-700 uppercase tracking-wider">Studente</th>
-                                    <th class="px-2 py-3 text-left text-xs font-medium text-indigo-700 uppercase tracking-wider">Corso</th>
-                                    <th class="px-2 py-3 text-left text-xs font-medium text-indigo-700 uppercase tracking-wider">Data</th>
-                                    <th class="px-2 py-3 text-left text-xs font-medium text-indigo-700 uppercase tracking-wider">Scuola Media</th>
-                                    <th class="px-2 py-3 text-left text-xs font-medium text-indigo-700 uppercase tracking-wider">Contatti</th>
-                                    <th class="px-2 py-3 text-left text-xs font-medium text-indigo-700 uppercase tracking-wider">Iscritto il</th>
+                                    <th class="px-3 py-3 text-left text-xs font-medium text-indigo-700 uppercase tracking-wider">Codice</th>
+                                    <th class="px-3 py-3 text-left text-xs font-medium text-indigo-700 uppercase tracking-wider">Studente</th>
+                                    <th class="px-3 py-3 text-left text-xs font-medium text-indigo-700 uppercase tracking-wider">Corso</th>
+                                    <th class="px-3 py-3 text-left text-xs font-medium text-indigo-700 uppercase tracking-wider">Data</th>
+                                    <th class="px-3 py-3 text-left text-xs font-medium text-indigo-700 uppercase tracking-wider">Orario</th>
+                                    <th class="px-3 py-3 text-left text-xs font-medium text-indigo-700 uppercase tracking-wider">Scuola Media</th>
+                                    <th class="px-3 py-3 text-left text-xs font-medium text-indigo-700 uppercase tracking-wider">Contatti</th>
+                                    <th class="px-3 py-3 text-left text-xs font-medium text-indigo-700 uppercase tracking-wider">Iscritto il</th>
                                 </tr>
                             </thead>
-                            <tbody id="bookings-table-body" class="bg-white divide-y divide-gray-200">
+                            <tbody id="bookings-table-body" class="bg-white divide-y divide-gray-100">
                                 <!-- I dati delle prenotazioni attive saranno qui -->
                             </tbody>
                         </table>
@@ -150,21 +172,21 @@
                 </div>
 
                 <!-- Contenuto Tab 2: Log Annullamenti -->
-                <div id="content-cancellations" class="tab-content hidden">
+                <div id="content-cancellations" class="tab-content hidden space-y-6">
                     <p class="text-sm text-gray-500 mb-4">Registro di tutte le prenotazioni che sono state annullate dagli utenti. Questi posti sono stati ripristinati.</p>
-                    <div class="overflow-x-auto shadow-md rounded-lg">
+                    <div class="overflow-x-auto shadow-md rounded-lg border border-gray-200">
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-red-50">
                                 <tr>
-                                    <th class="px-2 py-3 text-left text-xs font-medium text-red-700 uppercase tracking-wider">Codice Annullato</th>
-                                    <th class="px-2 py-3 text-left text-xs font-medium text-red-700 uppercase tracking-wider">Nome Studente</th>
-                                    <th class="px-2 py-3 text-left text-xs font-medium text-red-700 uppercase tracking-wider">Corso</th>
-                                    <th class="px-2 py-3 text-left text-xs font-medium text-red-700 uppercase tracking-wider">Data Originale</th>
-                                    <th class="px-2 py-3 text-left text-xs font-medium text-red-700 uppercase tracking-wider">Annullato il</th>
-                                    <th class="px-2 py-3 text-left text-xs font-medium text-red-700 uppercase tracking-wider">Motivazione</th>
+                                    <th class="px-3 py-3 text-left text-xs font-medium text-red-700 uppercase tracking-wider">Codice Annullato</th>
+                                    <th class="px-3 py-3 text-left text-xs font-medium text-red-700 uppercase tracking-wider">Nome Studente</th>
+                                    <th class="px-3 py-3 text-left text-xs font-medium text-red-700 uppercase tracking-wider">Corso</th>
+                                    <th class="px-3 py-3 text-left text-xs font-medium text-red-700 uppercase tracking-wider">Data/Ora Originale</th>
+                                    <th class="px-3 py-3 text-left text-xs font-medium text-red-700 uppercase tracking-wider">Annullato il</th>
+                                    <th class="px-3 py-3 text-left text-xs font-medium text-red-700 uppercase tracking-wider">Motivazione</th>
                                 </tr>
                             </thead>
-                            <tbody id="cancellations-table-body" class="bg-white divide-y divide-gray-200">
+                            <tbody id="cancellations-table-body" class="bg-white divide-y divide-gray-100">
                                 <!-- I log di cancellazione saranno qui -->
                             </tbody>
                         </table>
@@ -174,7 +196,7 @@
 
             </div>
         </div>
-        <!-- Inserimento Modali qui per completezza (omesse in questa preview per brevità, sono nel codice finale) -->
+        <!-- Modali (lasciate identiche per funzionalità) -->
         <!-- Modale Prenotazione Studente -->
         <div id="booking-modal" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center p-4 hidden z-40">
             <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg p-6 space-y-4">
@@ -299,19 +321,26 @@
         // 📚 IMPORTAZIONI FIREBASE
         // =========================================================================
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged, setPersistence, browserSessionPersistence } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { 
-            getFirestore, collection, query, where, addDoc, 
-            onSnapshot, serverTimestamp, deleteDoc, getDocs, doc, setLogLevel
+            getFirestore, collection, query, addDoc, onSnapshot, serverTimestamp, 
+            deleteDoc, getDocs, doc, setLogLevel, writeBatch, runTransaction, where
         } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-analytics.js";
+        
+        // Impostiamo il livello di log per il debug (opzionale)
+        setLogLevel('error');
         
         // =========================================================================
         // ⚙️ CONFIGURAZIONE FIREBASE E VARIABILI DI STATO
         // =========================================================================
         
-        // CONFIGURAZIONE FIREBASE FORNITA DALL'UTENTE (Hardcoded)
-        const firebaseConfig = {
+        // CONFIGURAZIONE GLOBALE/FALLBACK (per ambiente Canvas)
+        const canvasAppId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const canvasFirebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+        const canvasAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        // Configurazione di fallback se i globali non sono presenti (come nel codice fornito dall'utente)
+        const fallbackConfig = {
             apiKey: "AIzaSyAP-Bmf02SZp4o6K2z2B1GgIlUJ3Wuc8Zk",
             authDomain: "progetto-63fb3.firebaseapp.com",
             projectId: "progetto-63fb3", 
@@ -321,9 +350,8 @@
             measurementId: "G-2PNR8PQHDR"
         };
 
-        // Utilizziamo l'ID del progetto come ID dell'App per costruire il percorso Firestore
-        // Questo è necessario per rispettare la struttura di sicurezza
-        const PROJECT_ID_AS_APP_ID = firebaseConfig.projectId;
+        const firebaseConfig = Object.keys(canvasFirebaseConfig).length > 0 ? canvasFirebaseConfig : fallbackConfig;
+        const PROJECT_ID_AS_APP_ID = canvasAppId === 'default-app-id' ? firebaseConfig.projectId : canvasAppId;
         
         // Variabili Firebase e Stato Globale
         let db = null;
@@ -331,96 +359,29 @@
         let userId = null;
         let isDocente = false; 
         
-        const MAX_SLOTS = 4; // Posti fissi per ogni slot data/corso
+        const MAX_SLOTS = 4; // Posti fissi per ogni slot data/corso UNICO (incluso l'orario)
         let currentBookings = []; 
         let currentCancellations = [];
         let currentAvailability = {}; 
         let currentCourseId = null; 
         
-        // Credenziali Docente Fisse
+        // Credenziali Docente Fisse (Utilizzate solo per la simulazione di login)
         const DOCENTE_USERNAME = 'docente';
         const DOCENTE_PASSWORD = 'its2025';
 
         const BOOKINGS_COLLECTION_PATH = `/artifacts/${PROJECT_ID_AS_APP_ID}/public/data/bookings`;
         const CANCELLATIONS_COLLECTION_PATH = `/artifacts/${PROJECT_ID_AS_APP_ID}/public/data/cancellations`;
         
-        // Struttura fissa dei corsi (omessa per brevità, stessa del precedente)
+        // Struttura fissa dei corsi
         const COURSES = [
-    { 
-        id: 'SA', 
-        name: 'Liceo Scientifico Opzione Scienze Applicate ', 
-        // CAMBIATO IN ROSSO (RED)
-        color: 'bg-red-100 text-red-800', 
-        icon: '<svg class="w-8 h-8 text-red-600 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2zM9 8h6M9 12h6M9 16h6"></path></svg>' 
-    }, 
-    { 
-        id: 'SM', 
-        name: 'Sistema Moda', 
-        // CAMBIATO IN VIOLA (PURPLE)
-        color: 'bg-purple-100 text-purple-800', 
-        icon: '<svg class="w-8 h-8 text-purple-600 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 13v8a1 1 0 001 1h8a1 1 0 001-1v-8m-7 0H7m0 0l-1-2m1 2l1-2m7 2h-4m-4 0l-1-2m1 2l1-2m-1 2H7"></path></svg>' 
-    },
-    { 
-        id: 'RM', 
-        name: 'Relazioni Internazionali per il Marketing', 
-        // CAMBIATO IN BLU (BLUE)
-        color: 'bg-blue-100 text-blue-800', 
-        icon: '<svg class="w-8 h-8 text-blue-600 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c1.657 0 3 .895 3 2s-1.343 2-3 2v5m0 0a2 2 0 100 4 2 2 0 000-4zM12 8V6a2 2 0 100-4 2 2 0 000 4z"></path></svg>' 
-    },
-    { 
-        id: 'LG', 
-        name: 'Logistica Corso Quadriennale', 
-        // CAMBIATO IN VERDE (GREEN)
-        color: 'bg-green-100 text-green-800', 
-        icon: '<svg class="w-8 h-8 text-green-600 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-4 4m0 0l-4-4m4 4V7"></path></svg>' 
-    },
-    { 
-        id: 'CT', 
-        name: 'Costruzione Ambiente e Territorio', 
-        // CAMBIATO IN ARANCIONE (ORANGE)
-        color: 'bg-orange-100 text-orange-800', 
-        icon: '<svg class="w-8 h-8 text-orange-600 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>' 
-    }
-];
+            { id: 'SA', name: 'Liceo Scientifico Opzione Scienze Applicate', color: 'bg-red-100 text-red-800', icon: '<svg class="w-8 h-8 text-red-600 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2zM9 8h6M9 12h6M9 16h6"></path></svg>', dates: [ '2025-11-03|Lunedì|11:50-13:50', '2025-11-05|Mercoledì|08:50-10:50', '2025-11-10|Lunedì|11:50-13:50', '2025-11-12|Mercoledì|08:50-10:50', '2025-11-17|Lunedì|11:50-13:50', '2025-11-19|Mercoledì|08:50-10:50', '2025-11-24|Lunedì|11:50-13:50', '2025-11-26|Mercoledì|08:50-10:50', '2025-12-01|Lunedì|11:50-13:50', '2025-12-03|Mercoledì|08:50-10:50', '2025-12-10|Mercoledì|08:50-10:50', '2025-12-10|Mercoledì|11:50-13:50', '2025-12-15|Lunedì|11:50-13:50', '2025-12-17|Mercoledì|08:50-10:50' ] },
+            { id: 'SM', name: 'Sistema Moda', color: 'bg-purple-100 text-purple-800', icon: '<svg class="w-8 h-8 text-purple-600 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 13v8a1 1 0 001 1h8a1 1 0 001-1v-8m-7 0H7m0 0l-1-2m1 2l1-2m7 2h-4m-4 0l-1-2m1 2l1-2m-1 2H7"></path></svg>', dates: [ '2025-11-03|Lunedì|12:50-14:40', '2025-11-05|Mercoledì|08:50-10:50', '2025-11-10|Lunedì|12:50-14:40', '2025-11-12|Mercoledì|08:50-10:50', '2025-11-17|Lunedì|12:50-14:40', '2025-11-19|Mercoledì|08:50-10:50', '2025-11-24|Lunedì|12:50-14:40', '2025-11-26|Mercoledì|08:50-10:50', '2025-12-01|Lunedì|12:50-14:40', '2025-12-03|Mercoledì|08:50-10:50', '2025-12-10|Mercoledì|08:50-10:50', '2025-12-10|Mercoledì|13:00-14:40', '2025-12-15|Lunedì|12:50-14:40', '2025-12-17|Mercoledì|08:50-10:50' ] },
+            { id: 'RM', name: 'Relazioni Internazionali per il Marketing', color: 'bg-blue-100 text-blue-800', icon: '<svg class="w-8 h-8 text-blue-600 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c1.657 0 3 .895 3 2s-1.343 2-3 2v5m0 0a2 2 0 100 4 2 2 0 000-4zM12 8V6a2 2 0 100-4 2 2 0 000 4z"></path></svg>', dates: [ '2025-11-03|Lunedì|12:50-14:40', '2025-11-05|Mercoledì|08:50-10:50', '2025-11-10|Lunedì|12:50-14:40', '2025-11-12|Mercoledì|08:50-10:50', '2025-11-17|Lunedì|12:50-14:40', '2025-11-19|Mercoledì|08:50-10:50', '2025-11-24|Lunedì|12:50-14:40', '2025-11-26|Mercoledì|08:50-10:50', '2025-12-01|Lunedì|12:50-14:40', '2025-12-03|Mercoledì|08:50-10:50', '2025-12-10|Mercoledì|08:50-10:50', '2025-12-10|Mercoledì|13:00-14:40', '2025-12-15|Lunedì|12:50-14:40', '2025-12-17|Mercoledì|08:50-10:50' ] },
+            { id: 'LG', name: 'Logistica Corso Quadriennale', color: 'bg-green-100 text-green-800', icon: '<svg class="w-8 h-8 text-green-600 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-4 4m0 0l-4-4m4 4V7"></path></svg>', dates: [ '2025-11-03|Lunedì|12:50-14:40', '2025-11-05|Mercoledì|08:50-10:50', '2025-11-10|Lunedì|12:50-14:40', '2025-11-12|Mercoledì|08:50-10:50', '2025-11-17|Lunedì|12:50-14:40', '2025-11-19|Mercoledì|08:50-10:50', '2025-11-24|Lunedì|12:50-14:40', '2025-11-26|Mercoledì|08:50-10:50', '2025-12-01|Lunedì|12:50-14:40', '2025-12-03|Mercoledì|08:50-10:50', '2025-12-10|Mercoledì|08:50-10:50', '2025-12-15|Lunedì|12:50-14:40', '2025-12-17|Mercoledì|08:50-10:50' ] },
+            { id: 'CT', name: 'Costruzione Ambiente e Territorio', color: 'bg-orange-100 text-orange-800', icon: '<svg class="w-8 h-8 text-orange-600 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>', dates: [ '2025-11-03|Lunedì|12:50-14:40', '2025-11-05|Mercoledì|08:50-10:50', '2025-11-10|Lunedì|12:50-14:40', '2025-11-12|Mercoledì|08:50-10:50', '2025-11-17|Lunedì|12:50-14:40', '2025-11-19|Mercoledì|08:50-10:50', '2025-11-24|Lunedì|12:50-14:40', '2025-11-26|Mercoledì|08:50-10:50', '2025-12-01|Lunedì|12:50-14:40', '2025-12-03|Mercoledì|08:50-10:50', '2025-12-10|Mercoledì|08:50-10:50', '2025-12-10|Mercoledì|13:00-14:40', '2025-12-15|Lunedì|12:50-14:40', '2025-12-17|Mercoledì|08:50-10:50' ] }
+        ];
 
-        // Array di Date (Normalizzato per il codice: Data|Giorno|Orario) (omesse per brevità, stesse del precedente)
-        const DATE_ORARI_SCIENZE_APPLICATE = [
-            '2025-11-03|Lunedì|11:50-13:50', '2025-11-05|Mercoledì|08:50-10:50', '2025-11-10|Lunedì|11:50-13:50', 
-            '2025-11-12|Mercoledì|08:50-10:50', '2025-11-17|Lunedì|11:50-13:50', '2025-11-19|Mercoledì|08:50-10:50', 
-            '2025-11-24|Lunedì|11:50-13:50', '2025-11-26|Mercoledì|08:50-10:50', '2025-12-01|Lunedì|11:50-13:50', 
-            '2025-12-03|Mercoledì|08:50-10:50', '2025-12-10|Mercoledì|08:50-10:50', '2025-12-10|Mercoledì|11:50-13:50', 
-            '2025-12-15|Lunedì|11:50-13:50', '2025-12-17|Mercoledì|08:50-10:50'
-        ];
-        const DATE_ORARI_REL_MARKETING = [
-            '2025-11-03|Lunedì|12:50-14:40', '2025-11-05|Mercoledì|08:50-10:50', '2025-11-10|Lunedì|12:50-14:40', 
-            '2025-11-12|Mercoledì|08:50-10:50', '2025-11-17|Lunedì|12:50-14:40', '2025-11-19|Mercoledì|08:50-10:50', 
-            '2025-11-24|Lunedì|12:50-14:40', '2025-11-26|Mercoledì|08:50-10:50', '2025-12-01|Lunedì|12:50-14:40', 
-            '2025-12-03|Mercoledì|08:50-10:50', '2025-12-10|Mercoledì|08:50-10:50', '2025-12-10|Mercoledì|13:00-14:40', 
-            '2025-12-15|Lunedì|12:50-14:40', '2025-12-17|Mercoledì|08:50-10:50'
-        ];
-        const DATE_ORARI_LOGISTICA = [
-            '2025-11-03|Lunedì|12:50-14:40', '2025-11-05|Mercoledì|08:50-10:50', '2025-11-10|Lunedì|12:50-14:40', 
-            '2025-11-12|Mercoledì|08:50-10:50', '2025-11-17|Lunedì|12:50-14:40', '2025-11-19|Mercoledì|08:50-10:50', 
-            '2025-11-24|Lunedì|12:50-14:40', '2025-11-26|Mercoledì|08:50-10:50', '2025-12-01|Lunedì|12:50-14:40', 
-            '2025-12-03|Mercoledì|08:50-10:50', '2025-12-10|Mercoledì|08:50-10:50', '2025-12-15|Lunedì|12:50-14:40', 
-            '2025-12-17|Mercoledì|08:50-10:50'
-        ];
-        const DATE_ORARI_CAT = [
-            '2025-11-03|Lunedì|12:50-14:40', '2025-11-05|Mercoledì|08:50-10:50', '2025-11-10|Lunedì|12:50-14:40', 
-            '2025-11-12|Mercoledì|08:50-10:50', '2025-11-17|Lunedì|12:50-14:40', '2025-11-19|Mercoledì|08:50-10:50', 
-            '2025-11-24|Lunedì|12:50-14:40', '2025-11-26|Mercoledì|08:50-10:50', '2025-12-01|Lunedì|12:50-14:40', 
-            '2025-12-03|Mercoledì|08:50-10:50', '2025-12-10|Mercoledì|08:50-10:50', '2025-12-10|Mercoledì|13:00-14:40', 
-            '2025-12-15|Lunedì|12:50-14:40', '2025-12-17|Mercoledì|08:50-10:50'
-        ];
-        const DATE_ORARI_SISTEMA_MODA = [
-            '2025-11-03|Lunedì|12:50-14:40', '2025-11-05|Mercoledì|08:50-10:50', '2025-11-10|Lunedì|12:50-14:40', 
-            '2025-11-12|Mercoledì|08:50-10:50', '2025-11-17|Lunedì|12:50-14:40', '2025-11-19|Mercoledì|08:50-10:50', 
-            '2025-11-24|Lunedì|12:50-14:40', '2025-11-26|Mercoledì|08:50-10:50', '2025-12-01|Lunedì|12:50-14:40', 
-            '2025-12-03|Mercoledì|08:50-10:50', '2025-12-10|Mercoledì|08:50-10:50', '2025-12-10|Mercoledì|13:00-14:40', 
-            '2025-12-15|Lunedì|12:50-14:40', '2025-12-17|Mercoledì|08:50-10:50'
-        ];
-            
-        // Elementi DOM (omessi per brevità, stessi del precedente)
+        // Elementi DOM
         const coursesContainer = document.getElementById('courses-container');
         const messageBox = document.getElementById('message-box');
         const bookingModal = document.getElementById('booking-modal');
@@ -440,338 +401,578 @@
         const dateSelectionView = document.getElementById('date-selection-view');
         const selectedCourseTitle = document.getElementById('selected-course-title');
         const datesContainer = document.getElementById('dates-container');
-
+        const backToCoursesBtn = document.getElementById('back-to-courses-btn');
+        const tabButtons = document.querySelectorAll('.tab-button');
+        const contentBookings = document.getElementById('content-bookings');
+        const contentCancellations = document.getElementById('content-cancellations');
 
         // =========================================================================
-        // 🛠️ FUNZIONI DI UTILITY E GESTIONE DELLO STATO (omesse per brevità, stesse del precedente)
+        // 🛠 UTILITY
         // =========================================================================
 
-        function generateUniqueCode(length = 10) {
-            return Math.random().toString(36).substring(2, 2 + length).toUpperCase();
+        /** Genera un codice alfanumerico univoco di 10 caratteri. */
+        function generateBookingCode() {
+            return Math.random().toString(36).substring(2, 12).toUpperCase();
         }
 
+        /** Funzione per mostrare messaggi (Snackbar-like) */
         function showMessage(message, type = 'success') {
+            const colors = {
+                success: 'bg-green-500 text-white',
+                error: 'bg-red-500 text-white',
+                info: 'bg-blue-500 text-white'
+            };
+            messageBox.className = `fixed top-5 right-5 p-4 rounded-xl shadow-xl z-50 transition-opacity duration-300 ${colors[type]}`;
             messageBox.textContent = message;
-            messageBox.className = `fixed top-20 right-5 p-4 rounded-xl shadow-xl z-50 transition-opacity duration-300 opacity-100 ${type === 'success' ? 'bg-green-600' : 'bg-red-600'} text-white`;
-            messageBox.classList.remove('hidden', 'opacity-0');
+            messageBox.classList.remove('hidden');
             setTimeout(() => {
                 messageBox.classList.add('opacity-0');
-                messageBox.classList.remove('opacity-100');
                 setTimeout(() => messageBox.classList.add('hidden'), 300);
-            }, 5000); 
+            }, 3000);
+            messageBox.classList.remove('opacity-0');
         }
 
-        function resetFormsAndModals() {
-            document.getElementById('confirm-booking-btn').disabled = false;
-            document.getElementById('confirm-booking-btn').innerHTML = 'Conferma e Genera PDF';
-            document.getElementById('confirm-cancellation-btn').disabled = false;
-            document.getElementById('confirm-cancellation-btn').innerHTML = 'Annulla la mia Prenotazione';
-
-            bookingModal.classList.add('hidden');
-            cancellationModal.classList.add('hidden');
-            docenteLoginModal.classList.add('hidden');
-            deleteDataModal.classList.add('hidden');
-            
-            if (bookingForm) bookingForm.reset();
-            if (cancellationForm) cancellationForm.reset();
-            if (docenteLoginForm) docenteLoginForm.reset();
-            if (docenteDeleteForm) docenteDeleteForm.reset();
-        }
-        
-        document.getElementById('close-modal-btn')?.addEventListener('click', resetFormsAndModals);
-        document.getElementById('open-cancellation-modal-btn')?.addEventListener('click', () => cancellationModal.classList.remove('hidden'));
-        document.getElementById('close-cancellation-modal-btn')?.addEventListener('click', resetFormsAndModals);
-        document.getElementById('open-docente-login-btn')?.addEventListener('click', () => docenteLoginModal.classList.remove('hidden'));
-        document.getElementById('open-delete-modal-btn')?.addEventListener('click', () => deleteDataModal.classList.remove('hidden'));
-        document.getElementById('close-delete-modal-btn')?.addEventListener('click', resetFormsAndModals);
-        
-        document.getElementById('back-to-courses-btn')?.addEventListener('click', () => {
-            currentCourseId = null;
-            renderStudentView('home');
-        });
-
-        function getCourseDatesArray(courseId) {
-            switch (courseId) {
-                case 'SA': return DATE_ORARI_SCIENZE_APPLICATE;
-                case 'SM': return DATE_ORARI_SISTEMA_MODA;
-                case 'RM': return DATE_ORARI_REL_MARKETING;
-                case 'LG': return DATE_ORARI_LOGISTICA;
-                case 'CT': return DATE_ORARI_CAT;
-                default: return [];
-            }
-        }
-
-
-        // =========================================================================
-        // 🌐 FUNZIONI FIREBASE (INIT & LISTENERS) - LOGICA AGGIORNATA
-        // =========================================================================
-
-        /**
-         * @description Inizializza Firebase e avvia l'ascolto dei dati in tempo reale.
-         */
-        function initializeFirebase() {
-            try {
-                // Inizializza l'app Firebase con la configurazione fornita
-                const app = initializeApp(firebaseConfig);
-                auth = getAuth(app);
-                db = getFirestore(app);
-                // getAnalytics(app); // Non essenziale per la logica di prenotazione
-                setLogLevel('error'); 
-
-                loadingStatus.textContent = "Autenticazione in corso...";
-
-                // Esegue l'autenticazione anonima per l'utente (Studente)
-                signInAnonymously(auth).then(() => {
-                    // 1. Ascolta i cambiamenti di autenticazione
-                    onAuthStateChanged(auth, (user) => {
-                        if (user) {
-                            userId = user.uid;
-                            
-                            // Nasconde lo spinner e mostra la vista studente
-                            loadingSpinner.classList.add('hidden');
-                            studentMainView.classList.remove('hidden');
-
-                            // 2. Avvia i listener di Firestore DOPO l'autenticazione
-                            setupFirestoreListeners();
-                        } else {
-                            // Questo caso non dovrebbe accadere dopo signInAnonymously
-                            loadingStatus.textContent = "Errore di connessione al server: utente non definito.";
-                        }
-                    });
-                }).catch(error => {
-                    console.error("Errore firma anonima:", error);
-                    loadingStatus.textContent = "Errore di connessione al server: autenticazione fallita.";
-                });
-
-            } catch (error) {
-                console.error("Errore di inizializzazione Firebase:", error);
-                loadingStatus.textContent = `Errore critico: ${error.message}`;
-            }
+        /** Formatta la data Firestore in un formato leggibile */
+        function formatFirestoreTimestamp(timestamp) {
+            if (!timestamp) return 'N/A';
+            const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+            return date.toLocaleDateString('it-IT', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
         }
 
         /**
-         * @description Ascolta in tempo reale le prenotazioni e gli annullamenti.
+         * Navigazione tra le viste (Docente/Studente)
+         * @param {boolean} isDocenteView 
          */
-        function setupFirestoreListeners() {
-            // Listener 1: Prenotazioni Attive
-            onSnapshot(collection(db, BOOKINGS_COLLECTION_PATH), (snapshot) => {
-                const bookings = snapshot.docs.map(doc => ({ ...doc.data(), docId: doc.id }));
-                currentBookings = bookings;
-                
-                // Ricalcola la disponibilità ad ogni cambiamento
-                calculateAvailability(bookings);
-                
-                if (isDocente) {
-                    renderDocenteDashboard();
-                } else {
-                    renderStudentView(currentCourseId ? 'dates' : 'home');
-                }
-            }, (error) => {
-                console.error("Errore onSnapshot Bookings:", error);
-                showMessage("Errore nel caricamento delle prenotazioni attive.", 'error');
-            });
-
-            // Listener 2: Cancellazioni (Usato solo per la dashboard)
-            onSnapshot(collection(db, CANCELLATIONS_COLLECTION_PATH), (snapshot) => {
-                currentCancellations = snapshot.docs.map(doc => ({ ...doc.data(), docId: doc.id }));
-                
-                if (isDocente) {
-                    renderCancellationsDashboard();
-                }
-            }, (error) => {
-                console.error("Errore onSnapshot Cancellations:", error);
-            });
-        }
-        
-        // --- Le funzioni di rendering Studente e Docente, Logica di Prenotazione/Cancellazione e Utility PDF (escluso PDF_SIGNATURE che è stato unificato) sono le stesse del file precedente e mantengono la piena funzionalità ---
-
-        const PDF_SIGNATURE = 'Organizzazione e Contatti: Prof. ssa Laura Corvi e Prof. ssa Mariagrazia Calabrese. ITSCG PRIMO LEVI DI SEREGNO, VIA BRIANTINA 68.';
-
-        function calculateAvailability(bookings) {
-            currentAvailability = {};
-            
-            COURSES.forEach(course => {
-                const dateArray = getCourseDatesArray(course.id);
-                dateArray.forEach(item => {
-                    const [dateString] = item.split('|');
-                    const key = `${course.id}-${dateString}`;
-                    currentAvailability[key] = MAX_SLOTS;
-                });
-            });
-
-            bookings.forEach(booking => {
-                const key = `${booking.courseId}-${booking.date}`;
-                if (currentAvailability[key] !== undefined && currentAvailability[key] > 0) {
-                    currentAvailability[key] -= 1;
-                }
-            });
-        }
-
-        function renderStudentView(view) {
-            if (view === 'home') {
-                courseSelectionView.classList.remove('hidden');
-                dateSelectionView.classList.add('hidden');
-                renderCourses();
-            } else if (view === 'dates' && currentCourseId) {
-                courseSelectionView.classList.add('hidden');
-                dateSelectionView.classList.remove('hidden');
-                renderCourseDates(currentCourseId);
-            }
-        }
-
-        function renderCourses() {
-            coursesContainer.innerHTML = '';
-            COURSES.forEach(course => {
-                const element = document.createElement('div');
-                element.className = `p-4 rounded-xl shadow-lg cursor-pointer transform hover:scale-[1.02] transition duration-300 ${course.color} border border-transparent hover:border-indigo-400`;
-                element.innerHTML = `
-                    ${course.icon}
-                    <h3 class="text-xl font-bold mb-1">${course.name}</h3>
-                    <p class="text-sm">Clicca per scegliere la data e prenotare.</p>
-                `;
-                element.addEventListener('click', () => {
-                    currentCourseId = course.id;
-                    renderStudentView('dates');
-                });
-                coursesContainer.appendChild(element);
-            });
-        }
-
-        function renderCourseDates(courseId) {
-            const course = COURSES.find(c => c.id === courseId);
-            if (!course) return;
-
-            selectedCourseTitle.textContent = `Date disponibili per: ${course.name}`;
-            datesContainer.innerHTML = '';
-            
-            const dateArray = getCourseDatesArray(courseId);
-
-            dateArray.forEach(item => {
-                const [dateString, day, time] = item.split('|').map(s => s.trim());
-                const availabilityKey = `${courseId}-${dateString}`;
-                const availableSlots = currentAvailability[availabilityKey] || 0;
-                const isFull = availableSlots <= 0;
-                const dateDisplay = new Date(dateString).toLocaleDateString('it-IT', { day: '2-digit', month: 'short' });
-                
-                const element = document.createElement('button');
-                element.className = `p-4 rounded-xl shadow-md transition duration-200 w-full text-left flex justify-between items-center transform hover:translate-y-[-1px] ${
-                    isFull ? 'bg-gray-200 text-gray-500 cursor-not-allowed' : 'bg-white border border-gray-100 hover:bg-indigo-50 text-gray-800'
-                }`;
-                element.disabled = isFull;
-                element.innerHTML = `
-                    <div>
-                        <span class="font-bold text-lg">${day} ${dateDisplay}</span>
-                        <span class="block text-sm text-indigo-600 font-medium">${time}</span>
-                    </div>
-                    <div class="text-right ${isFull ? 'text-red-500' : 'text-green-600'}">
-                        <span class="font-extrabold text-xl">${availableSlots}</span>
-                        <span class="block text-xs uppercase">${isFull ? 'COMPLETO' : 'posti liberi'}</span>
-                    </div>
-                `;
-                element.dataset.courseId = courseId;
-                element.dataset.courseName = course.name;
-                element.dataset.date = dateString; 
-                
-                if (!isFull) {
-                    element.addEventListener('click', (e) => openBookingModal(e));
-                }
-                datesContainer.appendChild(element);
-            });
-        }
-
-        function openBookingModal(event) {
-            const button = event.target.closest('button');
-            if (!button) return;
-
-            const { courseId, courseName, date } = button.dataset;
-
-            document.getElementById('modal-course-name').textContent = courseName;
-            document.getElementById('modal-date').textContent = new Date(date).toLocaleDateString('it-IT', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }); 
-            document.getElementById('booking-course-id').value = courseId;
-            document.getElementById('booking-date').value = date;
-
-            const storedEmail = localStorage.getItem('lastStudentEmail');
-            if (storedEmail) document.getElementById('student-email').value = storedEmail;
-
-            bookingModal.classList.remove('hidden');
-        }
-
-        function setDocenteView(enabled) {
-            isDocente = enabled;
-            if (enabled) {
+        function showView(isDocenteView) {
+            loadingSpinner.classList.add('hidden');
+            if (isDocenteView) {
                 studentMainView.classList.add('hidden');
                 docenteView.classList.remove('hidden');
                 document.getElementById('open-docente-login-btn').classList.add('hidden');
                 document.getElementById('logout-docente-btn').classList.remove('hidden');
-                populateDateFilter();
-                switchTab('bookings');
             } else {
                 studentMainView.classList.remove('hidden');
                 docenteView.classList.add('hidden');
                 document.getElementById('open-docente-login-btn').classList.remove('hidden');
                 document.getElementById('logout-docente-btn').classList.add('hidden');
-                renderStudentView(currentCourseId ? 'dates' : 'home'); 
+                // Mostra sempre la selezione corsi inizialmente
+                courseSelectionView.classList.remove('hidden');
+                dateSelectionView.classList.add('hidden');
             }
         }
+
+        /** Estrae i dati di un corso specifico */
+        function getCourseData(courseId) {
+            return COURSES.find(c => c.id === courseId);
+        }
+
+        /** Restituisce l'array di date/orari per un dato corso */
+        function getDatesForCourse(courseId) {
+            const course = getCourseData(courseId);
+            return course ? course.dates : [];
+        }
+
+        /** Esegue il re-rendering dei dati docente */
+        function refreshDocenteView() {
+            renderBookingsTable(currentBookings);
+            renderCancellationsTable(currentCancellations);
+            updateDateFilterOptions(currentBookings);
+        }
+
+        // =========================================================================
+        // 🔐 GESTIONE AUTENTICAZIONE E INIZIALIZZAZIONE
+        // =========================================================================
+
+        /** Inizializza Firebase e l'Autenticazione */
+        async function initFirebase() {
+            loadingStatus.textContent = "Inizializzazione App...";
+            try {
+                const app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+                
+                // Imposta la persistenza a livello di sessione (logout al cambio tab/chiusura)
+                await setPersistence(auth, browserSessionPersistence);
+
+                loadingStatus.textContent = "Autenticazione in corso...";
+                
+                // Autenticazione con token personalizzato o anonima
+                if (canvasAuthToken) {
+                    await signInWithCustomToken(auth, canvasAuthToken);
+                } else {
+                    await signInAnonymously(auth);
+                }
+
+                // Listener per lo stato di autenticazione
+                onAuthStateChanged(auth, (user) => {
+                    if (user) {
+                        userId = user.uid;
+                        // Controlla se l'utente è un docente (tramite variabile di sessione/stato)
+                        if (sessionStorage.getItem('isDocente') === 'true') {
+                            isDocente = true;
+                            showView(true);
+                            startDocenteListeners();
+                        } else {
+                            isDocente = false;
+                            showView(false);
+                            startStudentListener();
+                        }
+                    } else {
+                        userId = null;
+                        isDocente = false;
+                        sessionStorage.removeItem('isDocente');
+                        showView(false);
+                        // Riavvia l'ascolto per la vista studente se si è disconnessi
+                        startStudentListener();
+                    }
+                });
+
+                loadingStatus.textContent = "Caricamento dati...";
+
+            } catch (error) {
+                console.error("Errore fatale di inizializzazione Firebase:", error);
+                loadingStatus.textContent = "Errore di caricamento. Riprova più tardi.";
+                showMessage("Impossibile connettersi al database.", 'error');
+            }
+        }
+
+        // =========================================================================
+        // 🔄 LISTENER FIREBASE (VISTA STUDENTE)
+        // =========================================================================
+
+        /** Listener per le prenotazioni (vista studente) e calcolo disponibilità. */
+        function startStudentListener() {
+            const q = query(collection(db, BOOKINGS_COLLECTION_PATH));
+            
+            onSnapshot(q, (snapshot) => {
+                currentBookings = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                
+                // Aggiornamento chiave di disponibilità: usa l'ID del corso + la stringa intera data|giorno|orario
+                currentAvailability = currentBookings.reduce((acc, booking) => {
+                    const uniqueKey = `${booking.courseId}_${booking.date}`; 
+                    acc[uniqueKey] = (acc[uniqueKey] || 0) + 1;
+                    return acc;
+                }, {});
+
+                renderCourses(currentAvailability);
+                
+                // Se lo studente era nella vista date, ricarica le date per mostrare l'aggiornamento
+                if (currentCourseId && !dateSelectionView.classList.contains('hidden')) {
+                    renderDates(currentCourseId);
+                }
+            }, (error) => {
+                console.error("Errore in onSnapshot (Student):", error);
+                showMessage("Errore di connessione ai dati di prenotazione.", 'error');
+            });
+        }
+
+        // =========================================================================
+        // 🧑‍💻 RENDER VISTA STUDENTE
+        // =========================================================================
+
+        /** Renderizza le schede dei corsi */
+        function renderCourses(availability) {
+            coursesContainer.innerHTML = '';
+            
+            COURSES.forEach(course => {
+                // Calcola i posti totali disponibili tra tutte le date/ore del corso
+                const totalSlots = course.dates.length * MAX_SLOTS;
+                let totalBooked = 0;
+                
+                course.dates.forEach(dateStr => {
+                    const uniqueKey = `${course.id}_${dateStr}`;
+                    totalBooked += availability[uniqueKey] || 0;
+                });
+
+                const totalAvailable = totalSlots - totalBooked;
+
+                const cardHtml = `
+                    <div class="${course.color} p-6 rounded-xl shadow-lg border border-gray-200 flex flex-col justify-between h-full cursor-pointer course-card" data-course-id="${course.id}">
+                        <div>
+                            ${course.icon}
+                            <h3 class="text-xl font-bold mb-2">${course.name}</h3>
+                            <p class="text-sm text-gray-700">Durata: 2 ore</p>
+                        </div>
+                        <div class="mt-4 pt-3 border-t border-gray-300">
+                            <p class="text-sm font-semibold">Posti Disponibili: <span class="text-xl font-extrabold text-indigo-700">${totalAvailable}</span> / ${totalSlots} totali</p>
+                        </div>
+                    </div>
+                `;
+                coursesContainer.insertAdjacentHTML('beforeend', cardHtml);
+            });
+
+            // Aggiunge listener per il click sul corso
+            document.querySelectorAll('.course-card').forEach(card => {
+                card.addEventListener('click', (e) => {
+                    const courseId = e.currentTarget.dataset.courseId;
+                    currentCourseId = courseId;
+                    renderDates(courseId);
+                    courseSelectionView.classList.add('hidden');
+                    dateSelectionView.classList.remove('hidden');
+                });
+            });
+        }
         
-        document.getElementById('logout-docente-btn')?.addEventListener('click', () => {
-            setDocenteView(false);
-            showMessage("Logout Docente effettuato.", 'success');
+        /** Renderizza le schede data/orario per il corso selezionato */
+        function renderDates(courseId) {
+            datesContainer.innerHTML = '';
+            const course = getCourseData(courseId);
+            if (!course) return;
+
+            selectedCourseTitle.textContent = course.name;
+
+            course.dates.forEach(dateStr => {
+                const [date, day, time] = dateStr.split('|');
+                const uniqueKey = `${courseId}_${dateStr}`;
+                const bookedCount = currentAvailability[uniqueKey] || 0;
+                const availableCount = MAX_SLOTS - bookedCount;
+                const isFull = availableCount <= 0;
+
+                const formattedDate = new Date(date).toLocaleDateString('it-IT', { day: '2-digit', month: 'long' });
+
+                const cardHtml = `
+                    <div class="date-card ${isFull ? 'bg-gray-200 opacity-60 cursor-not-allowed' : 'bg-white shadow-xl hover:shadow-indigo-300'} p-4 rounded-xl border-l-4 ${isFull ? 'border-gray-500' : 'border-indigo-600'}"
+                         data-course-id="${courseId}"
+                         data-date-str="${dateStr}"
+                         ${isFull ? 'disabled' : ''}>
+                        <p class="text-xs font-medium text-gray-500 uppercase">${day}, ${formattedDate}</p>
+                        <p class="text-2xl font-extrabold text-gray-800 my-1">${time}</p>
+                        <p class="text-sm ${isFull ? 'text-red-600 font-bold' : 'text-green-600 font-semibold'}">
+                            ${isFull ? 'Posti Esauriti' : `${availableCount} Posti Disponibili`}
+                        </p>
+                        ${isFull ? '' : '<button class="mt-2 w-full text-sm py-2 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 transition duration-150">Prenota Ora</button>'}
+                    </div>
+                `;
+                datesContainer.insertAdjacentHTML('beforeend', cardHtml);
+            });
+
+            // Aggiunge listener ai bottoni Prenota/schede (se non esaurite)
+            document.querySelectorAll('.date-card').forEach(card => {
+                if (!card.hasAttribute('disabled')) {
+                    card.addEventListener('click', (e) => {
+                        const courseId = card.dataset.courseId;
+                        const dateStr = card.dataset.dateStr;
+                        openBookingModal(courseId, dateStr);
+                    });
+                }
+            });
+        }
+
+        // =========================================================================
+        // 📥 MODALI E FORM DI PRENOTAZIONE (STUDENTE)
+        // =========================================================================
+
+        /** Apre la modale di prenotazione */
+        function openBookingModal(courseId, dateStr) {
+            const course = getCourseData(courseId);
+            const [date, day, time] = dateStr.split('|');
+            const formattedDate = new Date(date).toLocaleDateString('it-IT', { weekday: 'long', day: '2-digit', month: 'long' });
+            
+            document.getElementById('modal-course-name').textContent = course.name;
+            document.getElementById('modal-date').textContent = `${formattedDate} (${time})`;
+            document.getElementById('booking-course-id').value = courseId;
+            document.getElementById('booking-date').value = dateStr; // Salva la stringa completa (data|giorno|orario)
+            
+            bookingModal.classList.remove('hidden');
+        }
+
+        /** Gestisce l'invio del form di prenotazione (Transazione Atomica) */
+        bookingForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const form = e.target;
+            const courseId = form.elements['booking-course-id'].value;
+            const dateStr = form.elements['booking-date'].value; // Stringa completa (chiave univoca)
+            const studentName = form.elements['student-name'].value.trim();
+            const studentSchool = form.elements['student-school'].value.trim();
+            const studentEmail = form.elements['student-email'].value.trim();
+            const studentPhone = form.elements['student-phone'].value.trim();
+            const submitBtn = document.getElementById('confirm-booking-btn');
+
+            if (!courseId || !dateStr || !studentName || !studentSchool || !studentEmail || !studentPhone) {
+                showMessage("Per favore, compila tutti i campi obbligatori.", 'error');
+                return;
+            }
+
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<div class="spinner border-t-white border-t-2"></div>';
+
+            const uniqueKey = `${courseId}_${dateStr}`;
+
+            try {
+                // Esecuzione della transazione atomica
+                await runTransaction(db, async (transaction) => {
+                    const q = query(collection(db, BOOKINGS_COLLECTION_PATH), where('uniqueKey', '==', uniqueKey));
+                    const querySnapshot = await transaction.get(q);
+
+                    const currentCount = querySnapshot.size;
+
+                    if (currentCount >= MAX_SLOTS) {
+                        throw new Error("Posti esauriti per questo slot. Riprova con un'altra data.");
+                    }
+                    
+                    const newBookingCode = generateBookingCode();
+                    const newBookingRef = doc(collection(db, BOOKINGS_COLLECTION_PATH));
+                    
+                    const newBooking = {
+                        code: newBookingCode,
+                        studentName,
+                        studentSchool,
+                        studentEmail,
+                        studentPhone,
+                        courseId,
+                        date: dateStr, // Salva la stringa completa come dato
+                        uniqueKey: uniqueKey, // Chiave per le query future
+                        timestamp: serverTimestamp(),
+                        userId: userId, // ID utente anonimo/autenticato per tracciamento
+                    };
+
+                    transaction.set(newBookingRef, newBooking);
+
+                    // Dopo la transazione, genera il PDF di conferma
+                    generateConfirmationPDF(newBooking);
+                    
+                    showMessage("Prenotazione confermata e PDF generato!", 'success');
+                    form.reset();
+                    bookingModal.classList.add('hidden');
+                });
+
+            } catch (error) {
+                console.error("Errore durante la prenotazione:", error);
+                const errorMessage = error.message.includes("Posti esauriti") 
+                    ? error.message 
+                    : "Errore durante la conferma della prenotazione. Riprova.";
+                showMessage(errorMessage, 'error');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = 'Conferma e Genera PDF';
+            }
         });
 
-        function populateDateFilter() {
-            dateFilter.innerHTML = '<option value="all">Tutte le Date</option>';
-            const uniqueDates = new Set();
-            COURSES.forEach(course => {
-                getCourseDatesArray(course.id).forEach(item => {
-                    const [dateString, day] = item.split('|');
-                    uniqueDates.add(`${dateString}|${day}`);
+        document.getElementById('close-modal-btn').addEventListener('click', () => {
+            bookingModal.classList.add('hidden');
+            bookingForm.reset();
+        });
+
+        // =========================================================================
+        // 🗑 ANNULLAMENTO PRENOTAZIONE (STUDENTE)
+        // =========================================================================
+
+        document.getElementById('open-cancellation-modal-btn').addEventListener('click', () => {
+            cancellationModal.classList.remove('hidden');
+        });
+
+        document.getElementById('close-cancellation-modal-btn').addEventListener('click', () => {
+            cancellationModal.classList.add('hidden');
+            cancellationForm.reset();
+        });
+
+        cancellationForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const code = document.getElementById('cancellation-code').value.trim().toUpperCase();
+            const reason = document.getElementById('cancellation-reason').value.trim();
+            const submitBtn = document.getElementById('confirm-cancellation-btn');
+
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<div class="spinner border-t-white border-t-2"></div>';
+
+            try {
+                const q = query(collection(db, BOOKINGS_COLLECTION_PATH), where('code', '==', code));
+                const snapshot = await getDocs(q);
+
+                if (snapshot.empty) {
+                    showMessage("Codice di prenotazione non trovato.", 'error');
+                    return;
+                }
+
+                const bookingDoc = snapshot.docs[0];
+                const bookingData = bookingDoc.data();
+                
+                // 1. Elimina la prenotazione dalla collection "bookings"
+                await deleteDoc(doc(db, BOOKINGS_COLLECTION_PATH, bookingDoc.id));
+
+                // 2. Aggiungi il log di annullamento a "cancellations"
+                await addDoc(collection(db, CANCELLATIONS_COLLECTION_PATH), {
+                    ...bookingData, // Salva tutti i dati della prenotazione originale
+                    cancelledAt: serverTimestamp(),
+                    cancellationReason: reason || 'Non specificato',
+                    originalBookingId: bookingDoc.id
                 });
-            });
+                
+                showMessage(`Prenotazione ${code} annullata con successo. Il posto è stato liberato.`, 'success');
+                cancellationModal.classList.add('hidden');
+                cancellationForm.reset();
 
-            Array.from(uniqueDates).sort().forEach(dateItem => {
-                const [dateString, day] = dateItem.split('|');
-                const dateDisplay = new Date(dateString).toLocaleDateString('it-IT', { day: '2-digit', month: 'short' });
-                const option = document.createElement('option');
-                option.value = dateString;
-                option.textContent = `${dateDisplay} (${day.trim()})`;
-                dateFilter.appendChild(option);
-            });
-
-            dateFilter.removeEventListener('change', renderDocenteDashboard);
-            dateFilter.addEventListener('change', renderDocenteDashboard);
-        }
-        
-        function switchTab(tabId) {
-            document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('tab-active'));
-            document.querySelectorAll('.tab-content').forEach(content => content.classList.add('hidden'));
-
-            document.getElementById(`tab-${tabId}`).classList.add('tab-active');
-            document.getElementById(`content-${tabId}`).classList.remove('hidden');
-            
-            if (tabId === 'bookings') {
-                renderDocenteDashboard(); 
-            } else if (tabId === 'cancellations') {
-                renderCancellationsDashboard();
+            } catch (error) {
+                console.error("Errore durante l'annullamento:", error);
+                showMessage("Errore durante l'annullamento. Riprova.", 'error');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = 'Annulla la mia Prenotazione';
             }
+        });
+
+        // =========================================================================
+        // 📄 GENERAZIONE PDF (jsPDF)
+        // =========================================================================
+
+        /** Genera e scarica il PDF di conferma */
+        function generateConfirmationPDF(booking) {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('p', 'mm', 'a4');
+            const course = getCourseData(booking.courseId);
+            const [date, day, time] = booking.date.split('|');
+            const formattedDate = new Date(date).toLocaleDateString('it-IT', { day: '2-digit', month: 'long', year: 'numeric' });
+
+            // Variabili di Stile
+            const primaryColor = '#4f46e5'; // Indigo-600
+            let y = 10;
+            const lineHeight = 8;
+            const margin = 20;
+
+            // Titolo e Logo (Semplificato)
+            doc.setFont('Helvetica', 'bold');
+            doc.setFontSize(22);
+            doc.setTextColor(primaryColor);
+            doc.text("ITSCG PRIMO LEVI", margin, y);
+            y += lineHeight;
+            doc.setFontSize(14);
+            doc.text("Conferma Prenotazione Ministage Orientamento", margin, y);
+            y += lineHeight * 2;
+
+            // Dettagli Prenotazione
+            doc.setFont('Helvetica', 'normal');
+            doc.setFontSize(12);
+            doc.setTextColor(50); // Grigio scuro
+
+            doc.text("CODICE DI PRENOTAZIONE OBBLIGATORIO:", margin, y);
+            doc.setFont('Helvetica', 'bold');
+            doc.setFontSize(18);
+            doc.text(booking.code, margin + 80, y, { align: 'center' }); // Centrato per evidenza
+            y += lineHeight * 2;
+
+            doc.setFont('Helvetica', 'normal');
+            doc.setFontSize(12);
+            doc.setTextColor(50);
+
+            // Tabella Dati
+            doc.autoTable({
+                startY: y,
+                head: [['Dettaglio', 'Valore']],
+                body: [
+                    ['Studente:', booking.studentName],
+                    ['Corso Selezionato:', course.name],
+                    ['Data:', `${day}, ${formattedDate}`],
+                    ['Orario Stage:', time],
+                    ['Scuola Media:', booking.studentSchool],
+                    ['Contatto Email:', booking.studentEmail],
+                    ['Contatto Cellulare:', booking.studentPhone],
+                ],
+                theme: 'striped',
+                headStyles: { fillColor: primaryColor },
+                styles: { font: 'Helvetica', fontSize: 10, cellPadding: 3 },
+                margin: { left: margin, right: margin }
+            });
+
+            y = doc.autoTable.previous.finalY + 10;
+
+            // Note Importanti
+            doc.setFontSize(12);
+            doc.setFont('Helvetica', 'bold');
+            doc.setTextColor('#dc2626'); // Rosso
+            doc.text("NOTA BENE:", margin, y);
+            y += lineHeight;
+
+            doc.setFont('Helvetica', 'normal');
+            doc.setFontSize(10);
+            doc.setTextColor(50);
+            doc.text("1. Questo documento è la conferma ufficiale della tua prenotazione e **DEVE** essere presentato all'ingresso.", margin, y);
+            y += lineHeight * 0.7;
+            doc.text("2. Presentarsi con almeno 10 minuti di anticipo all'orario indicato.", margin, y);
+            y += lineHeight * 0.7;
+            doc.text("3. In caso di annullamento, utilizza il codice di prenotazione sul sito.", margin, y);
+            y += lineHeight * 2;
+
+            // Footer
+            doc.setFontSize(8);
+            doc.setTextColor(150);
+            doc.text("ITSCG 'Primo Levi' di Seregno, Via Briantina 68 | Tel: 0362 237250", 105, 290, { align: 'center' });
+
+            doc.save(`Conferma_Ministage_${booking.code}.pdf`);
         }
 
-        document.getElementById('tab-bookings')?.addEventListener('click', () => switchTab('bookings'));
-        document.getElementById('tab-cancellations')?.addEventListener('click', () => switchTab('cancellations'));
+        // =========================================================================
+        // 🔒 GESTIONE DOCENTE
+        // =========================================================================
 
-        function renderDocenteDashboard() {
-            const selectedDate = dateFilter.value;
-            const tableBody = document.getElementById('bookings-table-body');
+        document.getElementById('open-docente-login-btn').addEventListener('click', () => {
+            docenteLoginModal.classList.remove('hidden');
+        });
+
+        document.getElementById('logout-docente-btn').addEventListener('click', () => {
+            sessionStorage.removeItem('isDocente');
+            isDocente = false;
+            showView(false);
+            showMessage("Logout effettuato con successo.", 'info');
+        });
+        
+        /** Gestione Login Docente (Simulato) */
+        docenteLoginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const username = document.getElementById('docente-username').value;
+            const password = document.getElementById('docente-password').value;
+
+            if (username === DOCENTE_USERNAME && password === DOCENTE_PASSWORD) {
+                sessionStorage.setItem('isDocente', 'true'); // Stato mantenuto nella sessione
+                isDocente = true;
+                docenteLoginModal.classList.add('hidden');
+                docenteLoginForm.reset();
+                showView(true);
+                showMessage("Accesso Docente riuscito!", 'success');
+                // I listener per il docente vengono avviati nell'onAuthStateChanged dopo il set item
+                startDocenteListeners();
+            } else {
+                showMessage("Credenziali Docente non valide.", 'error');
+            }
+        });
+
+        /** Listener per i dati Docente (Prenotazioni e Annullamenti) */
+        function startDocenteListeners() {
+            if (!db || !isDocente) return;
+            
+            // 1. Prenotazioni Attive
+            onSnapshot(collection(db, BOOKINGS_COLLECTION_PATH), (snapshot) => {
+                currentBookings = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                refreshDocenteView();
+            }, (error) => {
+                console.error("Errore in onSnapshot (Bookings):", error);
+            });
+
+            // 2. Log Annullamenti
+            onSnapshot(collection(db, CANCELLATIONS_COLLECTION_PATH), (snapshot) => {
+                currentCancellations = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                refreshDocenteView();
+            }, (error) => {
+                console.error("Errore in onSnapshot (Cancellations):", error);
+            });
+        }
+
+        // =========================================================================
+        // 📊 RENDER VISTA DOCENTE
+        // =========================================================================
+
+        /** Renderizza la tabella delle prenotazioni attive */
+        function renderBookingsTable(bookings) {
+            const tbody = document.getElementById('bookings-table-body');
+            tbody.innerHTML = '';
             const noBookingsMessage = document.getElementById('no-bookings-message');
-            tableBody.innerHTML = '';
+            
+            const selectedDateFilter = dateFilter.value;
 
-            const filteredBookings = currentBookings
-                .filter(booking => selectedDate === 'all' || booking.date === selectedDate)
-                .sort((a, b) => {
-                    if (a.courseName < b.courseName) return -1;
-                    if (a.courseName > b.courseName) return 1;
-                    return a.studentName.localeCompare(b.studentName);
-                });
+            let filteredBookings = bookings;
+            if (selectedDateFilter && selectedDateFilter !== 'all') {
+                 // Filtra per la data YYYY-MM-DD
+                filteredBookings = bookings.filter(b => b.date.startsWith(selectedDateFilter));
+            }
 
             if (filteredBookings.length === 0) {
                 noBookingsMessage.classList.remove('hidden');
@@ -779,380 +980,206 @@
             }
             noBookingsMessage.classList.add('hidden');
 
-            filteredBookings.forEach(booking => {
-                const date = new Date(booking.date).toLocaleDateString('it-IT', { day: '2-digit', month: 'short' });
-                const createdAt = booking.createdAt?.toDate ? booking.createdAt.toDate().toLocaleDateString('it-IT') : 'N/D';
+            // Ordina per data e orario (solo la parte di stringa)
+            filteredBookings.sort((a, b) => {
+                return a.date.localeCompare(b.date);
+            });
 
-                const row = `
-                    <tr class="hover:bg-indigo-50 transition duration-100">
-                        <td class="px-2 py-2 whitespace-nowrap text-sm font-medium text-gray-900">${booking.bookingCode}</td>
-                        <td class="px-2 py-2 whitespace-normal text-sm text-gray-800">${booking.studentName}</td>
-                        <td class="px-2 py-2 whitespace-nowrap text-sm text-gray-600">${booking.courseName}</td>
-                        <td class="px-2 py-2 whitespace-nowrap text-sm font-semibold text-indigo-600">${date}</td>
-                        <td class="px-2 py-2 whitespace-normal text-sm text-gray-500 max-w-xs">${booking.studentSchool || 'N/D'}</td>
-                        <td class="px-2 py-2 whitespace-normal text-sm text-gray-500 break-words">${booking.studentEmail}<br/>${booking.studentPhone}</td>
-                        <td class="px-2 py-2 whitespace-nowrap text-sm text-gray-500">${createdAt}</td>
-                    </tr>
-                `;
-                tableBody.innerHTML += row;
+
+            filteredBookings.forEach(booking => {
+                const course = getCourseData(booking.courseId);
+                const [date, day, time] = booking.date.split('|'); // Estrazione per visualizzazione
+                
+                const row = tbody.insertRow();
+                row.className = 'hover:bg-gray-50';
+                
+                row.insertCell().textContent = booking.code;
+                row.insertCell().textContent = booking.studentName;
+                row.insertCell().textContent = course ? course.name : 'N/D';
+                row.insertCell().textContent = `${day}, ${new Date(date).toLocaleDateString('it-IT')}`; // Data + Giorno
+                row.insertCell().textContent = time; // Orario in colonna separata
+                row.insertCell().textContent = booking.studentSchool;
+                row.insertCell().innerHTML = `<span class="text-xs">${booking.studentEmail}<br/>${booking.studentPhone}</span>`;
+                row.insertCell().textContent = formatFirestoreTimestamp(booking.timestamp);
             });
         }
 
-        function renderCancellationsDashboard() {
-            const tableBody = document.getElementById('cancellations-table-body');
+        /** Renderizza la tabella dei log di annullamento */
+        function renderCancellationsTable(cancellations) {
+            const tbody = document.getElementById('cancellations-table-body');
+            tbody.innerHTML = '';
             const noCancellationsMessage = document.getElementById('no-cancellations-message');
-            tableBody.innerHTML = '';
 
-            const sortedCancellations = currentCancellations
-                .sort((a, b) => {
-                    const dateA = a.cancelledAt?.toDate ? a.cancelledAt.toDate() : new Date(0);
-                    const dateB = b.cancelledAt?.toDate ? b.cancelledAt.toDate() : new Date(0);
-                    return dateB - dateA; 
-                });
-
-            if (sortedCancellations.length === 0) {
+            if (cancellations.length === 0) {
                 noCancellationsMessage.classList.remove('hidden');
                 return;
             }
             noCancellationsMessage.classList.add('hidden');
 
-            sortedCancellations.forEach(cancellation => {
-                const cancelledAt = cancellation.cancelledAt?.toDate ? cancellation.cancelledAt.toDate().toLocaleDateString('it-IT', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) : 'N/D';
-                const originalDate = cancellation.date ? new Date(cancellation.date).toLocaleDateString('it-IT', { day: '2-digit', month: 'short' }) : 'N/D';
+            // Ordina per data di annullamento
+            cancellations.sort((a, b) => b.cancelledAt.toMillis() - a.cancelledAt.toMillis());
 
-                const row = `
-                    <tr class="hover:bg-red-50 transition duration-100">
-                        <td class="px-2 py-2 whitespace-nowrap text-sm font-medium text-red-700">${cancellation.bookingCode}</td>
-                        <td class="px-2 py-2 whitespace-normal text-sm text-gray-800">${cancellation.studentName || 'N/D'}</td>
-                        <td class="px-2 py-2 whitespace-nowrap text-sm text-gray-600">${cancellation.courseName || 'N/D'}</td>
-                        <td class="px-2 py-2 whitespace-nowrap text-sm text-red-400">${originalDate}</td>
-                        <td class="px-2 py-2 whitespace-nowrap text-sm font-semibold text-red-500">${cancelledAt}</td>
-                        <td class="px-2 py-2 whitespace-normal text-sm text-gray-500 break-words">${cancellation.cancellationReason || 'Nessuna'}</td>
-                    </tr>
-                `;
-                tableBody.innerHTML += row;
+            cancellations.forEach(log => {
+                const course = getCourseData(log.courseId);
+                const row = tbody.insertRow();
+                row.className = 'hover:bg-red-50/50';
+
+                row.insertCell().textContent = log.code;
+                row.insertCell().textContent = log.studentName;
+                row.insertCell().textContent = course ? course.name : 'N/D';
+                row.insertCell().textContent = log.date.replace(/\|/g, ', '); // Data|Giorno|Orario
+                row.insertCell().textContent = formatFirestoreTimestamp(log.cancelledAt);
+                row.insertCell().textContent = log.cancellationReason;
             });
         }
 
-        docenteLoginForm?.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const username = document.getElementById('docente-username').value;
-            const password = document.getElementById('docente-password').value;
-
-            if (username === DOCENTE_USERNAME && password === DOCENTE_PASSWORD) {
-                setDocenteView(true);
-                resetFormsAndModals();
-                showMessage("Accesso Docente riuscito!", 'success');
-            } else {
-                showMessage("Credenziali Docente errate.", 'error');
-            }
-        });
-
-        document.getElementById('export-csv-btn')?.addEventListener('click', () => {
-            const headers = ["Codice Prenotazione", "Nome Studente", "Scuola Media", "Email", "Cellulare", "Corso", "Data Stage", "ID Utente", "Data Iscrizione"];
-            
-            const selectedDate = dateFilter.value;
-            const dataToExport = currentBookings.filter(booking => 
-                selectedDate === 'all' || booking.date === selectedDate
-            );
-
-            if (dataToExport.length === 0) {
-                showMessage("Nessun dato da esportare per il filtro selezionato.", 'error');
-                return;
-            }
-
-            let csvContent = headers.join(";") + "\n";
-            dataToExport.forEach(booking => {
-                const createdAt = booking.createdAt?.toDate ? booking.createdAt.toDate().toISOString() : 'N/D';
-                const row = [
-                    booking.bookingCode,
-                    booking.studentName.replace(/;/g, ","), 
-                    booking.studentSchool.replace(/;/g, ","),
-                    booking.studentEmail,
-                    booking.studentPhone,
-                    booking.courseName.replace(/;/g, ","),
-                    booking.date,
-                    booking.userId,
-                    createdAt
-                ].map(item => `"${item}"`).join(";"); 
-                csvContent += row + "\n";
+        /** Aggiorna il filtro data per la dashboard docente */
+        function updateDateFilterOptions(bookings) {
+            const dates = new Set();
+            bookings.forEach(b => {
+                // Filtriamo solo per la data YYYY-MM-DD (non per l'orario)
+                dates.add(b.date.split('|')[0]);
             });
 
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement("a");
-            const url = URL.createObjectURL(blob);
-            link.setAttribute("href", url);
-            link.setAttribute("download", `Prenotazioni_Stage_${selectedDate}_${new Date().toISOString().slice(0, 10)}.csv`);
-            link.style.visibility = 'hidden';
+            const sortedDates = Array.from(dates).sort();
+            
+            dateFilter.innerHTML = '<option value="all">Tutte le Date/Ore</option>';
+
+            sortedDates.forEach(date => {
+                const formattedDate = new Date(date).toLocaleDateString('it-IT', { weekday: 'short', day: '2-digit', month: 'short' });
+                const option = document.createElement('option');
+                option.value = date;
+                option.textContent = formattedDate;
+                dateFilter.appendChild(option);
+            });
+        }
+        
+        // =========================================================================
+        // 🖱 EVENTI VISTA DOCENTE
+        // =========================================================================
+
+        dateFilter.addEventListener('change', () => {
+            renderBookingsTable(currentBookings);
+        });
+
+        // Gestione Tabs
+        tabButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                tabButtons.forEach(btn => btn.classList.remove('tab-active'));
+                button.classList.add('tab-active');
+                
+                contentBookings.classList.add('hidden');
+                contentCancellations.classList.add('hidden');
+
+                if (button.id === 'tab-bookings') {
+                    contentBookings.classList.remove('hidden');
+                } else if (button.id === 'tab-cancellations') {
+                    contentCancellations.classList.remove('hidden');
+                }
+            });
+        });
+        document.getElementById('tab-bookings').classList.add('tab-active'); // Default active tab
+
+
+        // Esporta in CSV
+        document.getElementById('export-csv-btn').addEventListener('click', () => {
+            const table = document.getElementById('bookings-table-body');
+            let csv = 'Codice,Studente,Corso,Data,Giorno,Orario,Scuola Media,Email,Cellulare,Iscritto il\n';
+            
+            table.querySelectorAll('tr').forEach(row => {
+                const cols = row.querySelectorAll('td');
+                if (cols.length > 0) {
+                    const code = cols[0].textContent;
+                    const studentName = cols[1].textContent;
+                    const courseName = cols[2].textContent;
+                    const dateDay = cols[3].textContent.split(', ');
+                    const date = dateDay[1] || '';
+                    const day = dateDay[0] || '';
+                    const time = cols[4].textContent;
+                    const school = cols[5].textContent;
+                    const contact = cols[6].textContent.split('\n');
+                    const email = contact[0].trim();
+                    const phone = contact[1] ? contact[1].trim() : '';
+                    const timestamp = cols[7].textContent;
+
+                    csv += `"${code}","${studentName}","${courseName}","${date}","${day}","${time}","${school}","${email}","${phone}","${timestamp}"\n`;
+                }
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.setAttribute('download', 'Prenotazioni_Ministage_ITSCG.csv');
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
-
-            showMessage("Esportazione CSV completata.", 'success');
+            showMessage("Dati prenotazioni esportati in CSV.", 'info');
         });
 
-        docenteDeleteForm?.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const deletePassword = document.getElementById('docente-delete-password').value;
-            const confirmBtn = document.getElementById('confirm-delete-btn');
-            
-            if (deletePassword !== DOCENTE_PASSWORD) {
-                showMessage("Password non corretta. Cancellazione annullata.", 'error');
-                return;
-            }
-            
-            confirmBtn.disabled = true;
-            confirmBtn.innerHTML = '<div class="spinner mr-2 border-red-500 border-t-red-700"></div> Eliminazione...';
-
-            try {
-                if (!db) throw new Error("Database non inizializzato.");
-
-                const bookingsRef = collection(db, BOOKINGS_COLLECTION_PATH);
-                const bookingsSnapshot = await getDocs(bookingsRef);
-                const deleteBookingPromises = bookingsSnapshot.docs.map(d => deleteDoc(doc(db, BOOKINGS_COLLECTION_PATH, d.id)));
-                await Promise.all(deleteBookingPromises);
-
-                const cancellationsRef = collection(db, CANCELLATIONS_COLLECTION_PATH);
-                const cancellationsSnapshot = await getDocs(cancellationsRef);
-                const deleteCancellationPromises = cancellationsSnapshot.docs.map(d => deleteDoc(doc(db, CANCELLATIONS_COLLECTION_PATH, d.id)));
-                await Promise.all(deleteCancellationPromises);
-
-                showMessage(`Eliminazione completa riuscita! Eliminati ${bookingsSnapshot.size} prenotazioni e ${cancellationsSnapshot.size} log.`, 'success');
-                resetFormsAndModals();
-                setDocenteView(true); 
-
-            } catch (error) {
-                console.error("Errore durante l'eliminazione dei dati:", error);
-                showMessage(`Errore: Impossibile eliminare i dati. ${error.message}`, 'error');
-            } finally {
-                confirmBtn.disabled = false;
-                confirmBtn.innerHTML = 'CONFERMA ELIMINAZIONE DATI';
-            }
+        // Reset Dati (Docente)
+        document.getElementById('open-delete-modal-btn').addEventListener('click', () => {
+            deleteDataModal.classList.remove('hidden');
+        });
+        
+        document.getElementById('close-delete-modal-btn').addEventListener('click', () => {
+            deleteDataModal.classList.add('hidden');
+            docenteDeleteForm.reset();
         });
 
-        async function generateBookingPdf(data) {
-            const { jsPDF } = window.jspdf;
-            if (!jsPDF) {
-                showMessage("Errore: Libreria jsPDF non caricata.", 'error');
-                return null;
-            }
-
-            const doc = new jsPDF();
-            doc.setFont('helvetica');
-
-            doc.setFontSize(18);
-            doc.setTextColor(30, 58, 138); 
-            doc.text("Conferma Prenotazione Ministage Orientamento", 10, 20);
-
-            doc.setFontSize(11);
-            doc.setTextColor(55, 65, 81); 
-            doc.text(`Stage: ${data.courseName}`, 10, 35);
-            doc.text(`Data: ${new Date(data.date).toLocaleDateString('it-IT', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}`, 10, 42);
-            doc.text(`Codice Prenotazione: ${data.bookingCode}`, 10, 49);
-
-            doc.setFontSize(14);
-            doc.setTextColor(0, 0, 0);
-            doc.text("Dati Studente Iscritto:", 10, 65);
-            doc.setFontSize(11);
-            doc.text(`Nome e Cognome dello Studente: ${data.studentName}`, 10, 75);
-            doc.text(`Scuola Media: ${data.studentSchool}`, 10, 82);
-            doc.text(`Email: ${data.studentEmail}`, 10, 89);
-            doc.text(`Cellulare: ${data.studentPhone}`, 10, 96);
-
-            doc.setDrawColor(200);
-            doc.line(10, 102, 200, 102);
-
-            doc.setFontSize(10);
-            doc.setTextColor(55, 65, 81);
-            const confirmationText = `La prenotazione per lo studente ${data.studentName}, relativa allo stage in data ${new Date(data.date).toLocaleDateString('it-IT')} per l'indirizzo ${data.courseName} e identificata dal codice ${data.bookingCode}, è stata confermata.`;
-            doc.text(confirmationText, 10, 112, { maxWidth: 190 });
-
-            doc.setFontSize(10);
-            doc.setTextColor(185, 28, 28); 
-            const warningText = "⚠️ N.B.: Questo documento di conferma è OBBLIGATORIO e DEVE essere presentato all'ingresso il giorno dello stage.";
-            doc.text(warningText, 10, 125, { maxWidth: 190 });
-            
-            doc.setFontSize(8);
-            doc.setTextColor(156, 163, 175); 
-            doc.text(PDF_SIGNATURE, 10, 280);
-
-            return doc.output('datauristring');
-        }
-
-        bookingForm?.addEventListener('submit', async (e) => {
+        docenteDeleteForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-
-            const confirmBtn = document.getElementById('confirm-booking-btn');
-            confirmBtn.disabled = true;
-            confirmBtn.innerHTML = '<div class="spinner mr-2"></div> Elaborazione...';
-
-            const courseId = document.getElementById('booking-course-id').value;
-            const date = document.getElementById('booking-date').value;
-            const studentName = document.getElementById('student-name').value.trim();
-            const studentSchool = document.getElementById('student-school').value.trim();
-            const studentEmail = document.getElementById('student-email').value.trim();
-            const studentPhone = document.getElementById('student-phone').value.trim();
-
-            const bookingCode = generateUniqueCode(10);
-            const courseName = document.getElementById('modal-course-name').textContent;
-            const availabilityKey = `${courseId}-${date}`;
-
-            if (currentAvailability[availabilityKey] === undefined || currentAvailability[availabilityKey] <= 0) {
-                showMessage("Spiacenti, i posti sono stati esauriti o non aggiornati! Aggiorna la pagina e riprova.", 'error');
-                resetFormsAndModals();
+            const password = document.getElementById('docente-delete-password').value;
+            if (password !== DOCENTE_PASSWORD) {
+                showMessage("Password non corretta. Riprova.", 'error');
                 return;
             }
 
+            const submitBtn = document.getElementById('confirm-delete-btn');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<div class="spinner border-t-white border-t-2"></div>';
+
             try {
-                localStorage.setItem('lastStudentEmail', studentEmail);
-
-                const bookingData = {
-                    courseId, date, studentName, studentSchool, studentEmail, studentPhone, bookingCode, courseName,
-                    createdAt: serverTimestamp(),
-                    userId: userId,
-                };
-
-                if (!db) throw new Error("Database non inizializzato.");
+                // Elimina tutte le prenotazioni
+                const bookingSnapshot = await getDocs(collection(db, BOOKINGS_COLLECTION_PATH));
+                const bookingBatch = writeBatch(db);
+                bookingSnapshot.docs.forEach((doc) => {
+                    bookingBatch.delete(doc.ref);
+                });
+                await bookingBatch.commit();
                 
-                await addDoc(collection(db, BOOKINGS_COLLECTION_PATH), bookingData);
+                // Elimina tutti i log di annullamento
+                const cancelSnapshot = await getDocs(collection(db, CANCELLATIONS_COLLECTION_PATH));
+                const cancelBatch = writeBatch(db);
+                cancelSnapshot.docs.forEach((doc) => {
+                    cancelBatch.delete(doc.ref);
+                });
+                await cancelBatch.commit();
 
-                const pdfBase64 = await generateBookingPdf(bookingData);
-
-                showMessage(`Prenotazione registrata con successo! Codice: ${bookingCode}. Scarica il PDF.`, 'success');
-                resetFormsAndModals();
-                
-                if (pdfBase64) {
-                    const downloadLink = document.createElement('a');
-                    downloadLink.href = pdfBase64;
-                    downloadLink.download = `Conferma_Stage_${bookingCode}.pdf`;
-                    document.body.appendChild(downloadLink);
-                    downloadLink.click();
-                    document.body.removeChild(downloadLink);
-                }
+                showMessage("Tutti i dati (prenotazioni e log) sono stati eliminati con successo.", 'success');
+                deleteDataModal.classList.add('hidden');
+                docenteDeleteForm.reset();
 
             } catch (error) {
-                console.error("Errore durante l'aggiunta della prenotazione:", error);
-                showMessage(`Errore critico (DB): ${error.message}. Riprova.`, 'error');
+                console.error("Errore durante l'eliminazione completa dei dati:", error);
+                showMessage("Errore durante l'eliminazione dei dati. Controlla i log.", 'error');
             } finally {
-                confirmBtn.disabled = false;
-                confirmBtn.innerHTML = 'Conferma e Genera PDF';
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = 'CONFERMA ELIMINAZIONE DATI';
             }
         });
 
-        async function generateCancellationPdf(data) {
-            const { jsPDF } = window.jspdf;
-            if (!jsPDF) return null;
-
-            const doc = new jsPDF();
-            doc.setFont('helvetica');
-
-            doc.setFontSize(18);
-            doc.setTextColor(185, 28, 28); 
-            doc.text("Conferma Cancellazione Prenotazione", 10, 20);
-
-            doc.setFontSize(11);
-            doc.setTextColor(55, 65, 81);
-            doc.text(`Codice Prenotazione Annullato: ${data.bookingCode}`, 10, 35);
-            doc.text(`Data Annullamento: ${new Date().toLocaleDateString('it-IT')}`, 10, 42);
-            doc.text(`Stage Annullato: ${data.courseName || 'N/D'} (Data originale: ${data.date ? new Date(data.date).toLocaleDateString('it-IT') : 'N/D'})`, 10, 49);
-
-
-            doc.setDrawColor(200);
-            doc.line(10, 55, 200, 55);
-
-            doc.setFontSize(10);
-            doc.setTextColor(55, 65, 81);
-
-            const cancellationText = `L'annullamento della prenotazione per lo stage con codice ${data.bookingCode} è stato confermato con successo in data odierna. Il posto per lo stage è stato ripristinato e reso disponibile per altri studenti.`;
-            doc.text(cancellationText, 10, 65, { maxWidth: 190 });
-
-            doc.setFontSize(10);
-            const motivazioneText = `Motivazione fornita: ${data.cancellationReason || 'Nessuna motivazione fornita.'}`;
-            doc.setTextColor(0, 0, 0);
-            doc.text(motivazioneText, 10, 80, { maxWidth: 190 });
-
-            doc.setFontSize(9);
-            const noteText = "Si prega di notare che la cancellazione è definitiva. Per una nuova prenotazione sarà necessario utilizzare il modulo online, se i posti sono ancora disponibili.";
-            doc.setTextColor(30, 58, 138); 
-            doc.text(noteText, 10, 100, { maxWidth: 190 });
-
-            doc.setFontSize(8);
-            doc.setTextColor(156, 163, 175);
-            doc.text(PDF_SIGNATURE, 10, 280);
-
-            return doc.output('datauristring');
-        }
-
-        cancellationForm?.addEventListener('submit', async (e) => {
-            e.preventDefault();
-
-            const confirmBtn = document.getElementById('confirm-cancellation-btn');
-            confirmBtn.disabled = true;
-            confirmBtn.innerHTML = '<div class="spinner mr-2 border-red-500 border-t-red-700"></div> Cancellazione...';
-
-            const bookingCode = document.getElementById('cancellation-code').value.trim().toUpperCase();
-            const cancellationReason = document.getElementById('cancellation-reason').value.trim();
-
-            if (!db) {
-                showMessage("Errore: Database non pronto.", 'error');
-                confirmBtn.disabled = false;
-                confirmBtn.innerHTML = 'Annulla la mia Prenotazione';
-                return;
-            }
-
-            try {
-                const bookingsRef = collection(db, BOOKINGS_COLLECTION_PATH);
-                const q = query(bookingsRef, where("bookingCode", "==", bookingCode));
-                const bookingSnapshot = await getDocs(q);
-
-                if (bookingSnapshot.empty) {
-                    showMessage("Codice prenotazione non trovato o già annullato. Controlla il codice.", 'error');
-                    return;
-                }
-
-                const docToDelete = bookingSnapshot.docs[0];
-                const bookingData = docToDelete.data();
-
-                const cancellationLog = {
-                    ...bookingData,
-                    cancellationReason: cancellationReason,
-                    cancelledAt: serverTimestamp(),
-                    cancellationUserId: userId,
-                    originalDocId: docToDelete.id, 
-                };
-                await addDoc(collection(db, CANCELLATIONS_COLLECTION_PATH), cancellationLog);
-
-                await deleteDoc(docToDelete.ref);
-                
-                const pdfBase64 = await generateCancellationPdf(cancellationLog);
-                
-                showMessage("Cancellazione completata! Il posto è stato ripristinato.", 'success');
-                resetFormsAndModals();
-                
-                if (pdfBase64) {
-                    const downloadLink = document.createElement('a');
-                    downloadLink.href = pdfBase64;
-                    downloadLink.download = `Conferma_Annullamento_${bookingCode}.pdf`;
-                    document.body.appendChild(downloadLink);
-                    downloadLink.click();
-                    document.body.removeChild(downloadLink);
-                }
-
-
-            } catch (error) {
-                console.error("Errore durante la cancellazione:", error);
-                showMessage(`Errore critico durante l'annullamento: ${error.message}. Riprova.`, 'error');
-            } finally {
-                confirmBtn.disabled = false;
-                confirmBtn.innerHTML = 'Annulla la mia Prenotazione';
-            }
+        // =========================================================================
+        // 🚀 INIZIALIZZAZIONE
+        // =========================================================================
+        
+        backToCoursesBtn.addEventListener('click', () => {
+            dateSelectionView.classList.add('hidden');
+            courseSelectionView.classList.remove('hidden');
+            currentCourseId = null;
         });
 
-        // Avvia l'inizializzazione Firebase all'avvio
-        window.onload = () => {
-            initializeFirebase();
-        };
+        // Avvia l'app al caricamento
+        window.onload = initFirebase;
 
     </script>
 </body>
