@@ -283,7 +283,7 @@
             <div class="chat-box" id="chatBox">
                 <div class="message-row bot">
                     <!-- Avatar Bot Iniziale: avatar.jpg -->
-                    <img src="avatar.jpg" alt="Bot" class="avatar">
+                    <img src="foto_chatbot.png" alt="Bot" class="avatar">
                     <div class="message bot-message">
                          Benvenuto! Sono l'Archivista Capo Infallibile. Eseguo una verifica incrociata sui tutti i documenti ufficiali del sito ITSCG Primo Levi prima di risponderti. Chiedi pure.
                     </div>
@@ -330,11 +330,11 @@
             // ✅ PERCORSI FOTO CORRETTI: Differenzia l'avatar Utente e Bot
             if (sender === 'user') {
                  // Utente: foto_chatbot.png (Usato come avatar utente)
-                avatar.src = 'foto_chatbot.png'; 
+                avatar.src = 'avatar.jpg'; 
                 avatar.alt = 'Utente';
             } else {
                 // Bot: avatar.jpg (Usato come avatar bot)
-                avatar.src = 'avatar.jpg'; 
+                avatar.src = 'foto_chatbot.png'; 
                 avatar.alt = 'Bot';
             }
 
