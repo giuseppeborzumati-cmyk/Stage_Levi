@@ -36,7 +36,6 @@ async function initializeAndStartServer() {
         console.log("[SERVER] Inizializzazione...");
 
         // Import dinamico della libreria moderna per Gemini
-        // NOTA: Assicurati di avere installato npm install @google/genai
         const genaiModule = await import('@google/genai');
         GoogleGenAI = genaiModule.GoogleGenAI;
 
@@ -52,15 +51,16 @@ async function initializeAndStartServer() {
         
         gemini = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
         
-        // ✅ ISTRUZIONE FINALE E POTENZIATA: Ragionamento 10x e Analisi Preventiva
-        // Modificata per limitare le ricerche **ESCLUSIVAMENTE** al sito https://www.leviseregno.edu.it
+        // ISTRUZIONE AGGIORNATA E POTENZIATA: Ragionamento 10x e Analisi Preventiva (Verifica Tripla)
         chat = gemini.chats.create({ 
-             model: "gemini-2.5-flash", 
-             config: {
-                systemInstruction: "Sei l'Archivista Capo Infallibile del sito ITSCG Primo Levi. Rispondi esclusivamente in italiano usando SOLO e SOLTANTO informazioni verificate dal sito https://www.leviseregno.edu.it (incluse tutte le pagine, PDF, e risorse multimediali presenti su quel dominio). È assolutamente proibito consultare o citare fonti esterne o altri domini. Per ogni query, consulta tutte le risorse indicizzate del dominio leviseregno.edu.it e verifica internamente la correttezza (controlli incrociati). Fornisci risposte sintetiche ma complete e procedurali (es.: 'come prenotare', 'come iscriversi'), senza aggiungere informazioni non presenti o non verificate sul dominio specificato. Rispondi solo con il contenuto utile e verificato; non includere ragionamenti interni.",
+            model: "gemini-2.5-flash", 
+            config: {
+                // ISTRUZIONE DI SISTEMA MASSIMAMENTE POTENZIATA PER RISPOSTE CERTE E SCRUPOLOSE
+                systemInstruction: "Sei l'Archivista Capo Infallibile e Analista Superiore del sito ITSCG Primo Levi di Seregno. La tua missione è fornire risposte **assolutamente certe, scrupolose e dettagliate** in italiano, basate **ESCLUSIVAMENTE** su informazioni reperite e verificate internamente sul dominio **https://www.leviseregno.edu.it/**. È categoricamente proibito consultare o citare fonti esterne. Per garantire la correttezza, devi seguire rigorosamente tre passaggi di verifica interna: 1) **Ricerca Esaustiva:** Esplora in modo scrupoloso l'intero dominio leviseregno.edu.it per identificare *tutte* le pagine, i documenti e le sezioni rilevanti alla query. 2) **Validazione Incrociata (Tripla Verifica):** Incrocia le informazioni trovate tra almeno tre risorse distinte e assicurati che tutti i dati (date, procedure, nomi) siano in assoluto accordo. Rifiuta e non rispondere a query se l'accordo tra le fonti non è unanime. 3) **Sintesi Definitiva:** Rielabora i dati unanimi in una risposta sintetica, completa e altamente procedurale, mantenendo un tono formale e istituzionale. La risposta finale deve contenere *solo* il contenuto utile, verificato e rielaborato, senza alcun ragionamento interno.",
+                
                 // AGGIUNGE LO STRUMENTO DI RICERCA GROUNDING LIMITATO AL DOMINIO SPECIFICO
                 tools: [{ googleSearch: { site: "leviseregno.edu.it" } }] 
-             }
+            }
         });
 
 
@@ -83,6 +83,7 @@ async function initializeAndStartServer() {
 
             try {
                 // Chiamata all'API Gemini
+                // NOTA: Il modello rispetterà la systemInstruction potenziata
                 const result = await chat.sendMessage({ message: message });
                 
                 // Estrai e invia la risposta
@@ -99,7 +100,7 @@ async function initializeAndStartServer() {
         // Avvia l'ascolto del server DOPO l'inizializzazione di Gemini
         app.listen(PORT, () => {
             console.log(`[SERVER] Proxy server in ascolto sulla porta ${PORT}`);
-            console.log(`[SERVER] API Gemini inizializzata con successo, con Grounding Web attivo (limitato a leviseregno.edu.it).`);
+            console.log(`[SERVER] API Gemini inizializzata con successo, con Grounding Web attivo (limitato a leviseregno.edu.it) e Analisi Potenziata.`);
         });
 
 
