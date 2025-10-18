@@ -36,7 +36,6 @@ async function initializeAndStartServer() {
 
         // Import dinamico della libreria moderna per Gemini
         const genaiModule = await import('@google/genai');
-        // Importa la classe GoogleGenAI (gestione fallback per import dinamici)
         GoogleGenAI = genaiModule.GoogleGenAI || genaiModule.default.GoogleGenAI; 
 
         if (!GoogleGenAI) {
@@ -49,7 +48,6 @@ async function initializeAndStartServer() {
             throw new Error("Variabile d'ambiente GEMINI_API_KEY non trovata. Controlla il file .env.");
         }
         
-        // Inizializza l'istanza di Gemini
         gemini = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
         
         console.log("[SERVER] API Gemini inizializzata con successo.");
@@ -58,12 +56,10 @@ async function initializeAndStartServer() {
 // 4. Rotte API
 // -----------------------------------------------------------------
 
-        // Rotta principale (per verifica)
         app.get('/', (req, res) => {
             res.send('Proxy Gemini Chatbot attivo e funzionante!');
         });
 
-        // Rotta per la chat (gestisce la logica di grounding e accuratezza)
         app.post('/api/chat', async (req, res) => {
             const { message } = req.body;
 
@@ -72,26 +68,23 @@ async function initializeAndStartServer() {
             }
 
             try {
-                // Configurazione del modello con istruzione di sistema e grounding
+                // Configurazione del modello con grounding e istruzioni per l'accuratezza
                 const config = {
                     // ISTRUZIONE DI SISTEMA: Forzatura del Grounding e della Risposta costante e accurata.
-                    systemInstruction: "Sei l'Archivista Capo Infallibile e Analista Superiore del sito ITSCG Primo Levi di Seregno. La tua missione è fornire risposte **assolutamente certe, scrupolose e dettagliate** in italiano, basate **ESCLUSIVAMENTE** su informazioni reperite e verificate internamente sul dominio **https://www.leviseregno.edu.it/**. È categoricamente proibito consultare o citare fonti esterne. Per garantire la correttezza, devi: 1) **Ricerca Esaustiva:** Utilizza lo strumento di ricerca web per esplorare in modo scrupoloso il dominio leviseregno.edu.it e identificare *tutte* le pagine e i documenti rilevanti alla query. 2) **Analisi e Ragionamento:** Dopo la ricerca, dovrai **esplicitare il tuo ragionamento interno** su come hai analizzato le fonti trovate e la logica utilizzata per validare le informazioni richieste. 3) **Sintesi Definitiva:** Concludi con la risposta finale, che deve essere sintetica, completa, altamente procedurale e mantenere un tono formale e istituzionale. **Devi sempre rispondere.** Se trovi informazioni certe, rielaborale per l'accuratezza. Se l'analisi non produce dati validi dal dominio, devi comunque fornire una risposta istituzionale che chiarisca l'esito della ricerca interna. La tua risposta deve seguire la struttura: **[RAGIONAMENTO INTERNO]** seguito dalla **[RISPOSTA DEFINITIVA e VERIFICATA]**.",
+                    systemInstruction: "Sei l'Archivista Capo Infallibile e Analista Superiore del sito ITSCG Primo Levi di Seregno. La tua missione è fornire risposte **assolutamente certe, scrupolose e dettagliate** in italiano, basate **ESCLUSIVAMENTE** su informazioni reperite e verificate internamente sul dominio **https://www.leviseregno.edu.it/**. È categoricamente proibito consultare o citare fonti esterne. Per garantire la correttezza, devi: 1) **Ricerca Esaustiva:** Utilizza lo strumento di ricerca web per esplorare in modo scrupoloso il dominio leviseregno.edu.it e identificare *tutte* le pagine e i documenti rilevanti alla query. 2) **Sintesi Definitiva:** Rielabora i dati trovati in una risposta sintetica, completa, altamente procedurale e mantieni un tono formale e istituzionale. **Devi sempre rispondere.** Se trovi informazioni certe, rielaborale. Se l'analisi non produce dati validi dal dominio, rispondi comunque con una dichiarazione istituzionale che chiarisca l'esito della ricerca interna. La risposta finale deve contenere *solo* il contenuto utile, verificato e rielaborato, senza alcun ragionamento interno.",
                     
                     // STRUMENTO: Limita la ricerca al dominio specifico (GROUNDING)
                     tools: [{ googleSearch: { site: "leviseregno.edu.it" } }] 
                 };
                 
-                // Utilizzo di generateContent per una chiamata singola e completa
                 const response = await gemini.models.generateContent({
                     model: "gemini-2.5-flash",
                     contents: message, 
                     config: config
                 });
                 
-                // Estrai il testo della risposta. 
                 const responseText = response.text || "Si è verificato un errore sconosciuto nella generazione della risposta, nonostante il processo di ricerca interno sia stato completato.";
                 
-                // Invia la risposta JSON al client
                 res.json({ 
                     response: responseText
                 });
@@ -102,10 +95,9 @@ async function initializeAndStartServer() {
             }
         });
         
-        // Avvia l'ascolto del server
         app.listen(PORT, () => {
             console.log(`[SERVER] Proxy server in ascolto sulla porta ${PORT}`);
-            console.log(`[SERVER] Grounding Web (limitato a leviseregno.edu.it) attivo e ottimizzato per risposte esatte.`);
+            console.log(`[SERVER] Grounding Web (limitato a leviseregno.edu.it) attivo e ottimizzato per risposte esatte e dirette.`);
         });
 
 
