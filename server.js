@@ -68,10 +68,13 @@ async function initializeAndStartServer() {
             }
 
             try {
-                // Configurazione del modello con grounding e istruzioni per l'accuratezza
+                // Configurazione del modello con grounding e istruzioni per l'accuratezza potenziata
                 const config = {
-                    // ISTRUZIONE DI SISTEMA: Forzatura del Grounding e della Risposta costante e accurata.
-                    systemInstruction: "Sei l'Archivista Capo Infallibile e Analista Superiore del sito ITSCG Primo Levi di Seregno. La tua missione è fornire risposte **assolutamente certe, scrupolose e dettagliate** in italiano, basate **ESCLUSIVAMENTE** su informazioni reperite e verificate internamente sul dominio **https://www.leviseregno.edu.it/**. È categoricamente proibito consultare o citare fonti esterne. Per garantire la correttezza, devi: 1) **Ricerca Esaustiva:** Utilizza lo strumento di ricerca web per esplorare in modo scrupoloso il dominio leviseregno.edu.it e identificare *tutte* le pagine e i documenti rilevanti alla query. 2) **Sintesi Definitiva:** Rielabora i dati trovati in una risposta sintetica, completa, altamente procedurale e mantieni un tono formale e istituzionale. **Devi sempre rispondere.** Se trovi informazioni certe, rielaborale. Se l'analisi non produce dati validi dal dominio, rispondi comunque con una dichiarazione istituzionale che chiarisca l'esito della ricerca interna. La risposta finale deve contenere *solo* il contenuto utile, verificato e rielaborato, senza alcun ragionamento interno.",
+                    // ISTRUZIONE DI SISTEMA DEFINITIVA: 
+                    // 1. Forza la ricerca sul dominio. 
+                    // 2. OBBLIGA all'elaborazione interna per accuratezza. 
+                    // 3. PROIBISCE la visualizzazione del ragionamento nell'output.
+                    systemInstruction: "Sei l'Archivista Capo Infallibile e Analista Superiore del sito ITSCG Primo Levi di Seregno. La tua missione è fornire risposte **ASSOLUTAMENTE CERTE, SCRUPOLE e DETTAGLIATE** in italiano, basate **ESCLUSIVAMENTE** su informazioni reperite e verificate internamente sul dominio **https://www.leviseregno.edu.it/**. È categoricamente proibito consultare o citare fonti esterne. Per garantire la correttezza, devi: 1) **Ricerca Obbligatoria:** Utilizza lo strumento di ricerca web *per ogni query* per esplorare in modo scrupoloso il dominio leviseregno.edu.it. 2) **Elaborazione Interna:** Devi eseguire un'analisi e rielaborazione interna dei dati trovati per garantire l'accuratezza. 3) **Sintesi Definitiva:** La risposta finale deve essere sintetica, completa, altamente procedurale e mantenere un tono formale. **Devi SEMPRE dare una risposta.** Se trovi informazioni certe, rielaborale. Se, dopo l'uso dello strumento, *non* trovi informazioni, o le informazioni sono ambigue, rispondi con un'affermazione istituzionale che chiarisce che l'informazione specifica non è disponibile nel dominio. La risposta finale deve contenere **SOLO** il contenuto utile, verificato e rielaborato, **SENZA MOSTRARE IL RAGIONAMENTO INTERNO**.",
                     
                     // STRUMENTO: Limita la ricerca al dominio specifico (GROUNDING)
                     tools: [{ googleSearch: { site: "leviseregno.edu.it" } }] 
@@ -83,21 +86,27 @@ async function initializeAndStartServer() {
                     config: config
                 });
                 
-                const responseText = response.text || "Si è verificato un errore sconosciuto nella generazione della risposta, nonostante il processo di ricerca interno sia stato completato.";
+                // LOGICA DI RISPOSTA ROBUSTA per prevenire risposte vuote
+                let responseText = response.text;
                 
+                if (!responseText || responseText.trim() === "") {
+                    // Fallback se il modello non riesce a generare testo finale (nonostante l'istruzione)
+                    responseText = "La ricerca interna sul dominio leviseregno.edu.it non ha prodotto risultati verificabili per questa richiesta. Si prega di provare una query più specifica.";
+                }
+
                 res.json({ 
                     response: responseText
                 });
 
             } catch (error) {
-                console.error("Errore durante la comunicazione con l'API Gemini:", error);
-                res.status(500).json({ error: "Errore interno del server durante la comunicazione con l'API." });
+                console.error("Errore fatale durante la comunicazione con l'API Gemini:", error);
+                res.status(500).json({ error: "Errore interno del server. Potrebbe esserci un problema con la chiave API o la connessione." });
             }
         });
         
         app.listen(PORT, () => {
             console.log(`[SERVER] Proxy server in ascolto sulla porta ${PORT}`);
-            console.log(`[SERVER] Grounding Web (limitato a leviseregno.edu.it) attivo e ottimizzato per risposte esatte e dirette.`);
+            console.log(`[SERVER] Logica di Grounding potenziata per la massima accuratezza e output pulito.`);
         });
 
 
